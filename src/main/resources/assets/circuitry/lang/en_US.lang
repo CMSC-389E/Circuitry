@@ -1,4 +1,2 @@
-{
-	"block.circuitry.in_node": "In Node",
-	"block.circuitry.out_node": "out Node"
-}
+tile.circuitry.in_node.name=In Node
+tile.circuitry.out_node.name=Out Node

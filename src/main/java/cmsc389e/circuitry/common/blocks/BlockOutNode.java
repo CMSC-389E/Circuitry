@@ -28,10 +28,9 @@ public class BlockOutNode extends BlockNode {
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn,
 	    EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-	if (!worldIn.isRemote) {
-	    worldIn.setBlockState(pos, state.cycleProperty(powered));
-	    return false;
-	}
-	return true;
+	if (worldIn.isRemote)
+	    return true;
+	cyclePowered(worldIn, pos, state);
+	return false;
     }
 }

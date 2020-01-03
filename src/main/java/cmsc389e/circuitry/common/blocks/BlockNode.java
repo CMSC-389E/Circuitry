@@ -9,9 +9,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class BlockNode extends Block {
-    protected static PropertyBool powered = PropertyBool.create("powered");
+    private static PropertyBool powered = PropertyBool.create("powered");
+
+    protected static void cyclePowered(World worldIn, BlockPos pos, IBlockState state) {
+	worldIn.setBlockState(pos, state.cycleProperty(powered));
+    }
 
     protected static boolean isPowered(IBlockState state) {
 	return state.getValue(powered);
