@@ -1,0 +1,9 @@
+[{
+	"modid": "circuitry",
+	"name": "CMSC 389E Circuitry",
+	"version": "${version}",
+	"mcversion": "${mcversion}",
+	"url": "https://github.com/JamieBrassel/CMSC-389E-Circuitry",
+	"authorList": ["Jamie Brassel"],
+	"logoFile": "assets/circuitry/textures/logo.png"
+}]
