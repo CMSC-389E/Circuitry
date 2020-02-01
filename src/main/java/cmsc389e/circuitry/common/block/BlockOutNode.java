@@ -22,6 +22,11 @@ public class BlockOutNode extends BlockNode {
     }
 
     @Override
+    protected String nextTag() {
+	return "outTest";
+    }
+
+    @Override
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
 	update(world, pos, state);
     }

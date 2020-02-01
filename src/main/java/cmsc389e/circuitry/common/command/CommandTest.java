@@ -5,15 +5,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import cmsc389e.circuitry.common.block.BlockInNode;
 import cmsc389e.circuitry.common.block.BlockNode;
 import cmsc389e.circuitry.common.block.BlocksCircuitry;
-import cmsc389e.circuitry.common.world.NodeWorldSavedData;
+import cmsc389e.circuitry.common.world.data.NodeWorldSavedData;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -150,8 +154,8 @@ public class CommandTest extends CommandBase {
 		throw new CommandException("You must pass a valid time length (or none at all).", new Object[0]);
 	    }
 	World world = sender.getEntityWorld();
-	List<BlockPos> inputs = getInputs(world);
-	List<BlockPos> outputs = getOutputs(world);
+	Collection<BlockPos> inputs = getInputs(world);
+	Collection<BlockPos> outputs = getOutputs(world);
 	boolean fullrun = true; // looks like i removed an old parameter really jankily
 	String results = "";
 	sender.sendMessage(new TextComponentString(Arrays.toString(keys)));
@@ -163,16 +167,18 @@ public class CommandTest extends CommandBase {
 	    for (int i = 0; i < run.length; i++) {
 		String dest = keys[i]; // get the current tag
 		if (dest.charAt(0) == 'i') { // match for input block
-		    List<BlockPos> matches = getInputMatches(dest, inputs); // list of input blocks in the world
+		    List<BlockPos> matches = getMatches(dest, world, inputs); // list of input blocks in the
+									      // world
 		    if ("n".equals(options) && matches.size() > 1) // earlier if there was a line saying "n" in settings
 								   // then no duplicate inputs are allowed
 			throw new CommandException("Duplicate inputs are not allowed for this project.");
 		    if (matches.size() == 0)
 			throw new CommandException("You are missing input block: " + dest, new Object[0]);
 		    // turn all blocks to appropriate states
-		    for (BlockPos t : matches) // set all blocks in the world with matching label to be desired state
-					       // (convert to bool)
-			BlockNode.setPowered(world, t, world.getBlockState(t), run[i].equals("1"));
+		    // set all blocks in the world with matching label to be desired state
+		    // (convert to bool)
+		    for (BlockPos pos : matches)
+			BlockNode.setPowered(world, pos, world.getBlockState(pos), run[i].equals("1"));
 		} else if (!run[i].equals("o")) {
 		    expectedOutputs.put(dest, run[i].equals("1")); // add the output expected value to match for
 		    entriesInOrder.add(dest);
@@ -224,7 +230,7 @@ public class CommandTest extends CommandBase {
 			    target = j;
 		    }
 		boolean key = expectedOutputs.get(next); // answer key
-		List<BlockPos> matches = getOutputMatches(next, outputs); // matching blocks for current
+		List<BlockPos> matches = getMatches(next, world, outputs); // matching blocks for current
 		if (matches.size() == 0)
 		    throw new CommandException("You are missing output block: " + next, new Object[0]);
 		boolean state = false;
@@ -238,8 +244,9 @@ public class CommandTest extends CommandBase {
 			sender.sendMessage(new TextComponentString("Test interrupted while game paused."));
 		    }
 
-		for (BlockPos match : matches) { // janky way of asserting that all blocks for a specific label are the
-						 // same
+		for (BlockPos match : matches) { // janky way of asserting that all blocks for a specific label
+						 // are the
+		    // same
 		    boolean curstate = BlockNode.isPowered(world.getBlockState(match));
 		    if (!set) {
 			set = true;
@@ -252,12 +259,13 @@ public class CommandTest extends CommandBase {
 		}
 
 		if (consistent) { // this builds up the outputs for the test ('e' for inconsistent) t / f else.
-		    if (BlockNode.isPowered(world.getBlockState(matches.get(0))) != key) {
+		    boolean powered = BlockNode.isPowered(world.getBlockState(matches.get(0)));
+		    if (powered != key) {
 			testPassed = false;
 			results += "false\n";
 		    } else
 			results += "true\n";
-		    actual += (BlockNode.isPowered(world.getBlockState(matches.get(0))) ? 1 : 0) + " ";
+		    actual += (powered ? 1 : 0) + " ";
 		} else {
 		    testPassed = false;
 		    actual += "e ";
@@ -291,48 +299,44 @@ public class CommandTest extends CommandBase {
     }
 
     /**
+     * gibberish to get all of the inputs block
+     *
+     * More specficially, the code calls the static
+     * {@link NodeWorldSavedData#get(World)} to get an instance of saved data for
+     * the given {@link World}. Then it asks for the {@link Collection} of
+     * {@link BlockInNode}s stored.
+     */
+    static Collection<BlockPos> getInputs(World world) {
+	return getNodes(world, BlocksCircuitry.IN_NODE);
+    }
+
+    /**
      * go through each block and pick the ones whose tags match the search filter
      */
-    public static List<BlockPos> getInputMatches(String key, List<BlockPos> l) {
-	List<BlockPos> matches = new LinkedList<>();
+    public static List<BlockPos> getMatches(String key, World world, Collection<BlockPos> poses) {
+	List<BlockPos> matches = new ArrayList<>();
 
-	for (BlockPos t : l)
-	    if (key.equals(getTag(t)))
-		matches.add(t);
+	poses.forEach(pos -> {
+	    if (key.equals(getTag(world, pos)))
+		matches.add(pos);
+	});
 
 	return matches;
     }
 
-    /**
-     * gibberish to get all of the inputs block
-     */
-    static List<BlockPos> getInputs(World world) {
-	return new LinkedList<>(NodeWorldSavedData.get(world).getBlockData(BlocksCircuitry.IN_NODE));
-    }
-
-    /**
-     * Same filter for output blocks. Totally unnecessary method. Could be scrapped.
-     */
-    private static List<BlockPos> getOutputMatches(String key, List<BlockPos> l) {
-	List<BlockPos> matches = new LinkedList<>();
-
-	for (BlockPos t : l)
-	    if (key.equals(getTag(t)))
-		matches.add(t);
-
-	return matches;
+    private static Collection<BlockPos> getNodes(World world, Block node) {
+	return NodeWorldSavedData.get(world).getPos(node);
     }
 
     /**
      * gibberish to get all of the output blocks.
      */
-    private static List<BlockPos> getOutputs(World world) {
-	return new LinkedList<>(NodeWorldSavedData.get(world).getBlockData(BlocksCircuitry.OUT_NODE));
+    private static Collection<BlockPos> getOutputs(World world) {
+	return getNodes(world, BlocksCircuitry.OUT_NODE);
     }
 
-    private static String getTag(BlockPos t) {
-	// why is this empty?
-	return null;
+    private static String getTag(World world, BlockPos pos) {
+	return NodeWorldSavedData.get(world).getTag(pos);
     }
 
     @Override
