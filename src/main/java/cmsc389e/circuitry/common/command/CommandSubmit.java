@@ -78,16 +78,18 @@ public class CommandSubmit extends CommandBase {
 		InputStream testFile = new URL("http://www.cs.umd.edu/~abrassel/proj"
 			+ worldname.charAt(worldname.length() - 1) + part + "tests.txt").openStream();
 		boolean valid = IOUtils.contentEquals(testFile, new ByteArrayInputStream(CommandTest.testFile));
-		//test to make sure the submission is valid by comparing against the site file.
+		// test to make sure the submission is valid by comparing against the site file.
 		if (!valid)
 		    throw new CommandException(
 			    "You must revert your testing framework to the default project testing setup in order to submit your project.",
 			    new Object[0]);
 
 		FileInputStream in = new FileInputStream(Paths.get("submit", "submit.txt").toFile());
-		byte[] mask = Files.readAllBytes(Paths.get("submit", "submit.txt")); //filter based on contents of submit.txt
+		byte[] mask = Files.readAllBytes(Paths.get("submit", "submit.txt")); // filter based on contents of
+										     // submit.txt
 		in.close();
-		//this is why we have the project names restricted so that we can access the world hidden info file.
+		// this is why we have the project names restricted so that we can access the
+		// world hidden info file.
 		try {
 		    in = new FileInputStream(Paths.get("saves", worldname, ".info").toFile());
 		} catch (IOException e) {
@@ -114,8 +116,8 @@ public class CommandSubmit extends CommandBase {
 			.getBytes();
 		byte[] message = new byte[test.length + users.length];
 		byte[] correctWorld = ("\nWorld: " + sender.getEntityWorld().getWorldInfo().getWorldName()).getBytes();
-		
-		//this is symmetric xor time
+
+		// this is symmetric xor time
 		for (int i = 0; i < test.length; i++)
 		    message[i] = (byte) (test[i] ^ mask[i % mask.length]);
 		for (int i = 0; i < users.length; i++)
@@ -123,14 +125,14 @@ public class CommandSubmit extends CommandBase {
 		for (int i = 0; i < correctWorld.length; i++)
 		    message[i + test.length] = (byte) (users[i] ^ mask[(i + test.length) % mask.length]);
 
-		//create dummy hello.java file so submit server doesn't bork.
+		// create dummy hello.java file so submit server doesn't bork.
 		File dummy = Paths.get("submit", "hello.java").toFile();
 		if (!dummy.exists())
 		    dummy.createNewFile();
 		FileOutputStream file = new FileOutputStream(Paths.get("submit", "results.txt").toFile());
 		file.write(message);
 		file.close();
-		//launch the borrowed submit.jar to do the rest of the heavy lifting.
+		// launch the borrowed submit.jar to do the rest of the heavy lifting.
 		Process p = Runtime.getRuntime().exec("java -jar submit.jar", null,
 			Paths.get(System.getProperty("user.dir"), "submit").toFile());
 		/**

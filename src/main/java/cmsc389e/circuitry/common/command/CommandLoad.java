@@ -37,19 +37,19 @@ public class CommandLoad extends CommandBase {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-	//reset the info for the testing setup so that it can't use past testing data.
+	// reset the info for the testing setup so that it can't use past testing data.
 	CommandSubmit.mostRecentTestRun = null;
 	CommandTest.keys = null;
 	CommandTest.runs = null;
 	CommandTest.testFile = null;
 	CommandTest.testCount = 0;
 	File jartest = new File("submit.jar");
-	if (!jartest.exists()) { //if submit.jar does not exist, then we need to retrieve it.
+	if (!jartest.exists()) { // if submit.jar does not exist, then we need to retrieve it.
 	    InputStream loadsubmitjar = null;
 	    try {
-		loadsubmitjar = new URL("http://www.cs.umd.edu/~abrassel/submit.jar").openStream(); //get it
-		Files.copy(loadsubmitjar, Paths.get("submit.jar"), StandardCopyOption.REPLACE_EXISTING); //write it
-	    } catch (MalformedURLException e) { //sometimes the URL is invalid, so it should gracefully fail here.
+		loadsubmitjar = new URL("http://www.cs.umd.edu/~abrassel/submit.jar").openStream(); // get it
+		Files.copy(loadsubmitjar, Paths.get("submit.jar"), StandardCopyOption.REPLACE_EXISTING); // write it
+	    } catch (MalformedURLException e) { // sometimes the URL is invalid, so it should gracefully fail here.
 		throw new CommandException("Tried to load an invalid submit.jar url: " + e.getMessage());
 	    } catch (IOException e) {
 		throw new CommandException("Could not read remote submit.jar into local submit.jar");
@@ -61,23 +61,28 @@ public class CommandLoad extends CommandBase {
 		}
 	    }
 
-	} //at this point, we have verified that submit.jar does indeed exist.
-	if (args.length == 1) { //usage: load <proj#>
+	} // at this point, we have verified that submit.jar does indeed exist.
+	if (args.length == 1) { // usage: load <proj#>
 	    sender.sendMessage(new TextComponentString(
-		    "Attempting to read project file " + args[0] + " from www.cs.umd.edu/~abrassel")); //hardcoded load url
+		    "Attempting to read project file " + args[0] + " from www.cs.umd.edu/~abrassel")); // hardcoded load
+												       // url
 	    try {
-		InputStream tests = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "tests.txt") //get tests
+		InputStream tests = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "tests.txt") // get tests
 			.openStream();
-		InputStream submit = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "submit").openStream(); //get proj framework
+		InputStream submit = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "submit").openStream(); // get
+															// proj
+															// framework
 		InputStream submit2 = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "submit").openStream();
 
 		try {
 		    File f = new File("submit");
 		    if (!f.exists()) {
-			/**this chunk creates a folder called submit if none already exists and adds submit.jar to it.
-			*we're eventually going to be submitting this folder, since submit.jar submits everything,
-			*and we don't want extra gunk such as huge worlds hanging around
-			*/
+			/**
+			 * this chunk creates a folder called submit if none already exists and adds
+			 * submit.jar to it. we're eventually going to be submitting this folder, since
+			 * submit.jar submits everything, and we don't want extra gunk such as huge
+			 * worlds hanging around
+			 */
 			f.mkdir();
 			FileInputStream jarin = new FileInputStream("submit.jar");
 			FileOutputStream jarout = new FileOutputStream(Paths.get("submit", "submit.jar").toFile());
@@ -85,15 +90,25 @@ public class CommandLoad extends CommandBase {
 			jarin.close();
 			jarout.close();
 		    }
-		    //write all of the files
+		    // write all of the files
 		    Files.copy(tests, Paths.get("tests.txt"), StandardCopyOption.REPLACE_EXISTING);
-		    Files.copy(submit, Paths.get("submit", "submit.txt"), StandardCopyOption.REPLACE_EXISTING); //two copies of submit file?? not sure why i have this here
+		    Files.copy(submit, Paths.get("submit", "submit.txt"), StandardCopyOption.REPLACE_EXISTING); // two
+														// copies
+														// of
+														// submit
+														// file??
+														// not
+														// sure
+														// why i
+														// have
+														// this
+														// here
 		    Files.copy(submit2, Paths.get("submit", ".submit"), StandardCopyOption.REPLACE_EXISTING);
 		    submit.close();
 		    submit2.close();
 		    tests.close();
 
-		    CommandTest.runs = null; //reset info for the testing framework (static vars)
+		    CommandTest.runs = null; // reset info for the testing framework (static vars)
 		    CommandTest.keys = null;
 
 		    sender.sendMessage(new TextComponentString(
@@ -115,9 +130,10 @@ public class CommandLoad extends CommandBase {
 	    }
 	}
 
-	else if (args.length != 2 || (!args[0].equals("submit") && !args[0].equals("test")))
+	else if (args.length != 2 || !args[0].equals("submit") && !args[0].equals("test"))
 	    throw new CommandException("\"/load <submit/test> <pathto>\"", new Object[0]);
-	else if (args[0].equals("submit")) { //holdover command to reload the submit portion.  Unused can probably be deleted.
+	else if (args[0].equals("submit")) { // holdover command to reload the submit portion. Unused can probably be
+					     // deleted.
 	    FileInputStream in;
 	    FileInputStream in2;
 	    FileOutputStream out;
@@ -131,7 +147,7 @@ public class CommandLoad extends CommandBase {
 			new Object[0]);
 	    }
 
-	    try {https://github.com/JamieBrassel/CMSC-389E-Circuitry/edit/master/src/main/java/cmsc389e/circuitry/common/command/CommandLoad.java
+	    try {
 		File f = new File("submit");
 		if (!f.exists()) {
 		    f.mkdir();
@@ -161,7 +177,7 @@ public class CommandLoad extends CommandBase {
 		e.printStackTrace();
 	    }
 	} else {
-	    //locally load a testing setup - also not really used anymore.
+	    // locally load a testing setup - also not really used anymore.
 	    CommandTest.runs = null;
 	    CommandTest.keys = null;
 	    FileInputStream in;
@@ -199,14 +215,15 @@ public class CommandLoad extends CommandBase {
 
 	}
 
-	//after above shenanigans are done, we proceed to verify that the loaded test framework is correct.
+	// after above shenanigans are done, we proceed to verify that the loaded test
+	// framework is correct.
 	try {
 	    BufferedReader tests = new BufferedReader(new FileReader("tests.txt"));
 	    tests.readLine();
-	    String[] things = tests.readLine().split("\t"); //each column is tab delimited. we read in the header row.
+	    String[] things = tests.readLine().split("\t"); // each column is tab delimited. we read in the header row.
 	    List<String> ins = new LinkedList<>();
 	    List<String> outs = new LinkedList<>();
-	    for (String label : things) //iterate through and determine what the labels for the test are.
+	    for (String label : things) // iterate through and determine what the labels for the test are.
 		if (label.charAt(0) == 'i')
 		    ins.add(label);
 		else if (label.charAt(0) == 'o')

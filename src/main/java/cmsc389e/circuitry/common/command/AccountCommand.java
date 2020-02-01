@@ -21,16 +21,16 @@ public class AccountCommand extends CommandBase {
 
 	try {
 	    /**
-	    * Try to delete the the submit requirement files if they exist.
-	    * This is done because the submit.jar file automatically generates them iff they do not yet exist.
-	    * So by deleting them we ensure that we force a direct regeneration
-	    */
+	     * Try to delete the the submit requirement files if they exist. This is done
+	     * because the submit.jar file automatically generates them iff they do not yet
+	     * exist. So by deleting them we ensure that we force a direct regeneration
+	     */
 	    Files.deleteIfExists(Paths.get("submit", ".submitUser"));
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
 
-	CommandSubmit.uname = args[0]; //we set the static vars for the submit command for later.
+	CommandSubmit.uname = args[0]; // we set the static vars for the submit command for later.
 	CommandSubmit.pwd = args[1];
 
 	sender.sendMessage(new TextComponentString("Identity created - will be verified upon submission"));

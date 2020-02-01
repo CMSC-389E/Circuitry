@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @EventBusSubscriber
 public class BlocksCircuitry {
-    public static final Block IN_NODE = new BlockInNode(), OUT_NODE = new BlockOutNode();
+    public static final Block IN_NODE = new BlockOutNode(), OUT_NODE = new BlockInNode();
 
     @SubscribeEvent
     public static void registerBlocks(Register<Block> event) {

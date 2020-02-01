@@ -1,0 +1,13 @@
+# Directories
+.gradle
+bin
+gradle
+run
+
+# Files
+.classpath
+.project
+*.launch
+gradlew
+gradlew.bat
+*.launch

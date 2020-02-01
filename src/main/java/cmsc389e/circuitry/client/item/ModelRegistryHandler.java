@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * Registers {@link BlockInNode} and {@link BlockOutNode} item models so that
+ * Registers {@link BlockOutNode} and {@link BlockInNode} item models so that
  * they display correctly in the inventory.
  */
 @EventBusSubscriber

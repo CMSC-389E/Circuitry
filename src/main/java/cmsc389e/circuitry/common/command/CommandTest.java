@@ -40,19 +40,19 @@ public class CommandTest extends CommandBase {
 	public void run() {
 	    while (lock)
 		try {
-		    Thread.sleep(500); //wait for awhile to wait for the "lock" which is just a boolean var
+		    Thread.sleep(500); // wait for awhile to wait for the "lock" which is just a boolean var
 		} catch (InterruptedException e1) {
 		    e1.printStackTrace();
 		}
 
 	    sender.sendMessage(new TextComponentString("\n===============================\n=========Running Test "
 		    + testCount + (testCount < 10 ? " " : "") + "=========\n==============================="));
-	    lock = true; //this appears to be a useless line unless its hacking a race condition
+	    lock = true; // this appears to be a useless line unless its hacking a race condition
 	    try {
 		execute2(server, sender, args, new TestRun());
 		lock = false;
 	    } catch (CommandException e) {
-		testCount--; //make sure the test ends properly and gracefully in case of crash
+		testCount--; // make sure the test ends properly and gracefully in case of crash
 		sender.sendMessage(new TextComponentString(e.getLocalizedMessage()));
 		lock = false;
 	    } finally {
@@ -88,7 +88,8 @@ public class CommandTest extends CommandBase {
 
     public static void execute2(MinecraftServer server, ICommandSender sender, String[] args, TestRun test)
 	    throws CommandException {
-	if (runs == null) { //runs is apparently a badly named variable which is just the actual contents of the test
+	if (runs == null) { // runs is apparently a badly named variable which is just the actual contents
+			    // of the test
 	    // set up
 	    FileReader in;
 	    try {
@@ -108,7 +109,7 @@ public class CommandTest extends CommandBase {
 		keys = i.readLine().split("\t");
 		String line = null;
 		while ((line = i.readLine()) != null) {
-		    if (line.isEmpty() || line.charAt(0) == '#') //janky comment and whitespace detection
+		    if (line.isEmpty() || line.charAt(0) == '#') // janky comment and whitespace detection
 			continue;
 		    String[] map = line.split("\t");
 		    if (map.length == 0)
@@ -140,7 +141,7 @@ public class CommandTest extends CommandBase {
 	if (args.length > 2 && !Arrays.asList(args).contains("-norepeat") && !Arrays.asList(args).contains("-nr"))
 	    throw new CommandException("/test [delay] [gate] [-nr/-norepeat]", new Object[0]);
 
-	double delay = 0; //approx time between tests
+	double delay = 0; // approx time between tests
 
 	if (args.length >= 1 && args[0].matches("\\d*\\.?\\d+"))
 	    try {
@@ -151,7 +152,7 @@ public class CommandTest extends CommandBase {
 	World world = sender.getEntityWorld();
 	List<BlockPos> inputs = getInputs(world);
 	List<BlockPos> outputs = getOutputs(world);
-	boolean fullrun = true; //looks like i removed an old parameter really jankily
+	boolean fullrun = true; // looks like i removed an old parameter really jankily
 	String results = "";
 	sender.sendMessage(new TextComponentString(Arrays.toString(keys)));
 	boolean filter = Arrays.asList(args).contains("-norepeat") || Arrays.asList(args).contains("-nr");
@@ -161,24 +162,26 @@ public class CommandTest extends CommandBase {
 	    List<String> entriesInOrder = new LinkedList<>();
 	    for (int i = 0; i < run.length; i++) {
 		String dest = keys[i]; // get the current tag
-		if (dest.charAt(0) == 'i') { //match for input block
-		    List<BlockPos> matches = getInputMatches(dest, inputs); //list of input blocks in the world
-		    if ("n".equals(options) && matches.size() > 1) //earlier if there was a line saying "n" in settings then no duplicate inputs are allowed
+		if (dest.charAt(0) == 'i') { // match for input block
+		    List<BlockPos> matches = getInputMatches(dest, inputs); // list of input blocks in the world
+		    if ("n".equals(options) && matches.size() > 1) // earlier if there was a line saying "n" in settings
+								   // then no duplicate inputs are allowed
 			throw new CommandException("Duplicate inputs are not allowed for this project.");
 		    if (matches.size() == 0)
 			throw new CommandException("You are missing input block: " + dest, new Object[0]);
 		    // turn all blocks to appropriate states
-		    for (BlockPos t : matches) //set all blocks in the world with matching label to be desired state (convert to bool)
+		    for (BlockPos t : matches) // set all blocks in the world with matching label to be desired state
+					       // (convert to bool)
 			BlockNode.setPowered(world, t, world.getBlockState(t), run[i].equals("1"));
 		} else if (!run[i].equals("o")) {
-		    expectedOutputs.put(dest, run[i].equals("1")); //add the output expected value to match for
+		    expectedOutputs.put(dest, run[i].equals("1")); // add the output expected value to match for
 		    entriesInOrder.add(dest);
 		}
 
 	    }
 
-	    lock = false; //release the lock so the game can continue to game cycle.
-	    try { //delay for a set amount of time 
+	    lock = false; // release the lock so the game can continue to game cycle.
+	    try { // delay for a set amount of time
 		if (delay == 0)
 		    Thread.sleep(500);
 		else
@@ -190,7 +193,7 @@ public class CommandTest extends CommandBase {
 
 	    while (lock || Minecraft.getMinecraft().isGamePaused())
 		try {
-		    Thread.sleep(500); //do not run the tests while the game is paused
+		    Thread.sleep(500); // do not run the tests while the game is paused
 		} catch (InterruptedException e) {
 		    e.printStackTrace();
 		}
@@ -200,7 +203,7 @@ public class CommandTest extends CommandBase {
 	    int j = -1;
 	    for (String next : entriesInOrder) {
 		j++;
-		if (args.length >= 1) //this bit seems to be for testing a specific line.  so fullrun does matter
+		if (args.length >= 1) // this bit seems to be for testing a specific line. so fullrun does matter
 		    if (args.length == 1 && !args[0].matches("\\d*.?\\d+") && args[0].charAt(0) != '-') {
 			fullrun = false;
 			if (!next.equals("o" + args[0].toUpperCase()))
@@ -220,8 +223,8 @@ public class CommandTest extends CommandBase {
 			else
 			    target = j;
 		    }
-		boolean key = expectedOutputs.get(next); //answer key
-		List<BlockPos> matches = getOutputMatches(next, outputs); //matching blocks for current
+		boolean key = expectedOutputs.get(next); // answer key
+		List<BlockPos> matches = getOutputMatches(next, outputs); // matching blocks for current
 		if (matches.size() == 0)
 		    throw new CommandException("You are missing output block: " + next, new Object[0]);
 		boolean state = false;
@@ -235,7 +238,8 @@ public class CommandTest extends CommandBase {
 			sender.sendMessage(new TextComponentString("Test interrupted while game paused."));
 		    }
 
-		for (BlockPos match : matches) { //janky way of asserting that all blocks for a specific label are the same
+		for (BlockPos match : matches) { // janky way of asserting that all blocks for a specific label are the
+						 // same
 		    boolean curstate = BlockNode.isPowered(world.getBlockState(match));
 		    if (!set) {
 			set = true;
@@ -247,7 +251,7 @@ public class CommandTest extends CommandBase {
 		    }
 		}
 
-		if (consistent) { //this builds up the outputs for the test ('e' for inconsistent) t / f else.
+		if (consistent) { // this builds up the outputs for the test ('e' for inconsistent) t / f else.
 		    if (BlockNode.isPowered(world.getBlockState(matches.get(0))) != key) {
 			testPassed = false;
 			results += "false\n";
@@ -263,32 +267,32 @@ public class CommandTest extends CommandBase {
 	    }
 
 	    String outTest = Arrays.toString(Arrays.copyOfRange(run, CommandLoad.inputs.length, run.length));
-	    //above just copies the output portion of the line of input / outputs
+	    // above just copies the output portion of the line of input / outputs
 	    if (!fullrun)
 		outTest = run[target + CommandLoad.inputs.length];
 	    TextComponentString out = new TextComponentString(
 		    Arrays.toString(Arrays.copyOf(run, CommandLoad.inputs.length)) + " | " + outTest + "  |  " + actual
-			    + " | " + (testPassed ? " P" : " F")); //this is just an info dump to the player
+			    + " | " + (testPassed ? " P" : " F")); // this is just an info dump to the player
 	    if (!testPassed)
 		out.getStyle().setColor(TextFormatting.DARK_RED);
 
 	    if (!filter || !testPassed)
 		sender.sendMessage(out);
 
-	    for (BlockPos i : inputs) //reset
+	    for (BlockPos i : inputs) // reset
 		BlockNode.setPowered(world, i, world.getBlockState(i), false);
 
 	}
 
 	test.setResult(results);
 	if (fullrun)
-	    CommandSubmit.mostRecentTestRun = test; //add this as a finished test run for submission later.
+	    CommandSubmit.mostRecentTestRun = test; // add this as a finished test run for submission later.
 	sender.sendMessage(new TextComponentString("Test finished successfully."));
     }
 
     /**
-    * go through each block and pick the ones whose tags match the search filter
-    */
+     * go through each block and pick the ones whose tags match the search filter
+     */
     public static List<BlockPos> getInputMatches(String key, List<BlockPos> l) {
 	List<BlockPos> matches = new LinkedList<>();
 
@@ -300,15 +304,15 @@ public class CommandTest extends CommandBase {
     }
 
     /**
-    * gibberish to get all of the inputs block 
-    */
+     * gibberish to get all of the inputs block
+     */
     static List<BlockPos> getInputs(World world) {
 	return new LinkedList<>(NodeWorldSavedData.get(world).getBlockData(BlocksCircuitry.IN_NODE));
     }
 
     /**
-    * Same filter for output blocks.  Totally unnecessary method.  Could be scrapped.
-    */
+     * Same filter for output blocks. Totally unnecessary method. Could be scrapped.
+     */
     private static List<BlockPos> getOutputMatches(String key, List<BlockPos> l) {
 	List<BlockPos> matches = new LinkedList<>();
 
@@ -320,9 +324,9 @@ public class CommandTest extends CommandBase {
     }
 
     /**
-    * gibberish to get all of the output blocks.
-    */
-    private static List<BlockPos> getOutputs(World world) { 
+     * gibberish to get all of the output blocks.
+     */
+    private static List<BlockPos> getOutputs(World world) {
 	return new LinkedList<>(NodeWorldSavedData.get(world).getBlockData(BlocksCircuitry.OUT_NODE));
     }
 
@@ -335,7 +339,7 @@ public class CommandTest extends CommandBase {
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 	Task t = new Task(server, sender, args);
 
-	//we launch a new thread so that the game doesnt freeze while the tests runs.
+	// we launch a new thread so that the game doesnt freeze while the tests runs.
 	Thread th = new Thread(t);
 	runningTest = th;
 	th.start();
