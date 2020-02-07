@@ -26,14 +26,14 @@ public class BlockInNode extends BlockNode {
     }
 
     @Override
-    protected String nextTag() {
-	return "inTest";
+    protected String nextTag(World world, BlockPos pos) {
+	return "i" + nextTagInteger(world, pos);
     }
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
 	    EnumFacing facing, float hitX, float hitY, float hitZ) {
-	if (!super.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ)) {
+	if (!world.isRemote && super.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ)) {
 	    cyclePowered(world, pos, state);
 	    return false;
 	}

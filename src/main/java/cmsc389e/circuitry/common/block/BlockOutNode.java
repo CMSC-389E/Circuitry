@@ -22,8 +22,8 @@ public class BlockOutNode extends BlockNode {
     }
 
     @Override
-    protected String nextTag() {
-	return "outTest";
+    protected String nextTag(World world, BlockPos pos) {
+	return "o" + nextTagInteger(world, pos);
     }
 
     @Override

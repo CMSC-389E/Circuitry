@@ -16,7 +16,7 @@ import java.util.Map;
 import cmsc389e.circuitry.common.block.BlockInNode;
 import cmsc389e.circuitry.common.block.BlockNode;
 import cmsc389e.circuitry.common.block.BlocksCircuitry;
-import cmsc389e.circuitry.common.world.data.NodeWorldSavedData;
+import cmsc389e.circuitry.common.world.data.CircuitryWorldSavedData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -302,8 +302,8 @@ public class CommandTest extends CommandBase {
      * gibberish to get all of the inputs block
      *
      * More specficially, the code calls the static
-     * {@link NodeWorldSavedData#get(World)} to get an instance of saved data for
-     * the given {@link World}. Then it asks for the {@link Collection} of
+     * {@link CircuitryWorldSavedData#get(World)} to get an instance of saved data
+     * for the given {@link World}. Then it asks for the {@link Collection} of
      * {@link BlockInNode}s stored.
      */
     static Collection<BlockPos> getInputs(World world) {
@@ -325,7 +325,7 @@ public class CommandTest extends CommandBase {
     }
 
     private static Collection<BlockPos> getNodes(World world, Block node) {
-	return NodeWorldSavedData.get(world).getPos(node);
+	return CircuitryWorldSavedData.get(world).get(node);
     }
 
     /**
@@ -336,7 +336,7 @@ public class CommandTest extends CommandBase {
     }
 
     private static String getTag(World world, BlockPos pos) {
-	return NodeWorldSavedData.get(world).getTag(pos);
+	return BlockNode.getTag(world, pos);
     }
 
     @Override
