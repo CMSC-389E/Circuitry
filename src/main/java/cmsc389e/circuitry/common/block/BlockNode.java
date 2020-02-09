@@ -1,8 +1,7 @@
 package cmsc389e.circuitry.common.block;
 
 import cmsc389e.circuitry.Circuitry;
-import cmsc389e.circuitry.ConfigCircuitry;
-import cmsc389e.circuitry.common.world.data.CircuitryWorldSavedData;
+import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -19,28 +18,40 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public abstract class BlockNode extends Block {
-    private static PropertyBool powered = PropertyBool.create("powered");
-
-    protected static void cyclePowered(World world, BlockPos pos, IBlockState state) {
-	world.setBlockState(pos, state.cycleProperty(powered));
-    }
+    private static final PropertyBool POWERED = PropertyBool.create("powered");
 
     public static String getTag(World world, BlockPos pos) {
-	return CircuitryWorldSavedData.get(world).get(pos);
+	return getTag(world, pos, world.getBlockState(pos));
+    }
+
+    public static String getTag(World world, BlockPos pos, IBlockState state) {
+	Integer tag = CircuitryWorldSavedData.get(world).get(pos);
+	if (tag != null) {
+	    String[] tags = ((BlockNode) state.getBlock()).getTags();
+	    return tags.length == 0 ? String.valueOf(tag) : tags[mod(tag, tags.length)];
+	}
+	return null;
     }
 
     public static boolean isPowered(IBlockState state) {
-	return state.getValue(powered);
+	return state.getValue(POWERED);
     }
 
-    protected static int nextTagInteger(World world, BlockPos pos) {
-	String tag = getTag(world, pos);
-	return tag == null ? 0 : (Integer.valueOf(tag.substring(1)) + 1) % ConfigCircuitry.tagLimit;
+    private static int mod(int tag, int mod) {
+	tag %= mod;
+	if (tag < 0)
+	    tag = mod + tag;
+	return tag;
     }
 
     public static void setPowered(World world, BlockPos pos, IBlockState state, boolean isPowered) {
 	if (isPowered(state) != isPowered)
-	    cyclePowered(world, pos, state);
+	    world.setBlockState(pos, state.cycleProperty(POWERED));
+    }
+
+    private static boolean shouldDecreaseTag(EntityPlayer player) {
+	// temporarily using sneaking
+	return player.isSneaking();
     }
 
     protected BlockNode(String registryName) {
@@ -57,7 +68,7 @@ public abstract class BlockNode extends Block {
 
     @Override
     public BlockStateContainer createBlockState() {
-	return new BlockStateContainer(this, powered);
+	return new BlockStateContainer(this, POWERED);
     }
 
     @Override
@@ -73,17 +84,17 @@ public abstract class BlockNode extends Block {
     @Deprecated
     @Override
     public IBlockState getStateFromMeta(int meta) {
-	return getDefaultState().withProperty(powered, meta == 1);
+	return getDefaultState().withProperty(POWERED, meta == 1);
     }
 
-    protected abstract String nextTag(World world, BlockPos pos);
+    protected abstract String[] getTags();
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
 	    EnumFacing facing, float hitX, float hitY, float hitZ) {
-	if (!world.isRemote && player.isSneaking()) {
-	    CircuitryWorldSavedData.get(world).put(pos, nextTag(world, pos));
-	    return false;
+	if (!world.isRemote) {
+	    CircuitryWorldSavedData data = CircuitryWorldSavedData.get(world);
+	    data.put(pos, data.get(pos) + (shouldDecreaseTag(player) ? -1 : 1));
 	}
 	return true;
     }
@@ -92,6 +103,6 @@ public abstract class BlockNode extends Block {
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer,
 	    ItemStack stack) {
 	if (!world.isRemote)
-	    CircuitryWorldSavedData.get(world).put(this, pos, nextTag(world, pos));
+	    CircuitryWorldSavedData.get(world).put(this, pos, 0);
     }
 }

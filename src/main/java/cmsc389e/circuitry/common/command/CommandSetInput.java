@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class CommandSetInput extends CommandBase {
-
     public static class TestRun {
 	String testResults;
 
@@ -27,18 +26,14 @@ public class CommandSetInput extends CommandBase {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-
 	World world = sender.getEntityWorld();
 	Collection<BlockPos> inputs = CommandTest.getInputs(world);
-
 	if (args.length != 2 && (args.length != 1 || !args[0].equals("off")))
 	    throw new CommandException("You must provide the desired input block as well as the desired state");
-
 	boolean state = false;
 	if (args.length == 2) // defaults to setting to false, but if a boolean val is provided, read that in
 			      // instead.
 	    state = Boolean.parseBoolean(args[1]);
-
 	if ("off".equals(args[0])) { // off command sets everything false instead of just one thing.
 	    for (BlockPos input : inputs)
 		BlockNode.setPowered(world, input, world.getBlockState(input), false);
@@ -50,7 +45,6 @@ public class CommandSetInput extends CommandBase {
 												     // for the block
 	for (BlockPos match : matches)
 	    BlockNode.setPowered(world, match, world.getBlockState(match), state); // set the block
-
     }
 
     @Override

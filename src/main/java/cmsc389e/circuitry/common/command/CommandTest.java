@@ -13,10 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import cmsc389e.circuitry.ConfigCircuitry;
 import cmsc389e.circuitry.common.block.BlockInNode;
 import cmsc389e.circuitry.common.block.BlockNode;
 import cmsc389e.circuitry.common.block.BlocksCircuitry;
-import cmsc389e.circuitry.common.world.data.CircuitryWorldSavedData;
+import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -82,11 +83,8 @@ public class CommandTest extends CommandBase {
     public static boolean lock = false;
     public static String options = null;
     public static Thread runningTest = null;
-
     public static List<String[]> runs = null;
-
     public static int testCount = 0;
-
     // public static String[] labels = null;
     public static byte[] testFile = null;
 
@@ -104,7 +102,6 @@ public class CommandTest extends CommandBase {
 			"initialize the test framework with \"/load test <path-to-tests>, or /load <proj#>\"",
 			new Object[0]);
 	    }
-
 	    BufferedReader i = new BufferedReader(in);
 	    runs = new LinkedList<>();
 	    try {
@@ -120,7 +117,6 @@ public class CommandTest extends CommandBase {
 			continue;
 		    runs.add(map);
 		}
-
 	    } catch (Exception e) {
 		try {
 		    i.close();
@@ -132,21 +128,16 @@ public class CommandTest extends CommandBase {
 		runs = null;
 		throw new CommandException("Test framework was improperly formatted", new Object[0]);
 	    }
-
 	    try {
 		i.close();
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	    }
-
 	}
-
 	if (args.length > 2 && !Arrays.asList(args).contains("-norepeat") && !Arrays.asList(args).contains("-nr"))
 	    throw new CommandException("/test [delay] [gate] [-nr/-norepeat]", new Object[0]);
-
 	double delay = 0; // approx time between tests
-
 	if (args.length >= 1 && args[0].matches("\\d*\\.?\\d+"))
 	    try {
 		delay = Double.valueOf(args[0]);
@@ -183,9 +174,7 @@ public class CommandTest extends CommandBase {
 		    expectedOutputs.put(dest, run[i].equals("1")); // add the output expected value to match for
 		    entriesInOrder.add(dest);
 		}
-
 	    }
-
 	    lock = false; // release the lock so the game can continue to game cycle.
 	    try { // delay for a set amount of time
 		if (delay == 0)
@@ -196,7 +185,6 @@ public class CommandTest extends CommandBase {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	    }
-
 	    while (lock || Minecraft.getMinecraft().isGamePaused())
 		try {
 		    Thread.sleep(500); // do not run the tests while the game is paused
@@ -236,14 +224,12 @@ public class CommandTest extends CommandBase {
 		boolean state = false;
 		boolean set = false;
 		boolean consistent = true;
-
 		while (Minecraft.getMinecraft().isGamePaused())
 		    try {
 			Thread.sleep(500);
 		    } catch (InterruptedException e) {
 			sender.sendMessage(new TextComponentString("Test interrupted while game paused."));
 		    }
-
 		for (BlockPos match : matches) { // janky way of asserting that all blocks for a specific label
 						 // are the
 		    // same
@@ -257,7 +243,6 @@ public class CommandTest extends CommandBase {
 			break;
 		    }
 		}
-
 		if (consistent) { // this builds up the outputs for the test ('e' for inconsistent) t / f else.
 		    boolean powered = BlockNode.isPowered(world.getBlockState(matches.get(0)));
 		    if (powered != key) {
@@ -271,27 +256,21 @@ public class CommandTest extends CommandBase {
 		    actual += "e ";
 		    results += "false \n";
 		}
-
 	    }
-
-	    String outTest = Arrays.toString(Arrays.copyOfRange(run, CommandLoad.inputs.length, run.length));
+	    String outTest = Arrays.toString(Arrays.copyOfRange(run, ConfigCircuitry.inputs.length, run.length));
 	    // above just copies the output portion of the line of input / outputs
 	    if (!fullrun)
-		outTest = run[target + CommandLoad.inputs.length];
+		outTest = run[target + ConfigCircuitry.inputs.length];
 	    TextComponentString out = new TextComponentString(
-		    Arrays.toString(Arrays.copyOf(run, CommandLoad.inputs.length)) + " | " + outTest + "  |  " + actual
-			    + " | " + (testPassed ? " P" : " F")); // this is just an info dump to the player
+		    Arrays.toString(Arrays.copyOf(run, ConfigCircuitry.inputs.length)) + " | " + outTest + "  |  "
+			    + actual + " | " + (testPassed ? " P" : " F")); // this is just an info dump to the player
 	    if (!testPassed)
 		out.getStyle().setColor(TextFormatting.DARK_RED);
-
 	    if (!filter || !testPassed)
 		sender.sendMessage(out);
-
 	    for (BlockPos i : inputs) // reset
 		BlockNode.setPowered(world, i, world.getBlockState(i), false);
-
 	}
-
 	test.setResult(results);
 	if (fullrun)
 	    CommandSubmit.mostRecentTestRun = test; // add this as a finished test run for submission later.
@@ -315,12 +294,10 @@ public class CommandTest extends CommandBase {
      */
     public static List<BlockPos> getMatches(String key, World world, Collection<BlockPos> poses) {
 	List<BlockPos> matches = new ArrayList<>();
-
 	poses.forEach(pos -> {
 	    if (key.equals(getTag(world, pos)))
 		matches.add(pos);
 	});
-
 	return matches;
     }
 
@@ -342,13 +319,11 @@ public class CommandTest extends CommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 	Task t = new Task(server, sender, args);
-
 	// we launch a new thread so that the game doesnt freeze while the tests runs.
 	Thread th = new Thread(t);
 	runningTest = th;
 	th.start();
 	testCount++;
-
     }
 
     @Override

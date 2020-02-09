@@ -6,6 +6,7 @@ run
 
 # Files
 .classpath
+.gitignore
 .project
 *.launch
 gradlew

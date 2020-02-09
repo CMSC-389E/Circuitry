@@ -1,5 +1,6 @@
 package cmsc389e.circuitry.common.block;
 
+import cmsc389e.circuitry.ConfigCircuitry;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -11,19 +12,19 @@ public class BlockOutNode extends BlockNode {
 	    setPowered(world, pos, state, world.isBlockPowered(pos));
     }
 
-    public BlockOutNode() {
+    protected BlockOutNode() {
 	super("out_node");
+    }
+
+    @Override
+    protected String[] getTags() {
+	return ConfigCircuitry.outputs;
     }
 
     @Deprecated
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
 	update(world, pos, state);
-    }
-
-    @Override
-    protected String nextTag(World world, BlockPos pos) {
-	return "o" + nextTagInteger(world, pos);
     }
 
     @Override

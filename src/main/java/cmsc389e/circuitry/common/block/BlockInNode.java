@@ -1,15 +1,13 @@
 package cmsc389e.circuitry.common.block;
 
+import cmsc389e.circuitry.ConfigCircuitry;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 public class BlockInNode extends BlockNode {
-    public BlockInNode() {
+    protected BlockInNode() {
 	super("in_node");
     }
 
@@ -19,24 +17,14 @@ public class BlockInNode extends BlockNode {
 	return true;
     }
 
+    @Override
+    protected String[] getTags() {
+	return ConfigCircuitry.inputs;
+    }
+
     @Deprecated
     @Override
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 	return isPowered(blockState) ? 15 : 0;
-    }
-
-    @Override
-    protected String nextTag(World world, BlockPos pos) {
-	return "i" + nextTagInteger(world, pos);
-    }
-
-    @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-	    EnumFacing facing, float hitX, float hitY, float hitZ) {
-	if (!world.isRemote && super.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ)) {
-	    cyclePowered(world, pos, state);
-	    return false;
-	}
-	return true;
     }
 }

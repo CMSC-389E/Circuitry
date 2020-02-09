@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
 import java.util.List;
 
+import cmsc389e.circuitry.ConfigCircuitry;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -30,10 +31,6 @@ public class CommandLoad extends CommandBase {
 	    testResults = newTest;
 	}
     }
-
-    public static String[] inputs = null; // the input column names for current testing setup
-
-    public static String[] outputs = null; // the output column names for the current testing setup
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
@@ -73,7 +70,6 @@ public class CommandLoad extends CommandBase {
 															// proj
 															// framework
 		InputStream submit2 = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "submit").openStream();
-
 		try {
 		    File f = new File("submit");
 		    if (!f.exists()) {
@@ -107,20 +103,16 @@ public class CommandLoad extends CommandBase {
 		    submit.close();
 		    submit2.close();
 		    tests.close();
-
 		    CommandTest.runs = null; // reset info for the testing framework (static vars)
 		    CommandTest.keys = null;
-
 		    sender.sendMessage(new TextComponentString(
 			    "Was able to successfully read project" + args[0] + " from www.cs.umd.edu/~abrassel"));
-
 		} catch (IOException e) {
 		    System.out.println(e.getMessage());
 		    throw new CommandException(
 			    "Missing submit.jar, or tests.txt was being used by another process.  Try running again.",
 			    new Object[0]);
 		}
-
 	    } catch (MalformedURLException e) {
 		e.printStackTrace();
 		throw new CommandException("This is not a valid project");
@@ -128,9 +120,7 @@ public class CommandLoad extends CommandBase {
 		e.printStackTrace();
 		throw new CommandException("This is not a valid project");
 	    }
-	}
-
-	else if (args.length != 2 || !args[0].equals("submit") && !args[0].equals("test"))
+	} else if (args.length != 2 || !args[0].equals("submit") && !args[0].equals("test"))
 	    throw new CommandException("\"/load <submit/test> <pathto>\"", new Object[0]);
 	else if (args[0].equals("submit")) { // holdover command to reload the submit portion. Unused can probably be
 					     // deleted.
@@ -138,7 +128,6 @@ public class CommandLoad extends CommandBase {
 	    FileInputStream in2;
 	    FileOutputStream out;
 	    FileOutputStream out2;
-
 	    try {
 		in = new FileInputStream(args[1]);
 		in2 = new FileInputStream(args[1]);
@@ -146,7 +135,6 @@ public class CommandLoad extends CommandBase {
 		throw new CommandException("The file you passed in is invalid: " + new File(args[1]).getAbsolutePath(),
 			new Object[0]);
 	    }
-
 	    try {
 		File f = new File("submit");
 		if (!f.exists()) {
@@ -167,7 +155,6 @@ public class CommandLoad extends CommandBase {
 	    } catch (IOException e) {
 		throw new CommandException("You done goofed A-A-ron.  Come find us.", new Object[0]);
 	    }
-
 	    try {
 		in.close();
 		out.close();
@@ -190,7 +177,6 @@ public class CommandLoad extends CommandBase {
 		throw new CommandException("The file you passed in is invalid: " + new File(args[1]).getAbsolutePath(),
 			new Object[0]);
 	    }
-
 	    try {
 		out.getChannel().transferFrom(in.getChannel(), 0, in.getChannel().size());
 	    } catch (IOException e) {
@@ -203,7 +189,6 @@ public class CommandLoad extends CommandBase {
 		}
 		throw new CommandException("You done goofed A-A-ron.  Come find us.", new Object[0]);
 	    }
-
 	    try {
 		in.close();
 		out.close();
@@ -212,9 +197,7 @@ public class CommandLoad extends CommandBase {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	    }
-
 	}
-
 	// after above shenanigans are done, we proceed to verify that the loaded test
 	// framework is correct.
 	try {
@@ -232,16 +215,14 @@ public class CommandLoad extends CommandBase {
 		    tests.close();
 		    throw new CommandException("The following label must start with i or o: " + label, new Object[0]);
 		}
-
-	    inputs = ins.toArray(new String[0]);
-	    outputs = outs.toArray(new String[0]);
+	    ConfigCircuitry.inputs = ins.toArray(new String[0]);
+	    ConfigCircuitry.outputs = outs.toArray(new String[0]);
+	    ConfigCircuitry.sync();
 	    tests.close();
 	} catch (IOException e) {
 	    throw new CommandException("There was some weird error with your tests file.", new Object[0]);
 	}
-
 	sender.sendMessage(new TextComponentString("Loaded passed file in correctly."));
-
     }
 
     @Override

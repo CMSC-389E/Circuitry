@@ -56,7 +56,6 @@ public class CommandSubmit extends CommandBase {
 	    }
 	    e.printStackTrace();
 	}
-
     }
 
     @Override
@@ -83,7 +82,6 @@ public class CommandSubmit extends CommandBase {
 		    throw new CommandException(
 			    "You must revert your testing framework to the default project testing setup in order to submit your project.",
 			    new Object[0]);
-
 		FileInputStream in = new FileInputStream(Paths.get("submit", "submit.txt").toFile());
 		byte[] mask = Files.readAllBytes(Paths.get("submit", "submit.txt")); // filter based on contents of
 										     // submit.txt
@@ -111,12 +109,10 @@ public class CommandSubmit extends CommandBase {
 		    }
 		else
 		    name = uname;
-
 		byte[] test = (mostRecentTestRun.testResults + "EOF\n" + (name != null ? name + "\nEOF\n" : ""))
 			.getBytes();
 		byte[] message = new byte[test.length + users.length];
 		byte[] correctWorld = ("\nWorld: " + sender.getEntityWorld().getWorldInfo().getWorldName()).getBytes();
-
 		// this is symmetric xor time
 		for (int i = 0; i < test.length; i++)
 		    message[i] = (byte) (test[i] ^ mask[i % mask.length]);
@@ -124,7 +120,6 @@ public class CommandSubmit extends CommandBase {
 		    message[i + test.length] = (byte) (users[i] ^ mask[(i + test.length) % mask.length]);
 		for (int i = 0; i < correctWorld.length; i++)
 		    message[i + test.length] = (byte) (users[i] ^ mask[(i + test.length) % mask.length]);
-
 		// create dummy hello.java file so submit server doesn't bork.
 		File dummy = Paths.get("submit", "hello.java").toFile();
 		if (!dummy.exists())
@@ -149,39 +144,32 @@ public class CommandSubmit extends CommandBase {
 			    sender.sendMessage(new TextComponentString("Problem with cleanup #2.  Aborting cleanup."));
 			}
 		    }
-
 		    try {
 			Files.delete(Paths.get("submit", "results.txt"));
 		    } catch (IOException e3) {
 			sender.sendMessage(new TextComponentString("Problem with cleanup #1.  Aborting cleanup."));
 		    }
-
 		});
 		t.start();
-
 		File submitUser = Paths.get("submit", ".submitUser").toFile();
 		boolean hasname = submitUser.exists();
-
 		if (!hasname) {
 		    if (uname == null || pwd == null)
 			throw new CommandException(
 				"Need to create submission profile.  Please enter the command \"/account <uid> <pwd>\"",
 				new Object[0]);
-
 		    try {
 			Thread.sleep(100);
 		    } catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		    }
-
 		    OutputStreamWriter input = new OutputStreamWriter(p.getOutputStream());
 		    try {
 			input.write(uname + "\n");
 			input.flush();
 		    } catch (IOException e) {
 			sender.sendMessage(new TextComponentString("detected missing submit.jar.  Downloading..."));
-
 			InputStream loadsubmitjar = null;
 			try {
 			    loadsubmitjar = new URL("http://www.cs.umd.edu/~abrassel/submit.jar").openStream();
@@ -204,23 +192,18 @@ public class CommandSubmit extends CommandBase {
 		    sender.sendMessage(new TextComponentString("got here."));
 		    try {
 			Thread.sleep(1000);
-
 		    } catch (InterruptedException e) {
 			e.printStackTrace();
 		    }
-
 		    input.write(pwd);
 		    input.flush();
-
 		    input.close();
 		}
 		boolean finished = p.waitFor(5, TimeUnit.SECONDS);
-
 		if (!finished)
 		    throw new CommandException(
 			    "Submission timed out for some reason.  Check submit server for submission.  If not there, run this command again.",
 			    new Object[0]);
-
 		int result = p.exitValue();
 		if (result == 1) {
 		    uname = null;
@@ -230,9 +213,7 @@ public class CommandSubmit extends CommandBase {
 			    "Either account was invalid or .userProfile one time password expired.  Fix by running \"/account\"",
 			    new Object[0]);
 		}
-
 		sender.sendMessage(new TextComponentString("Submitted successfully"));
-
 	    } catch (IOException | InterruptedException e) {
 		sender.sendMessage(new TextComponentString(Arrays.toString(e.getStackTrace())));
 		sender.sendMessage(new TextComponentString(e.getMessage()));
