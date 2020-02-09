@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.common.block.override;
+package cmsc389e.circuitry.common.block;
 
 import net.minecraft.block.BlockRedstoneRepeater;
 import net.minecraft.block.state.IBlockState;
@@ -7,7 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class BlockCircuitryRedstoneRepeater extends BlockRedstoneRepeater {
-    public BlockCircuitryRedstoneRepeater(boolean powered) {
+    protected BlockCircuitryRedstoneRepeater(boolean powered) {
 	super(powered);
 	setRegistryName((powered ? Blocks.POWERED_REPEATER : Blocks.UNPOWERED_REPEATER).getRegistryName());
     }

@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.common.world.data;
+package cmsc389e.circuitry.common.world;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public class CircuitryWorldSavedData extends WorldSavedData {
     }
 
     private final Multimap<Block, BlockPos> poses;
-    private final Map<BlockPos, String> tags;
+    private final Map<BlockPos, Integer> tags;
 
     private CircuitryWorldSavedData() {
 	this(DATA_NAME);
@@ -46,16 +46,16 @@ public class CircuitryWorldSavedData extends WorldSavedData {
 	return poses.get(block);
     }
 
-    public String get(BlockPos pos) {
+    public Integer get(BlockPos pos) {
 	return tags.get(pos);
     }
 
-    public void put(Block block, BlockPos pos, String tag) {
+    public void put(Block block, BlockPos pos, int tag) {
 	poses.put(block, pos);
 	put(pos, tag);
     }
 
-    public void put(BlockPos pos, String tag) {
+    public void put(BlockPos pos, int tag) {
 	tags.put(pos, tag);
 	markDirty();
     }
@@ -69,8 +69,8 @@ public class CircuitryWorldSavedData extends WorldSavedData {
 	    NBTTagCompound compound = nbt.getCompoundTag(name);
 	    compound.getKeySet().forEach(serialized -> {
 		BlockPos pos = BlockPos.fromLong(Long.valueOf(serialized));
-		poses.put(block, pos);
-		tags.put(pos, compound.getString(serialized));
+		put(block, pos, compound.getInteger(serialized));
+		setDirty(false);
 	    });
 	});
     }
@@ -85,7 +85,7 @@ public class CircuitryWorldSavedData extends WorldSavedData {
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 	poses.asMap().forEach((block, poses) -> {
 	    NBTTagCompound value = new NBTTagCompound();
-	    poses.forEach(pos -> value.setString(String.valueOf(pos.toLong()), tags.get(pos)));
+	    poses.forEach(pos -> value.setInteger(String.valueOf(pos.toLong()), get(pos)));
 	    compound.setTag(block.getRegistryName().toString(), value);
 	});
 	return compound;

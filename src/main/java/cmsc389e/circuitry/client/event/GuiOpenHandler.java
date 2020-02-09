@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.client.gui;
+package cmsc389e.circuitry.client.event;
 
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.init.Biomes;

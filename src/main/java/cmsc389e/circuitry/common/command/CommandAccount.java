@@ -10,15 +10,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
-public class AccountCommand extends CommandBase {
-
+public class CommandAccount extends CommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-
 	if (args.length != 2)
 	    throw new CommandException("You must enter both a username and password: \"/account <uid> <pwd\"",
 		    new Object[0]);
-
 	try {
 	    /**
 	     * Try to delete the the submit requirement files if they exist. This is done
@@ -29,12 +26,9 @@ public class AccountCommand extends CommandBase {
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
-
 	CommandSubmit.uname = args[0]; // we set the static vars for the submit command for later.
 	CommandSubmit.pwd = args[1];
-
 	sender.sendMessage(new TextComponentString("Identity created - will be verified upon submission"));
-
     }
 
     @Override

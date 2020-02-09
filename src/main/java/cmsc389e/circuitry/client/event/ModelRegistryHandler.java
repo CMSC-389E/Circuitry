@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.client.item;
+package cmsc389e.circuitry.client.event;
 
 import cmsc389e.circuitry.common.block.BlockInNode;
 import cmsc389e.circuitry.common.block.BlockOutNode;

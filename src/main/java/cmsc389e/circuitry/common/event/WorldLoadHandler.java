@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.common.world;
+package cmsc389e.circuitry.common.event;
 
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @EventBusSubscriber
-public class WorldEventHandler {
+public class WorldLoadHandler {
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
 	World world = event.getWorld();
@@ -16,10 +16,11 @@ public class WorldEventHandler {
 	    GameRules gameRules = world.getGameRules();
 	    world.getWorldInfo().setDifficulty(EnumDifficulty.PEACEFUL);
 	    world.getWorldInfo().setDifficultyLocked(true);
-	    gameRules.setOrCreateGameRule("doDaylightCycle", String.valueOf(false));
-	    gameRules.setOrCreateGameRule("doMobSpawning", String.valueOf(false));
-	    gameRules.setOrCreateGameRule("doTileDrops", String.valueOf(false));
-	    gameRules.setOrCreateGameRule("doWeatherCycle", String.valueOf(false));
+	    String string = String.valueOf(false);
+	    gameRules.setOrCreateGameRule("doDaylightCycle", string);
+	    gameRules.setOrCreateGameRule("doMobSpawning", string);
+	    gameRules.setOrCreateGameRule("doTileDrops", string);
+	    gameRules.setOrCreateGameRule("doWeatherCycle", string);
 	}
     }
 }

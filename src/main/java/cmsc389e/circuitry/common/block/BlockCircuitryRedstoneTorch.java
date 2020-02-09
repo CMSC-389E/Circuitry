@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.common.block.override;
+package cmsc389e.circuitry.common.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneTorch;
@@ -16,7 +16,7 @@ public class BlockCircuitryRedstoneTorch extends BlockRedstoneTorch {
 	return worldIn.isSidePowered(pos.offset(enumfacing), enumfacing);
     }
 
-    public BlockCircuitryRedstoneTorch(boolean isOn) {
+    protected BlockCircuitryRedstoneTorch(boolean isOn) {
 	super(isOn);
 	setCreativeTab(CreativeTabs.REDSTONE)
 		.setRegistryName((isOn ? Blocks.REDSTONE_TORCH : Blocks.UNLIT_REDSTONE_TORCH).getRegistryName())

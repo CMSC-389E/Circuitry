@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.client.gui;
+package cmsc389e.circuitry.common.event;
 
 import cmsc389e.circuitry.common.block.BlockNode;
 import net.minecraft.entity.player.EntityPlayer;
