@@ -4,4 +4,4 @@ This is the source code for the Circuitry mod, created for class <a href="https:
 
 However, having this code available is not to be used to cheat or take advantage of. It is only here for academic purposes, debugging, and a means to effectively collaborate on this project.
 
-More information on the class and what you are expected to do can be found <a href="https://www.cs.umd.edu/~abrassel/">here</a>.
+More information on the class and what you are expected to do can be found <a href="http://www.cs.umd.edu/class/spring2020/cmsc389E/">here</a>.
