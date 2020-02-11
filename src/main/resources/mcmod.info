@@ -4,6 +4,6 @@
 	"version": "${version}",
 	"mcversion": "${mcversion}",
 	"url": "https://github.com/JamieBrassel/CMSC-389E-Circuitry",
-	"authorList": ["Jamie Brassel"],
+	"authorList": ["Jamie Brassel", "Alex Brassel"],
 	"logoFile": "assets/circuitry/textures/logo.png"
 }]
