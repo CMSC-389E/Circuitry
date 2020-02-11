@@ -11,6 +11,7 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Modifies the world creation to have default settings more conducive to
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * <li><i>World Type</i> to <i>Superflat</i>
  * <li><i>Superflat Customization Preset</i> to a clone of <i>Redstone Ready</i>
  */
-@EventBusSubscriber
+@EventBusSubscriber(Side.CLIENT)
 public class GuiOpenHandler {
     /**
      * Pretty much a copy and paste of the Readstone Ready preset settings.

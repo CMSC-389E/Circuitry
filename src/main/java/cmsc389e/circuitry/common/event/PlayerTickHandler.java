@@ -7,6 +7,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -14,7 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class PlayerTickHandler {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
-	if (event.side == Side.SERVER) {
+	if (event.side == Side.SERVER && event.phase == Phase.END) {
 	    EntityPlayer player = event.player;
 	    String tag = null;
 	    RayTraceResult result = ForgeHooks.rayTraceEyes(player,

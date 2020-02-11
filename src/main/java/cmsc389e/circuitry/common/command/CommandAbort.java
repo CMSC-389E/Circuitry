@@ -8,24 +8,17 @@ import net.minecraft.util.text.TextComponentString;
 public class CommandAbort extends CommandBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
+	String message = "There is no test currently running";
 	if (CommandTest.runningTest != null) {
 	    CommandTest.runningTest.interrupt();
-	    sender.sendMessage(new TextComponentString("Current test aborted"));
-	} else
-	    sender.sendMessage(new TextComponentString("There is no test currently running"));
+	    message = "Current test aborted";
+	}
+	sender.sendMessage(new TextComponentString(message));
     }
 
     @Override
     public String getName() {
 	return "abort";
-    }
-
-    /**
-     * Return the required permission level for this command.
-     */
-    @Override
-    public int getRequiredPermissionLevel() {
-	return 0;
     }
 
     @Override

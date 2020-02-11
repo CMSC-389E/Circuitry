@@ -121,49 +121,8 @@ public class CommandLoad extends CommandBase {
 		throw new CommandException("This is not a valid project");
 	    }
 	} else if (args.length != 2 || !args[0].equals("submit") && !args[0].equals("test"))
-	    throw new CommandException("\"/load <submit/test> <pathto>\"", new Object[0]);
-	else if (args[0].equals("submit")) { // holdover command to reload the submit portion. Unused can probably be
-					     // deleted.
-	    FileInputStream in;
-	    FileInputStream in2;
-	    FileOutputStream out;
-	    FileOutputStream out2;
-	    try {
-		in = new FileInputStream(args[1]);
-		in2 = new FileInputStream(args[1]);
-	    } catch (FileNotFoundException e) {
-		throw new CommandException("The file you passed in is invalid: " + new File(args[1]).getAbsolutePath(),
-			new Object[0]);
-	    }
-	    try {
-		File f = new File("submit");
-		if (!f.exists()) {
-		    f.mkdir();
-		    FileInputStream jarin = new FileInputStream("submit.jar");
-		    FileOutputStream jarout = new FileOutputStream(Paths.get("submit", "submit.jar").toFile());
-		    jarout.getChannel().transferFrom(jarin.getChannel(), 0, jarin.getChannel().size());
-		    jarin.close();
-		    jarout.close();
-		}
-		out = new FileOutputStream(Paths.get("submit", "submit.txt").toFile());
-		out2 = new FileOutputStream(Paths.get("submit", ".submit").toFile());
-		out.getChannel().transferFrom(in.getChannel(), 0, in.getChannel().size());
-		out2.getChannel().transferFrom(in2.getChannel(), 0, in2.getChannel().size());
-		in.close();
-		in2.close();
-		sender.sendMessage(new TextComponentString("Loaded passed file in correctly."));
-	    } catch (IOException e) {
-		throw new CommandException("You done goofed A-A-ron.  Come find us.", new Object[0]);
-	    }
-	    try {
-		in.close();
-		out.close();
-		out2.close();
-	    } catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
-	} else {
+	    throw new CommandException("/load <submit/test> <pathto>", new Object[0]);
+	else {
 	    // locally load a testing setup - also not really used anymore.
 	    CommandTest.runs = null;
 	    CommandTest.keys = null;

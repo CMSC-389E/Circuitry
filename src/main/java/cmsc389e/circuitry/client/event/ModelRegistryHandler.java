@@ -9,12 +9,13 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Registers {@link BlockOutNode} and {@link BlockInNode} item models so that
  * they display correctly in the inventory.
  */
-@EventBusSubscriber
+@EventBusSubscriber(Side.CLIENT)
 public class ModelRegistryHandler {
     /**
      * Registers all the {@link Item}s' models passed in.
@@ -27,9 +28,8 @@ public class ModelRegistryHandler {
 		    new ModelResourceLocation(item.getRegistryName(), "inventory"));
     }
 
-    @SuppressWarnings("unused")
     @SubscribeEvent
-    public static void registerModels(ModelRegistryEvent event) {
+    public static void registerModels(@SuppressWarnings("unused") ModelRegistryEvent event) {
 	registerModels(ItemsCircuitry.IN_NODE, ItemsCircuitry.OUT_NODE);
     }
 }

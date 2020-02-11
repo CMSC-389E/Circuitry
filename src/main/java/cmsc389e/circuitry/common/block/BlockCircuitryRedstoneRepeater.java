@@ -13,19 +13,19 @@ public class BlockCircuitryRedstoneRepeater extends BlockRedstoneRepeater {
     }
 
     @Override
-    public void updateState(World worldIn, BlockPos pos, IBlockState state) {
-	if (!isLocked(worldIn, pos, state)) {
-	    boolean flag = shouldBePowered(worldIn, pos, state);
-	    if (isRepeaterPowered != flag && !worldIn.isBlockTickPending(pos, this))
+    public void updateState(World world, BlockPos pos, IBlockState state) {
+	if (!world.isRemote && !isLocked(world, pos, state)) {
+	    boolean flag = shouldBePowered(world, pos, state);
+	    if (isRepeaterPowered != flag && !world.isBlockTickPending(pos, this))
 		if (getDelay(state) == 2)
-		    worldIn.setBlockState(pos, flag ? getPoweredState(state) : getUnpoweredState(state));
+		    world.setBlockState(pos, flag ? getPoweredState(state) : getUnpoweredState(state));
 		else {
 		    int i = -1;
-		    if (isFacingTowardsRepeater(worldIn, pos, state))
+		    if (isFacingTowardsRepeater(world, pos, state))
 			i = -3;
 		    else if (isRepeaterPowered)
 			i = -2;
-		    worldIn.updateBlockTick(pos, this, getDelay(state) - 1, i);
+		    world.updateBlockTick(pos, this, getDelay(state) - 1, i);
 		}
 	}
     }
