@@ -63,7 +63,7 @@ public abstract class BlockNode extends Block {
     @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state) {
 	if (!world.isRemote)
-	    CircuitryWorldSavedData.get(world).remove(this, pos);
+	    CircuitryWorldSavedData.get(world).remove(pos);
     }
 
     @Override
@@ -103,6 +103,6 @@ public abstract class BlockNode extends Block {
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer,
 	    ItemStack stack) {
 	if (!world.isRemote)
-	    CircuitryWorldSavedData.get(world).put(this, pos, 0);
+	    CircuitryWorldSavedData.get(world).put(pos, 0);
     }
 }

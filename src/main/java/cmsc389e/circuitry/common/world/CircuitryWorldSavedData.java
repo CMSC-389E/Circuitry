@@ -1,14 +1,10 @@
 package cmsc389e.circuitry.common.world;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import java.util.Set;
 
 import cmsc389e.circuitry.Circuitry;
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -29,7 +25,6 @@ public class CircuitryWorldSavedData extends WorldSavedData {
 	return instance;
     }
 
-    private final Multimap<Block, BlockPos> poses;
     private final Map<BlockPos, Integer> tags;
 
     private CircuitryWorldSavedData() {
@@ -38,21 +33,15 @@ public class CircuitryWorldSavedData extends WorldSavedData {
 
     public CircuitryWorldSavedData(String name) {
 	super(name);
-	poses = HashMultimap.create();
 	tags = new HashMap<>();
-    }
-
-    public Collection<BlockPos> get(Block block) {
-	return poses.get(block);
     }
 
     public Integer get(BlockPos pos) {
 	return tags.get(pos);
     }
 
-    public void put(Block block, BlockPos pos, int tag) {
-	poses.put(block, pos);
-	put(pos, tag);
+    public Set<BlockPos> posSet() {
+	return tags.keySet();
     }
 
     public void put(BlockPos pos, int tag) {
@@ -62,32 +51,28 @@ public class CircuitryWorldSavedData extends WorldSavedData {
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
-	poses.clear();
-	tags.clear();
-	nbt.getKeySet().forEach(name -> {
-	    Block block = Block.getBlockFromName(name);
-	    NBTTagCompound compound = nbt.getCompoundTag(name);
-	    compound.getKeySet().forEach(serialized -> {
-		BlockPos pos = BlockPos.fromLong(Long.valueOf(serialized));
-		put(block, pos, compound.getInteger(serialized));
-		setDirty(false);
+	try {
+	    nbt.getKeySet().forEach(key -> put(BlockPos.fromLong(Long.valueOf(key)), nbt.getInteger(key)));
+	    setDirty(false);
+	} catch (Exception e) {
+	    System.err.println("Corrupt or old data file found. Attempting to update!");
+	    nbt.getKeySet().forEach(name -> {
+		NBTTagCompound compound = nbt.getCompoundTag(name);
+		compound.getKeySet()
+			.forEach(key -> put(BlockPos.fromLong(Long.valueOf(key)), compound.getInteger(key)));
 	    });
-	});
+	    System.out.println("Success!");
+	}
     }
 
-    public void remove(Block block, BlockPos pos) {
-	poses.remove(block, pos);
+    public void remove(BlockPos pos) {
 	tags.remove(pos);
 	markDirty();
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-	poses.asMap().forEach((block, poses) -> {
-	    NBTTagCompound value = new NBTTagCompound();
-	    poses.forEach(pos -> value.setInteger(String.valueOf(pos.toLong()), get(pos)));
-	    compound.setTag(block.getRegistryName().toString(), value);
-	});
+	tags.forEach((pos, tag) -> compound.setInteger(String.valueOf(pos.toLong()), tag));
 	return compound;
     }
 }

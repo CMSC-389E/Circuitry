@@ -1,9 +1,7 @@
 package cmsc389e.circuitry;
 
 import cmsc389e.circuitry.common.command.CommandAbort;
-import cmsc389e.circuitry.common.command.CommandAccount;
 import cmsc389e.circuitry.common.command.CommandLoad;
-import cmsc389e.circuitry.common.command.CommandSubmit;
 import cmsc389e.circuitry.common.command.CommandTest;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraftforge.fml.common.Mod;
@@ -30,9 +28,7 @@ public class Circuitry {
     public static void serverStart(FMLServerStartingEvent event) {
 	ServerCommandManager commandManager = (ServerCommandManager) event.getServer().getCommandManager();
 	commandManager.registerCommand(new CommandAbort());
-	commandManager.registerCommand(new CommandAccount());
 	commandManager.registerCommand(new CommandLoad());
-	commandManager.registerCommand(new CommandSubmit());
 	commandManager.registerCommand(new CommandTest());
     }
 }

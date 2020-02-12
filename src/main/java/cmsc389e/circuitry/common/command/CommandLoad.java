@@ -1,200 +1,84 @@
 package cmsc389e.circuitry.common.command;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 
 import cmsc389e.circuitry.ConfigCircuitry;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
 
-public class CommandLoad extends CommandBase {
-    public static class TestRun {
-	String testResults;
-
-	public TestRun(String newTest) {
-	    testResults = newTest;
-	}
-    }
-
+public class CommandLoad extends CommandCircuitryBase {
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-	// reset the info for the testing setup so that it can't use past testing data.
-	CommandSubmit.mostRecentTestRun = null;
-	CommandTest.keys = null;
-	CommandTest.runs = null;
-	CommandTest.testFile = null;
-	CommandTest.testCount = 0;
-	File jartest = new File("submit.jar");
-	if (!jartest.exists()) { // if submit.jar does not exist, then we need to retrieve it.
-	    InputStream loadsubmitjar = null;
+	if (args.length == 0)
+	    throw new CommandException("Usage: /load <project number>");
+	// Check if arg[0] is a valid int in a somewhat janky way. Discard the return
+	// value since we don't need arg[0] to be an int object
+	CommandBase.parseInt(args[0], 0);
+
+	String serverURL = "https://cs.umd.edu/~abrassel/";
+	String submitURL = serverURL + "submit.jar";
+	String testsURL = serverURL + "proj" + args[0] + "tests.txt";
+
+	// Check if submit.jar exists and download a new one if it doesn't
+	if (Files.notExists(Paths.get(SUBMIT)))
 	    try {
-		loadsubmitjar = new URL("http://www.cs.umd.edu/~abrassel/submit.jar").openStream(); // get it
-		Files.copy(loadsubmitjar, Paths.get("submit.jar"), StandardCopyOption.REPLACE_EXISTING); // write it
-	    } catch (MalformedURLException e) { // sometimes the URL is invalid, so it should gracefully fail here.
-		throw new CommandException("Tried to load an invalid submit.jar url: " + e.getMessage());
+		FileUtils.copyURLToFile(new URL(submitURL), new File(SUBMIT));
 	    } catch (IOException e) {
-		throw new CommandException("Could not read remote submit.jar into local submit.jar");
-	    } finally {
-		try {
-		    loadsubmitjar.close();
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
+		throw new CommandException("Could not download " + SUBMIT + " from " + serverURL + '.');
 	    }
 
-	} // at this point, we have verified that submit.jar does indeed exist.
-	if (args.length == 1) { // usage: load <proj#>
-	    sender.sendMessage(new TextComponentString(
-		    "Attempting to read project file " + args[0] + " from www.cs.umd.edu/~abrassel")); // hardcoded load
-												       // url
-	    try {
-		InputStream tests = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "tests.txt") // get tests
-			.openStream();
-		InputStream submit = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "submit").openStream(); // get
-															// proj
-															// framework
-		InputStream submit2 = new URL("http://www.cs.umd.edu/~abrassel/proj" + args[0] + "submit").openStream();
-		try {
-		    File f = new File("submit");
-		    if (!f.exists()) {
-			/**
-			 * this chunk creates a folder called submit if none already exists and adds
-			 * submit.jar to it. we're eventually going to be submitting this folder, since
-			 * submit.jar submits everything, and we don't want extra gunk such as huge
-			 * worlds hanging around
-			 */
-			f.mkdir();
-			FileInputStream jarin = new FileInputStream("submit.jar");
-			FileOutputStream jarout = new FileOutputStream(Paths.get("submit", "submit.jar").toFile());
-			jarout.getChannel().transferFrom(jarin.getChannel(), 0, jarin.getChannel().size());
-			jarin.close();
-			jarout.close();
-		    }
-		    // write all of the files
-		    Files.copy(tests, Paths.get("tests.txt"), StandardCopyOption.REPLACE_EXISTING);
-		    Files.copy(submit, Paths.get("submit", "submit.txt"), StandardCopyOption.REPLACE_EXISTING); // two
-														// copies
-														// of
-														// submit
-														// file??
-														// not
-														// sure
-														// why i
-														// have
-														// this
-														// here
-		    Files.copy(submit2, Paths.get("submit", ".submit"), StandardCopyOption.REPLACE_EXISTING);
-		    submit.close();
-		    submit2.close();
-		    tests.close();
-		    CommandTest.runs = null; // reset info for the testing framework (static vars)
-		    CommandTest.keys = null;
-		    sender.sendMessage(new TextComponentString(
-			    "Was able to successfully read project" + args[0] + " from www.cs.umd.edu/~abrassel"));
-		} catch (IOException e) {
-		    System.out.println(e.getMessage());
-		    throw new CommandException(
-			    "Missing submit.jar, or tests.txt was being used by another process.  Try running again.",
-			    new Object[0]);
-		}
-	    } catch (MalformedURLException e) {
-		e.printStackTrace();
-		throw new CommandException("This is not a valid project");
-	    } catch (IOException e) {
-		e.printStackTrace();
-		throw new CommandException("This is not a valid project");
-	    }
-	} else if (args.length != 2 || !args[0].equals("submit") && !args[0].equals("test"))
-	    throw new CommandException("/load <submit/test> <pathto>", new Object[0]);
-	else {
-	    // locally load a testing setup - also not really used anymore.
-	    CommandTest.runs = null;
-	    CommandTest.keys = null;
-	    FileInputStream in;
-	    FileOutputStream out;
-	    try {
-		in = new FileInputStream(args[1]);
-		out = new FileOutputStream("tests.txt");
-	    } catch (FileNotFoundException e) {
-		System.out.println(e.getMessage());
-		throw new CommandException("The file you passed in is invalid: " + new File(args[1]).getAbsolutePath(),
-			new Object[0]);
-	    }
-	    try {
-		out.getChannel().transferFrom(in.getChannel(), 0, in.getChannel().size());
-	    } catch (IOException e) {
-		try {
-		    in.close();
-		    out.close();
-		} catch (IOException e1) {
-		    // TODO Auto-generated catch block
-		    e1.printStackTrace();
-		}
-		throw new CommandException("You done goofed A-A-ron.  Come find us.", new Object[0]);
-	    }
-	    try {
-		in.close();
-		out.close();
-
-	    } catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
-	}
-	// after above shenanigans are done, we proceed to verify that the loaded test
-	// framework is correct.
+	// Attempt to download tests.txt
+	sendMessage(sender, "Attempting to read project file " + args[0] + " from " + serverURL + '.');
 	try {
-	    BufferedReader tests = new BufferedReader(new FileReader("tests.txt"));
-	    tests.readLine();
-	    String[] things = tests.readLine().split("\t"); // each column is tab delimited. we read in the header row.
-	    List<String> ins = new LinkedList<>();
-	    List<String> outs = new LinkedList<>();
-	    for (String label : things) // iterate through and determine what the labels for the test are.
-		if (label.charAt(0) == 'i')
-		    ins.add(label);
-		else if (label.charAt(0) == 'o')
-		    outs.add(label);
-		else {
-		    tests.close();
-		    throw new CommandException("The following label must start with i or o: " + label, new Object[0]);
-		}
-	    ConfigCircuitry.inputs = ins.toArray(new String[0]);
-	    ConfigCircuitry.outputs = outs.toArray(new String[0]);
-	    ConfigCircuitry.sync();
-	    tests.close();
+	    FileUtils.copyURLToFile(new URL(testsURL), new File(TESTS));
+	} catch (MalformedURLException e) {
+	    throw new CommandException("Project " + args[0] + " is not valid.");
 	} catch (IOException e) {
-	    throw new CommandException("There was some weird error with your tests file.", new Object[0]);
+	    throw new CommandException(
+		    SUBMIT + " is missing or " + TESTS + " is being used by another process.  Try running again.");
 	}
-	sender.sendMessage(new TextComponentString("Loaded passed file in correctly."));
+	sendMessage(sender, "Successfully read project file " + args[0] + " from " + serverURL + '.');
+
+	tryReadTestsFile();
+
+	// Save tags to Lists first since we don't know how many of each there are
+	List<String> inputs = new ArrayList<>();
+	List<String> outputs = new ArrayList<>();
+
+	// Read in the header row and sort each tag into the correct List
+	for (String name : TEST_LINES.get(1))
+	    switch (name.charAt(0)) {
+	    case 'i':
+		inputs.add(name);
+		break;
+	    case 'o':
+		outputs.add(name);
+		break;
+	    default:
+		throw new CommandException("The following tag must start with i or o: " + name);
+	    }
+
+	// Save tags to the config file to store for future game sessions
+	ConfigCircuitry.inputs = inputs.toArray(new String[0]);
+	ConfigCircuitry.outputs = outputs.toArray(new String[0]);
+	ConfigCircuitry.sync();
+	sendMessage(sender, "Loaded passed file in correctly.");
     }
 
     @Override
     public String getName() {
 	return "load";
-    }
-
-    /**
-     * Return the required permission level for this command.
-     */
-    @Override
-    public int getRequiredPermissionLevel() {
-	return 0;
     }
 
     @Override
