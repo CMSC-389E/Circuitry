@@ -11,7 +11,6 @@ public class BlockInNode extends BlockNode {
 	super("in_node");
     }
 
-    @Deprecated
     @Override
     public boolean canProvidePower(IBlockState state) {
 	return true;
@@ -22,7 +21,6 @@ public class BlockInNode extends BlockNode {
 	return ConfigCircuitry.inputs;
     }
 
-    @Deprecated
     @Override
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 	return isPowered(blockState) ? 15 : 0;

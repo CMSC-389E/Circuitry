@@ -81,7 +81,6 @@ public abstract class BlockNode extends Block {
 	return isPowered(state) ? 1 : 0;
     }
 
-    @Deprecated
     @Override
     public IBlockState getStateFromMeta(int meta) {
 	return getDefaultState().withProperty(POWERED, meta == 1);

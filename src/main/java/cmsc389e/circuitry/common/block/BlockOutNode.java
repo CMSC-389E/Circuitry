@@ -21,7 +21,6 @@ public class BlockOutNode extends BlockNode {
 	return ConfigCircuitry.outputs;
     }
 
-    @Deprecated
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
 	update(world, pos, state);
