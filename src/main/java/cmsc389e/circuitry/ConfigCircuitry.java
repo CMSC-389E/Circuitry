@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * Configuration file for the mod.
  */
 @Config(modid = Circuitry.MODID)
-public class ConfigCircuitry {
+public final class ConfigCircuitry {
     /**
      * Called when config values are changed.
      */

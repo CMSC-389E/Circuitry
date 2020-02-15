@@ -10,7 +10,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockCircuitryRedstoneWire extends BlockRedstoneWire {
+public final class BlockCircuitryRedstoneWire extends BlockRedstoneWire {
     private static final Multimap<World, BlockPos> UPDATING = HashMultimap.create();
 
     public synchronized static boolean isUpdating(World world) {

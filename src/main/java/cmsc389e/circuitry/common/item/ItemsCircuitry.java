@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @EventBusSubscriber
-public class ItemsCircuitry {
+public final class ItemsCircuitry {
     public static Item IN_NODE = newItemBlock(BlocksCircuitry.IN_NODE),
 	    OUT_NODE = newItemBlock(BlocksCircuitry.OUT_NODE);
 

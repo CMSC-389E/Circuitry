@@ -6,7 +6,7 @@ import cmsc389e.circuitry.IProxy;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
-public class ClientProxy implements IProxy {
+public final class ClientProxy implements IProxy {
     @Override
     public void init() {
 	String category = "CMSC 389E Circuitry";

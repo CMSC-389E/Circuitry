@@ -10,25 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Triple;
 
 import cmsc389e.circuitry.ConfigCircuitry;
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 
-public class CommandLoad extends CommandCircuitryBase {
+public final class CommandLoad extends CommandCircuitryBase {
+    public CommandLoad() {
+	super("load", Triple.of("project number", true, int.class));
+    }
+
     @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-	if (args.length == 0)
-	    throw new CommandException("Usage: /load <project number>");
-	// Check if arg[0] is a valid int in a somewhat janky way. Discard the return
-	// value since we don't need arg[0] to be an int object
-	CommandBase.parseInt(args[0], 0);
+    public void execute(World world, ICommandSender sender, String[] args) throws CommandException {
+	int projectNumber = getOrDefault("project number", null);
 
 	String serverURL = "https://cs.umd.edu/~abrassel/";
 	String submitURL = serverURL + "submit.jar";
-	String testsURL = serverURL + "proj" + args[0] + "tests.txt";
+	String testsURL = serverURL + "proj" + projectNumber + "tests.txt";
 
 	// Check if submit.jar exists and download a new one if it doesn't
 	if (Files.notExists(Paths.get(SUBMIT)))
@@ -39,16 +39,16 @@ public class CommandLoad extends CommandCircuitryBase {
 	    }
 
 	// Attempt to download tests.txt
-	sendMessage(sender, "Attempting to read project file " + args[0] + " from " + serverURL + '.');
+	sendMessage(sender, "Attempting to read project file " + projectNumber + " from " + serverURL + '.');
 	try {
 	    FileUtils.copyURLToFile(new URL(testsURL), new File(TESTS));
 	} catch (MalformedURLException e) {
-	    throw new CommandException("Project " + args[0] + " is not valid.");
+	    throw new CommandException("Project " + projectNumber + " is not valid.");
 	} catch (IOException e) {
 	    throw new CommandException(
 		    SUBMIT + " is missing or " + TESTS + " is being used by another process.  Try running again.");
 	}
-	sendMessage(sender, "Successfully read project file " + args[0] + " from " + serverURL + '.');
+	sendMessage(sender, "Successfully read project file " + projectNumber + " from " + serverURL + '.');
 
 	tryReadTestsFile();
 
@@ -74,15 +74,5 @@ public class CommandLoad extends CommandCircuitryBase {
 	ConfigCircuitry.outputs = outputs.toArray(new String[0]);
 	ConfigCircuitry.sync();
 	sendMessage(sender, "Loaded passed file in correctly.");
-    }
-
-    @Override
-    public String getName() {
-	return "load";
-    }
-
-    @Override
-    public String getUsage(ICommandSender sender) {
-	return "Load a new file in";
     }
 }

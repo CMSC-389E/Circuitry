@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @EventBusSubscriber
-public class WorldLoadHandler {
+public final class WorldLoadHandler {
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
 	World world = event.getWorld();
