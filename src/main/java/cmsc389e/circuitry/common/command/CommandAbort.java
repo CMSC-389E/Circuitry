@@ -13,8 +13,7 @@ public final class CommandAbort extends CommandCircuitryBase {
     public void execute(World world, ICommandSender sender, String[] args) throws CommandException {
 	if (!CommandTest.isRunning())
 	    throw new CommandException("No test currently running.");
-	CommandTest.cancel();
+	CommandTest.cancel(world);
 	sendMessage(sender, "Test aborted!");
-	resetInputs(world);
     }
 }

@@ -1,22 +1,11 @@
 package cmsc389e.circuitry.common.command;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.codehaus.plexus.util.StringUtils;
 
-import cmsc389e.circuitry.common.block.BlockNode;
-import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -27,33 +16,12 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public abstract class CommandCircuitryBase extends CommandBase {
-    protected static final String SUBMIT = "submit" + File.separatorChar + "submit.jar", TESTS = "tests.txt";
-    @Nullable
-    protected static final List<String[]> TEST_LINES = new ArrayList<>();
-
-    protected static final void resetInputs(World world) {
-	CircuitryWorldSavedData.get(world)
-		.forEach(pos -> BlockNode.setPowered(world, pos, world.getBlockState(pos), false));
-    }
-
     protected static final void sendMessage(ICommandSender sender, String message) {
 	sendMessage(sender, message, new Style().getColor());
     }
 
     protected static final void sendMessage(ICommandSender sender, String message, TextFormatting color) {
 	sender.sendMessage(new TextComponentString(message).setStyle(new Style().setItalic(true).setColor(color)));
-    }
-
-    protected static final void tryReadTestsFile() throws CommandException {
-	// Load in valid tags and rows for the current test
-	TEST_LINES.clear();
-	try (BufferedReader in = Files.newBufferedReader(Paths.get(TESTS))) {
-	    String line;
-	    while ((line = in.readLine()) != null)
-		TEST_LINES.add(line.split("\t"));
-	} catch (IOException e) {
-	    throw new CommandException("Unable to read " + TESTS + ". Try running /load again.");
-	}
     }
 
     private final Map<String, Object> argMap;
@@ -70,7 +38,7 @@ public abstract class CommandCircuitryBase extends CommandBase {
     @Override
     public final void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 	if (args.length > argTriples.length)
-	    throw new CommandException(getUsage(sender));
+	    throw new CommandException("Usage: " + getUsage(sender));
 	for (int i = 0; i < args.length; i++) {
 	    boolean isNumeric = StringUtils.isNumeric(args[i]);
 	    for (int j = i; j < argTriples.length; j++)

@@ -11,6 +11,6 @@ public final class BlocksCircuitry {
 
     @SubscribeEvent
     public static void registerBlocks(Register<Block> event) {
-	event.getRegistry().registerAll(IN_NODE, OUT_NODE, new BlockCircuitryRedstoneWire());
+	event.getRegistry().registerAll(IN_NODE, OUT_NODE);
     }
 }
