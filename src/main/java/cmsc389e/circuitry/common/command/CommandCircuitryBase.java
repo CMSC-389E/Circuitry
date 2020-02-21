@@ -3,8 +3,8 @@ package cmsc389e.circuitry.common.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
-import org.codehaus.plexus.util.StringUtils;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
