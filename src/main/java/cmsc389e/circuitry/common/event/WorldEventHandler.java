@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 @EventBusSubscriber
-public final class WorldHandler {
+public final class WorldEventHandler {
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
 	World world = event.getWorld();

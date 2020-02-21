@@ -22,8 +22,8 @@ public class Circuitry {
 
     @EventHandler
     public static void init(@SuppressWarnings("unused") FMLInitializationEvent event) {
-	proxy.init();
 	CircuitryPacketHandler.init();
+	proxy.init();
     }
 
     @EventHandler

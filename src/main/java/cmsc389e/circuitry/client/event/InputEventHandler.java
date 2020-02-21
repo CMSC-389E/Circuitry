@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 
 @EventBusSubscriber
-public class KeyInputHandler {
+public class InputEventHandler {
     @SubscribeEvent
     public static void onKeyInputEvent(@SuppressWarnings("unused") KeyInputEvent event) {
 	ClientProxy.KEYS.forEach((key, message) -> {

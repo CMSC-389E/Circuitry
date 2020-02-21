@@ -1,20 +1,44 @@
 package cmsc389e.circuitry.common.command;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.NumberInvalidException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public abstract class CommandCircuitryBase extends CommandBase {
+    private static boolean isOptional(Parameter parameter) {
+	// @Nullable denotes that the parameter is optional
+	return parameter.isAnnotationPresent(Nullable.class);
+    }
+
+    private static Object parseArg(Parameter parameter, String arg) throws NumberInvalidException {
+	boolean number = StringUtils.isNumeric(arg);
+	Class<?> type = parameter.getType();
+	if (number) {
+	    if (type.equals(Double.class))
+		return parseDouble(arg);
+	    if (type.equals(Integer.class))
+		return parseInt(arg);
+	    if (type.equals(Long.class))
+		return parseDouble(arg);
+	}
+	if (type.equals(String.class))
+	    return arg;
+	return null;
+    }
+
     public static void sendMessage(ICommandSender sender, String msg) {
 	sendMessage(sender, msg, new Style());
     }
@@ -23,60 +47,67 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	sender.sendMessage(new TextComponentString(msg).setStyle(style.setItalic(true)));
     }
 
-    private final Map<String, Object> argMap;
-    private final Triple<String, Boolean, Class<?>>[] argTriples;
+    private final Method execute;
+
     private final String name;
 
-    @SafeVarargs
-    public CommandCircuitryBase(String name, Triple<String, Boolean, Class<?>>... args) {
-	argMap = new HashMap<>();
-	argTriples = args;
+    public CommandCircuitryBase(String name) {
 	this.name = name;
+	execute = findMethod();
     }
 
     @Override
     public final void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-	if (args.length > argTriples.length)
-	    throw new CommandException("Usage: " + getUsage(sender));
-	for (int i = 0; i < args.length; i++) {
-	    boolean isNumeric = StringUtils.isNumeric(args[i]);
-	    for (int j = i; j < argTriples.length; j++)
-		if (isNumeric == (argTriples[j].getRight() == int.class)) {
-		    argMap.put(argTriples[j].getLeft(), isNumeric ? parseInt(args[i]) : args[i]);
-		    break;
+	try {
+	    Object[] parsedArgs = new Object[execute.getParameterCount()];
+	    parsedArgs[0] = server.getEntityWorld();
+	    parsedArgs[1] = sender;
+	    Parameter[] parameters = execute.getParameters();
+	    int i = 2;
+	    for (String arg : args) {
+		if (i >= execute.getParameterCount())
+		    throw new CommandException("Too many arguments!");
+		while ((parsedArgs[i] = parseArg(parameters[i], arg)) == null) {
+		    if (!isOptional(parameters[i]))
+			throw new CommandException(parameters[i].getName() + " is required!");
+		    i++;
 		}
+		i++;
+	    }
+	    if (i < execute.getParameterCount() && !isOptional(parameters[i]))
+		throw new CommandException(parameters[i].getName() + " is required!");
+	    execute.invoke(this, parsedArgs);
+	} catch (IllegalAccessException e) {
+	    e.printStackTrace();
+	    throw new CommandException("Cannot execute command for some reason. Send the log to one of the TAs.");
+	} catch (InvocationTargetException e) {
+	    throw (CommandException) e.getTargetException();
 	}
-
-	execute(server.getEntityWorld(), sender, args);
     }
 
-    public abstract void execute(World world, ICommandSender sender, String[] args) throws CommandException;
+    private Method findMethod() {
+	for (Method method : getClass().getMethods())
+	    if (method.getName().equals("execute") && method.getParameterCount() >= 2) {
+		Parameter[] parameters = method.getParameters();
+		if (parameters[0].getType().equals(World.class) && parameters[1].getType().equals(ICommandSender.class))
+		    return method;
+	    }
+	throw new NullPointerException("No method found in " + getClass().getCanonicalName()
+		+ " matching signature execute(World, ICommandSender, ...).");
+    }
 
     @Override
     public String getName() {
 	return name;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getOrDefault(String key, T defaultValue) throws CommandException {
-	if (argMap.containsKey(key))
-	    return (T) argMap.get(key);
-	for (Triple<String, Boolean, Class<?>> argTriple : argTriples)
-	    if (key.equals(argTriple.getLeft())) {
-		if (argTriple.getMiddle())
-		    throw new CommandException(key + " is a required argument.");
-		return defaultValue;
-	    }
-	throw new IllegalArgumentException(getClass().getSimpleName() + " did not specify an argument by the name of '"
-		+ key + "' in it's constructor.");
-    }
-
     @Override
     public String getUsage(ICommandSender sender) {
 	StringBuilder usage = new StringBuilder('/' + getName());
-	for (Triple<String, Boolean, Class<?>> argTriple : argTriples) {
-	    String boundary = argTriple.getMiddle() ? "<>" : "[]";
-	    usage.append(" " + boundary.charAt(0) + argTriple.getLeft() + boundary.charAt(1));
+	Parameter[] parameters = execute.getParameters();
+	for (int i = 2; i < parameters.length; i++) {
+	    String border = isOptional(parameters[i]) ? "[]" : "<>";
+	    usage.append(" " + border.charAt(0) + parameters[i].getName() + border.charAt(1));
 	}
 	return usage.toString();
     }

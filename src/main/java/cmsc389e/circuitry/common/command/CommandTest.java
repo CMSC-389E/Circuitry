@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import org.apache.commons.lang3.tuple.Triple;
+import javax.annotation.Nullable;
 
 import cmsc389e.circuitry.ConfigCircuitry;
 import cmsc389e.circuitry.common.block.BlockNode;
@@ -29,7 +29,15 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class CommandTest extends CommandCircuitryBase {
-    private final class Tester implements ITickable {
+    private static final class Tester implements ITickable {
+	private static String toString(boolean[] array) {
+	    StringBuilder string = new StringBuilder();
+	    for (boolean element : array)
+		string.append(" " + (element ? '1' : '0'));
+	    return string.substring(1);
+	}
+
+	private final int delay;
 	private final HoverEvent hoverEvent;
 	private final String output;
 	private int phase, test, wait;
@@ -37,13 +45,14 @@ public class CommandTest extends CommandCircuitryBase {
 	private final Map<String, BlockPos> tags;
 	private final boolean[][] tests;
 	private final Set<?> tickSet;
+
 	private final World world;
 
-	private Tester(World world, ICommandSender sender) throws CommandException {
+	private Tester(World world, ICommandSender sender, int delay, String output) throws CommandException {
 	    this.world = world;
 	    this.sender = sender;
-
-	    output = getOrDefault("output", null);
+	    this.delay = delay;
+	    this.output = output;
 
 	    tags = new HashMap<>();
 	    tests = CommandLoad.getTests();
@@ -97,14 +106,7 @@ public class CommandTest extends CommandCircuitryBase {
 
 	private boolean shouldWait() {
 	    // Twenty ticks is one second.
-	    return wait < 20 && !tickSet.isEmpty();
-	}
-
-	private String toString(boolean[] array) {
-	    StringBuilder string = new StringBuilder();
-	    for (boolean element : array)
-		string.append(" " + (element ? '1' : '0'));
-	    return string.substring(1);
+	    return wait < delay && !tickSet.isEmpty();
 	}
 
 	@Override
@@ -159,7 +161,7 @@ public class CommandTest extends CommandCircuitryBase {
     }
 
     public CommandTest() {
-	super("test", Triple.of("output", false, String.class));
+	super("test");
 	try {
 	    Files.deleteIfExists(Paths.get(ConfigCircuitry.testLogs));
 	} catch (IOException e) {
@@ -167,8 +169,9 @@ public class CommandTest extends CommandCircuitryBase {
 	}
     }
 
-    @Override
-    public void execute(World world, ICommandSender sender, String[] args) throws CommandException {
-	TESTERS.put(world, new Tester(world, sender));
+    @SuppressWarnings("static-method")
+    public void execute(World world, ICommandSender sender, @Nullable Integer delay, @Nullable String output)
+	    throws CommandException {
+	TESTERS.put(world, new Tester(world, sender, delay == null ? 20 : delay, output));
     }
 }

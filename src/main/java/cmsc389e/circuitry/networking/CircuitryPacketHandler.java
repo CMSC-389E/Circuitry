@@ -13,7 +13,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-// https://mcforge.readthedocs.io/en/1.12.x/networking/simpleimpl/
 public class CircuitryPacketHandler {
     /**
      * The params of the IMessageHandler are <REQ, REPLY> This means that the first

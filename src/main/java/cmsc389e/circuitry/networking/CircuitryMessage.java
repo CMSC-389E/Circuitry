@@ -10,10 +10,12 @@ public class CircuitryMessage implements IMessage {
 
     public Key key;
 
+    /**
+     * A default constructor is always required
+     */
     public CircuitryMessage() {
     }
 
-    // A default constructor is always required
     public CircuitryMessage(Key key) {
 	this.key = key;
     }

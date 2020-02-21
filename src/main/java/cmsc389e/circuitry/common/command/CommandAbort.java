@@ -9,8 +9,8 @@ public class CommandAbort extends CommandCircuitryBase {
 	super("abort");
     }
 
-    @Override
-    public void execute(World world, ICommandSender sender, String[] args) throws CommandException {
+    @SuppressWarnings("static-method")
+    public void execute(World world, ICommandSender sender) throws CommandException {
 	if (!CommandTest.isRunning(world))
 	    throw new CommandException("No test currently running.");
 	CommandTest.abort(world);

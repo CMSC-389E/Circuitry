@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @EventBusSubscriber
-public final class PlayerTickHandler {
+public final class PlayerEventHandler {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
 	if (event.side == Side.SERVER && event.phase == Phase.START) {

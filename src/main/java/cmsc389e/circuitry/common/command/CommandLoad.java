@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.Triple;
 
 import cmsc389e.circuitry.ConfigCircuitry;
 import net.minecraft.command.CommandException;
@@ -40,13 +39,12 @@ public final class CommandLoad extends CommandCircuitryBase {
     }
 
     public CommandLoad() {
-	super("load", Triple.of("project number", true, int.class));
+	super("load");
     }
 
-    @Override
-    public void execute(World world, ICommandSender sender, String[] args) throws CommandException {
-	int projectNumber = getOrDefault("project number", null);
-
+    @SuppressWarnings("static-method")
+    public void execute(@SuppressWarnings("unused") World world, ICommandSender sender, Integer projectNumber)
+	    throws CommandException {
 	// Check if submit.jar exists and download a new one if it doesn't
 	if (Files.notExists(Paths.get(ConfigCircuitry.submit)))
 	    try {
