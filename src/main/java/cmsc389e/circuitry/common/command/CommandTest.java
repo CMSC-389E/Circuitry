@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,6 @@ import net.minecraft.util.text.event.HoverEvent.Action;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import scala.actors.threadpool.Arrays;
 
 public class CommandTest extends CommandCircuitryBase {
     private final class Tester implements ITickable {
