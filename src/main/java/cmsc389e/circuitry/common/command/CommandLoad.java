@@ -1,13 +1,11 @@
 package cmsc389e.circuitry.common.command;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -19,44 +17,26 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.world.World;
 
 public final class CommandLoad extends CommandCircuitryBase {
-    protected static final String SUBMIT_FILE = "submit" + File.separatorChar + "submit.jar", TESTS_FILE = "tests.txt";
-    protected static final List<String[]> TESTS = new ArrayList<>();
+    private static boolean[][] tests;
 
-    protected static void readTests() throws CommandException {
-	// Load in valid tags and rows for the current test
-	TESTS.clear();
-	try (BufferedReader in = Files.newBufferedReader(Paths.get(TESTS_FILE))) {
-	    String line;
-	    while ((line = in.readLine()) != null)
-		TESTS.add(line.split("\t"));
-	} catch (IOException e) {
-	    throw new CommandException("Unable to read " + TESTS_FILE + ". Try running /load again.");
-	}
-
-	// Save tags to Lists first since we don't know how many of each there are
-	List<String> inputs = new ArrayList<>();
-	List<String> outputs = new ArrayList<>();
-
-	// Read in the header row and sort each tag into the correct List
-	for (String name : TESTS.get(1))
-	    switch (name.charAt(0)) {
-	    case 'i':
-		inputs.add(name);
-		break;
-	    case 'o':
-		outputs.add(name);
-		break;
-	    default:
-		throw new CommandException("The following tag must start with i or o: " + name);
+    public static boolean[][] getTests() throws CommandException {
+	if (tests == null)
+	    try {
+		List<String> lines = Files.readAllLines(Paths.get(ConfigCircuitry.tests));
+		String[] tags = lines.get(1).split("\t(?=o)", 2);
+		ConfigCircuitry.inTags = tags[0].split("\t");
+		ConfigCircuitry.outTags = tags[1].split("\t");
+		ConfigCircuitry.sync();
+		tests = new boolean[lines.size() - 2][ConfigCircuitry.inTags.length + ConfigCircuitry.outTags.length];
+		for (int i = 2; i < lines.size(); i++) {
+		    tags = lines.get(i).split("\t");
+		    for (int j = 0; j < tags.length; j++)
+			tests[i - 2][j] = tags[j].equals("1");
+		}
+	    } catch (IOException e) {
+		throw new CommandException("Unable to read " + ConfigCircuitry.tests + ". Try running /load again.");
 	    }
-	// Don't need the first two lines anymore.
-	TESTS.remove(0);
-	TESTS.remove(0);
-
-	// Save tags to the config file to store for future game sessions
-	ConfigCircuitry.inputs = inputs.toArray(new String[0]);
-	ConfigCircuitry.outputs = outputs.toArray(new String[0]);
-	ConfigCircuitry.sync();
+	return tests;
     }
 
     public CommandLoad() {
@@ -67,31 +47,33 @@ public final class CommandLoad extends CommandCircuitryBase {
     public void execute(World world, ICommandSender sender, String[] args) throws CommandException {
 	int projectNumber = getOrDefault("project number", null);
 
-	String serverURL = "https://cs.umd.edu/~abrassel/";
-	String submitURL = serverURL + "submit.jar";
-	String testsURL = serverURL + "proj" + projectNumber + "tests.txt";
-
 	// Check if submit.jar exists and download a new one if it doesn't
-	if (Files.notExists(Paths.get(SUBMIT_FILE)))
+	if (Files.notExists(Paths.get(ConfigCircuitry.submit)))
 	    try {
-		FileUtils.copyURLToFile(new URL(submitURL), new File(SUBMIT_FILE));
+		FileUtils.copyURLToFile(new URL(ConfigCircuitry.server + "submit.jar"),
+			new File(ConfigCircuitry.submit));
 	    } catch (IOException e) {
-		throw new CommandException("Could not download " + SUBMIT_FILE + " from " + serverURL + '.');
+		throw new CommandException("Could not download submit.jar from " + ConfigCircuitry.server + '.');
 	    }
 
 	// Attempt to download tests.txt
-	sendMessage(sender, "Attempting to read project file " + projectNumber + " from " + serverURL + '.');
+	sendMessage(sender,
+		"Attempting to read project file " + projectNumber + " from " + ConfigCircuitry.server + '.');
 	try {
-	    FileUtils.copyURLToFile(new URL(testsURL), new File(TESTS_FILE));
+	    FileUtils.copyURLToFile(new URL(ConfigCircuitry.server + "proj" + projectNumber + "tests.txt"),
+		    new File(ConfigCircuitry.tests));
 	} catch (MalformedURLException e) {
 	    throw new CommandException("Project " + projectNumber + " is not valid.");
 	} catch (IOException e) {
-	    throw new CommandException(SUBMIT_FILE + " is missing or " + TESTS_FILE
+	    throw new CommandException(ConfigCircuitry.submit + " is missing or " + ConfigCircuitry.tests
 		    + " is being used by another process.  Try running again.");
 	}
-	sendMessage(sender, "Successfully read project file " + projectNumber + " from " + serverURL + '.');
+	sendMessage(sender,
+		"Successfully read project file " + projectNumber + " from " + ConfigCircuitry.server + '.');
 
-	readTests();
+	// Load in valid tags and rows for the current test
+	getTests();
+
 	sendMessage(sender, "Loaded passed file in correctly.");
     }
 }

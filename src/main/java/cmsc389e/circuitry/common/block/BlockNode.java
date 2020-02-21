@@ -1,5 +1,7 @@
 package cmsc389e.circuitry.common.block;
 
+import javax.annotation.Nullable;
+
 import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.block.Block;
@@ -14,17 +16,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 
 public abstract class BlockNode extends Block {
-    private static final PropertyBool POWERED = PropertyBool.create("powered");
+    private static PropertyBool POWERED = PropertyBool.create("powered");
 
-    public final static String getTag(World world, BlockPos pos) {
-	return getTag(world, pos, world.getBlockState(pos));
-    }
-
-    public final static String getTag(World world, BlockPos pos, IBlockState state) {
+    public static String getTag(World world, BlockPos pos, IBlockState state) {
 	Integer tag = CircuitryWorldSavedData.get(world).get(pos);
 	if (tag != null) {
 	    String[] tags = ((BlockNode) state.getBlock()).getTags();
@@ -33,64 +33,73 @@ public abstract class BlockNode extends Block {
 	return null;
     }
 
-    public final static boolean isPowered(IBlockState state) {
+    public static boolean isPowered(IBlockState state) {
 	return state.getValue(POWERED);
     }
 
-    private final static int mod(int tag, int mod) {
+    private static int mod(int tag, int mod) {
 	tag %= mod;
 	if (tag < 0)
 	    tag = mod + tag;
 	return tag;
     }
 
-    public final static void setPowered(World world, BlockPos pos, IBlockState state, boolean isPowered) {
-	if (isPowered(state) != isPowered)
-	    world.setBlockState(pos, state.cycleProperty(POWERED));
+    @Nullable
+    public static BlockPos rayTraceEyes(EntityPlayer player) {
+	RayTraceResult result = ForgeHooks.rayTraceEyes(player,
+		player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue() + 1);
+	if (result == null)
+	    return null;
+	BlockPos pos = result.getBlockPos();
+	return player.getEntityWorld().getBlockState(pos).getBlock() instanceof BlockNode ? pos : null;
     }
 
-    private final static boolean shouldDecreaseTag(EntityPlayer player) {
+    public static void setPowered(World world, BlockPos pos, IBlockState state, boolean isPowered) {
+	world.setBlockState(pos, state.withProperty(POWERED, isPowered));
+    }
+
+    private static boolean shouldDecreaseTag(EntityPlayer player) {
 	// temporarily using sneaking
 	return player.isSneaking();
     }
 
-    protected BlockNode(String registryName) {
+    public BlockNode(String registryName) {
 	super(Material.ROCK);
 	setCreativeTab(CreativeTabs.REDSTONE).setRegistryName(registryName)
 		.setTranslationKey(Circuitry.MODID + "." + getRegistryName().getPath());
     }
 
     @Override
-    public final void breakBlock(World world, BlockPos pos, IBlockState state) {
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
 	if (!world.isRemote)
 	    CircuitryWorldSavedData.get(world).remove(pos);
     }
 
     @Override
-    public final BlockStateContainer createBlockState() {
+    public BlockStateContainer createBlockState() {
 	return new BlockStateContainer(this, POWERED);
     }
 
     @Override
-    public final int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 	return isPowered(state) ? 15 : 0;
     }
 
     @Override
-    public final int getMetaFromState(IBlockState state) {
+    public int getMetaFromState(IBlockState state) {
 	return isPowered(state) ? 1 : 0;
     }
 
     @Override
-    public final IBlockState getStateFromMeta(int meta) {
+    public IBlockState getStateFromMeta(int meta) {
 	return getDefaultState().withProperty(POWERED, meta == 1);
     }
 
-    protected abstract String[] getTags();
+    public abstract String[] getTags();
 
     @Override
-    public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player,
-	    EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
+	    EnumFacing facing, float hitX, float hitY, float hitZ) {
 	if (!world.isRemote) {
 	    CircuitryWorldSavedData data = CircuitryWorldSavedData.get(world);
 	    data.put(pos, data.get(pos) + (shouldDecreaseTag(player) ? -1 : 1));
@@ -99,7 +108,7 @@ public abstract class BlockNode extends Block {
     }
 
     @Override
-    public final void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer,
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer,
 	    ItemStack stack) {
 	if (!world.isRemote)
 	    CircuitryWorldSavedData.get(world).put(pos, 0);

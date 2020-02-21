@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
-public final class CircuitryWorldSavedData extends WorldSavedData {
+public class CircuitryWorldSavedData extends WorldSavedData {
     private static final String DATA_NAME = Circuitry.MODID + "_CircuitryData";
 
     public static CircuitryWorldSavedData get(World world) {

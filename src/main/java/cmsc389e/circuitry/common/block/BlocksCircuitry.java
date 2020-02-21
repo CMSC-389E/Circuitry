@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @EventBusSubscriber
-public final class BlocksCircuitry {
+public class BlocksCircuitry {
     public static final Block IN_NODE = new BlockInNode(), OUT_NODE = new BlockOutNode();
 
     @SubscribeEvent

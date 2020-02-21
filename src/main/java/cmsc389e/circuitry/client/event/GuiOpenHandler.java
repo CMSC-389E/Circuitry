@@ -24,7 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * <li><i>Superflat Customization Preset</i> to a clone of <i>Redstone Ready</i>
  */
 @EventBusSubscriber(Side.CLIENT)
-public final class GuiOpenHandler {
+public class GuiOpenHandler {
     /**
      * Pretty much a copy and paste of the Readstone Ready preset settings.
      *

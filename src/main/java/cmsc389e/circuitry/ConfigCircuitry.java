@@ -1,8 +1,8 @@
 package cmsc389e.circuitry;
 
+import java.io.File;
+
 import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.Config.Comment;
-import net.minecraftforge.common.config.Config.Name;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * Configuration file for the mod.
  */
 @Config(modid = Circuitry.MODID)
-public final class ConfigCircuitry {
+public class ConfigCircuitry {
     /**
      * Called when config values are changed.
      */
@@ -26,12 +26,12 @@ public final class ConfigCircuitry {
 	}
     }
 
-    @Comment("A list of all possible names for input node blocks for the currently loaded test framework. Can be changed manually.")
-    @Name("Input Names")
-    public static String[] inputs = new String[0];
-    @Comment("A list of all possible names for output node blocks for the currently loaded test framework. Can be changed manually.")
-    @Name("Output Names")
-    public static String[] outputs = new String[0];
+    public static String[] inTags = new String[0];
+    public static String[] outTags = new String[0];
+    public static String server = "https://cs.umd.edu/~abrassel/";
+    public static String submit = "submit" + File.separatorChar + "submit.jar";
+    public static String testLogs = "test_logs.txt";
+    public static String tests = "tests.txt";
 
     public static void sync() {
 	ConfigManager.sync(Circuitry.MODID, Type.INSTANCE);

@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * they display correctly in the inventory.
  */
 @EventBusSubscriber(Side.CLIENT)
-public final class ModelRegistryHandler {
+public class ModelRegistryHandler {
     /**
      * Registers all the {@link Item}s' models passed in.
      *

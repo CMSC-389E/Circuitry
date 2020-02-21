@@ -1,23 +1,17 @@
 package cmsc389e.circuitry.common.event;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import cmsc389e.circuitry.common.command.CommandTest;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.NextTickListEntry;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 @EventBusSubscriber
 public final class WorldHandler {
-    public static final Map<World, Set<NextTickListEntry>> PENDING_TICKS = new HashMap<>();
-
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
 	World world = event.getWorld();
@@ -30,9 +24,13 @@ public final class WorldHandler {
 	    gameRules.setOrCreateGameRule("doMobSpawning", string);
 	    gameRules.setOrCreateGameRule("doTileDrops", string);
 	    gameRules.setOrCreateGameRule("doWeatherCycle", string);
-
-	    PENDING_TICKS.put(world, ObfuscationReflectionHelper.getPrivateValue(WorldServer.class, (WorldServer) world,
-		    "field_73064_N")); // pendingTickListEntriesHashSet
 	}
+    }
+
+    @SubscribeEvent
+    public static void onWorldTick(WorldTickEvent event) {
+	if (event.phase == Phase.START)
+	    if (CommandTest.isRunning(event.world))
+		CommandTest.tick(event.world);
     }
 }

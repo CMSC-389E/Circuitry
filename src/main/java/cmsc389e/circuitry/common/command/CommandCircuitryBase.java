@@ -12,16 +12,15 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public abstract class CommandCircuitryBase extends CommandBase {
-    protected static final void sendMessage(ICommandSender sender, String message) {
-	sendMessage(sender, message, new Style().getColor());
+    public static void sendMessage(ICommandSender sender, String msg) {
+	sendMessage(sender, msg, new Style());
     }
 
-    protected static final void sendMessage(ICommandSender sender, String message, TextFormatting color) {
-	sender.sendMessage(new TextComponentString(message).setStyle(new Style().setItalic(true).setColor(color)));
+    public static void sendMessage(ICommandSender sender, String msg, Style style) {
+	sender.sendMessage(new TextComponentString(msg).setStyle(style.setItalic(true)));
     }
 
     private final Map<String, Object> argMap;
@@ -29,7 +28,7 @@ public abstract class CommandCircuitryBase extends CommandBase {
     private final String name;
 
     @SafeVarargs
-    protected CommandCircuitryBase(String name, Triple<String, Boolean, Class<?>>... args) {
+    public CommandCircuitryBase(String name, Triple<String, Boolean, Class<?>>... args) {
 	argMap = new HashMap<>();
 	argTriples = args;
 	this.name = name;
@@ -51,15 +50,15 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	execute(server.getEntityWorld(), sender, args);
     }
 
-    protected abstract void execute(World world, ICommandSender sender, String[] args) throws CommandException;
+    public abstract void execute(World world, ICommandSender sender, String[] args) throws CommandException;
 
     @Override
-    public final String getName() {
+    public String getName() {
 	return name;
     }
 
     @SuppressWarnings("unchecked")
-    protected final <T> T getOrDefault(String key, T defaultValue) throws CommandException {
+    public <T> T getOrDefault(String key, T defaultValue) throws CommandException {
 	if (argMap.containsKey(key))
 	    return (T) argMap.get(key);
 	for (Triple<String, Boolean, Class<?>> argTriple : argTriples)
@@ -73,7 +72,7 @@ public abstract class CommandCircuitryBase extends CommandBase {
     }
 
     @Override
-    public final String getUsage(ICommandSender sender) {
+    public String getUsage(ICommandSender sender) {
 	StringBuilder usage = new StringBuilder('/' + getName());
 	for (Triple<String, Boolean, Class<?>> argTriple : argTriples) {
 	    String boundary = argTriple.getMiddle() ? "<>" : "[]";

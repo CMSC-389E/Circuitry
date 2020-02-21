@@ -6,19 +6,19 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public final class BlockOutNode extends BlockNode {
+public class BlockOutNode extends BlockNode {
     private static void update(World world, BlockPos pos, IBlockState state) {
 	if (!world.isRemote)
 	    setPowered(world, pos, state, world.isBlockPowered(pos));
     }
 
-    protected BlockOutNode() {
+    public BlockOutNode() {
 	super("out_node");
     }
 
     @Override
-    protected String[] getTags() {
-	return ConfigCircuitry.outputs;
+    public String[] getTags() {
+	return ConfigCircuitry.outTags;
     }
 
     @Override

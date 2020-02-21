@@ -6,8 +6,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public final class BlockInNode extends BlockNode {
-    protected BlockInNode() {
+public class BlockInNode extends BlockNode {
+    public BlockInNode() {
 	super("in_node");
     }
 
@@ -17,8 +17,8 @@ public final class BlockInNode extends BlockNode {
     }
 
     @Override
-    protected String[] getTags() {
-	return ConfigCircuitry.inputs;
+    public String[] getTags() {
+	return ConfigCircuitry.inTags;
     }
 
     @Override
