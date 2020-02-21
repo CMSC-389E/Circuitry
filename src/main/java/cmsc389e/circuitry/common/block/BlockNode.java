@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
+import cmsc389e.circuitry.networking.CircuitryPacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -58,11 +59,6 @@ public abstract class BlockNode extends Block {
 	world.setBlockState(pos, state.withProperty(POWERED, isPowered));
     }
 
-    private static boolean shouldDecreaseTag(EntityPlayer player) {
-	// temporarily using sneaking
-	return player.isSneaking();
-    }
-
     public BlockNode(String registryName) {
 	super(Material.ROCK);
 	setCreativeTab(CreativeTabs.REDSTONE).setRegistryName(registryName)
@@ -102,7 +98,7 @@ public abstract class BlockNode extends Block {
 	    EnumFacing facing, float hitX, float hitY, float hitZ) {
 	if (!world.isRemote) {
 	    CircuitryWorldSavedData data = CircuitryWorldSavedData.get(world);
-	    data.put(pos, data.get(pos) + (shouldDecreaseTag(player) ? -1 : 1));
+	    data.put(pos, data.get(pos) + (CircuitryPacketHandler.isPlayerHoldingModifier(player) ? -1 : 1));
 	}
 	return true;
     }

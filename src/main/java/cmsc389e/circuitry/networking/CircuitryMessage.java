@@ -4,11 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 public class CircuitryMessage implements IMessage {
-    public enum Key {
-	DECREASE_TAG, TOGGLE_INPUT;
-    }
-
-    public Key key;
+    public CommonKey key;
 
     /**
      * A default constructor is always required
@@ -16,13 +12,13 @@ public class CircuitryMessage implements IMessage {
     public CircuitryMessage() {
     }
 
-    public CircuitryMessage(Key key) {
+    public CircuitryMessage(CommonKey key) {
 	this.key = key;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-	key = Key.values()[buf.readInt()];
+	key = CommonKey.values()[buf.readInt()];
     }
 
     @Override
