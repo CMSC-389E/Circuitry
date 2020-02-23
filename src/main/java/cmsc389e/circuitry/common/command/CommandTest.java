@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 public class CommandTest extends CommandCircuitryBase {
     private static final class Tester implements ITickable {
 	private enum Phase {
-	    SET, GET, DELAY;
+	    SET, GET;
 
 	    private Phase next() {
 		Phase[] phases = values();
@@ -116,17 +116,13 @@ public class CommandTest extends CommandCircuitryBase {
 	}
 
 	private boolean shouldWait() {
-	    // Twenty ticks is one second. That seems to be a safe wait period to
-	    // consistently work.
-	    return wait < 20 && !tickSet.isEmpty();
+	    // Twenty ticks is one second.
+	    return wait++ / 20 < delay || !tickSet.isEmpty();
 	}
 
 	@Override
-	@SuppressWarnings("incomplete-switch")
 	public void update() {
-	    if (phase == Phase.DELAY && wait / 20 < delay || shouldWait())
-		wait++;
-	    else {
+	    if (!shouldWait()) {
 		switch (phase) {
 		case SET:
 		    setInputs();
@@ -152,6 +148,8 @@ public class CommandTest extends CommandCircuitryBase {
 
     public static void execute(World world, ICommandSender sender, Integer delay, String output)
 	    throws CommandException {
+	if (isRunning(world))
+	    throw new CommandException("Another test is already running!");
 	TESTERS.put(world, new Tester(world, sender, delay == null ? 0 : delay, output));
     }
 

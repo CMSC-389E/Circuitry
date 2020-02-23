@@ -38,7 +38,7 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	    if (type.equals(Integer.class))
 		return parseInt(arg);
 	    if (type.equals(Long.class))
-		return parseDouble(arg);
+		return parseLong(arg);
 	}
 	if (type.equals(String.class))
 	    return arg;
