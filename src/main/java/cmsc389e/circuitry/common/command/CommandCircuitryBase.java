@@ -1,10 +1,12 @@
 package cmsc389e.circuitry.common.command;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,9 +20,13 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public abstract class CommandCircuitryBase extends CommandBase {
-    private static boolean isOptional(Parameter parameter) {
-	// @Nullable denotes that the parameter is optional
-	return parameter.isAnnotationPresent(Nullable.class);
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.PARAMETER)
+    public static @interface Required {
+    }
+
+    private static boolean isRequired(Parameter parameter) {
+	return parameter.isAnnotationPresent(Required.class);
     }
 
     private static Object parseArg(Parameter parameter, String arg) throws NumberInvalidException {
@@ -47,9 +53,9 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	sender.sendMessage(new TextComponentString(msg).setStyle(style.setItalic(true)));
     }
 
-    private final Method execute;
-
     private final String name;
+
+    private final Method execute;
 
     public CommandCircuitryBase(String name) {
 	this.name = name;
@@ -68,15 +74,16 @@ public abstract class CommandCircuitryBase extends CommandBase {
 		if (i >= execute.getParameterCount())
 		    throw new CommandException("Too many arguments!");
 		while ((parsedArgs[i] = parseArg(parameters[i], arg)) == null) {
-		    if (!isOptional(parameters[i]))
+		    if (isRequired(parameters[i]))
 			throw new CommandException(parameters[i].getName() + " is required!");
 		    i++;
 		}
 		i++;
 	    }
-	    if (i < execute.getParameterCount() && !isOptional(parameters[i]))
-		throw new CommandException(parameters[i].getName() + " is required!");
-	    execute.invoke(this, parsedArgs);
+	    for (i = 2; i < execute.getParameterCount(); i++)
+		if (parsedArgs[i] == null && isRequired(parameters[i]))
+		    throw new CommandException(parameters[i].getName() + " is required!");
+	    execute.invoke(null, parsedArgs);
 	} catch (IllegalAccessException e) {
 	    e.printStackTrace();
 	    throw new CommandException("Cannot execute command for some reason. Send the log to one of the TAs.");
@@ -106,7 +113,7 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	StringBuilder usage = new StringBuilder('/' + getName());
 	Parameter[] parameters = execute.getParameters();
 	for (int i = 2; i < parameters.length; i++) {
-	    String border = isOptional(parameters[i]) ? "[]" : "<>";
+	    String border = isRequired(parameters[i]) ? "<>" : "[]";
 	    usage.append(" " + border.charAt(0) + parameters[i].getName() + border.charAt(1));
 	}
 	return usage.toString();

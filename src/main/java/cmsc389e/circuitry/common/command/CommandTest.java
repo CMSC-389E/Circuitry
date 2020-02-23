@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
-
 import cmsc389e.circuitry.ConfigCircuitry;
 import cmsc389e.circuitry.common.block.BlockNode;
 import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
@@ -30,6 +28,15 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class CommandTest extends CommandCircuitryBase {
     private static final class Tester implements ITickable {
+	private enum Phase {
+	    SET, GET, DELAY;
+
+	    private Phase next() {
+		Phase[] phases = values();
+		return phases[(ordinal() + 1) % phases.length];
+	    }
+	}
+
 	private static String toString(boolean[] array) {
 	    StringBuilder string = new StringBuilder();
 	    for (boolean element : array)
@@ -37,16 +44,18 @@ public class CommandTest extends CommandCircuitryBase {
 	    return string.substring(1);
 	}
 
-	private final int delay;
-	private final HoverEvent hoverEvent;
-	private final String output;
-	private int phase, test, wait;
+	private final World world;
 	private final ICommandSender sender;
+	private final int delay;
+	private final String output;
+
+	private final HoverEvent hoverEvent;
 	private final Map<String, BlockPos> tags;
 	private final boolean[][] tests;
 	private final Set<?> tickSet;
 
-	private final World world;
+	private Phase phase;
+	private int test, wait;
 
 	private Tester(World world, ICommandSender sender, int delay, String output) throws CommandException {
 	    this.world = world;
@@ -63,10 +72,12 @@ public class CommandTest extends CommandCircuitryBase {
 	    String out = "Out: " + Arrays.toString(ConfigCircuitry.outTags);
 	    hoverEvent = new HoverEvent(Action.SHOW_TEXT, new TextComponentString(in + '\n' + out));
 
+	    phase = Phase.SET;
+
 	    init(in, out);
 	}
 
-	private void checkOutputs() {
+	private void getOutputs() {
 	    boolean[] outputs = new boolean[ConfigCircuitry.outTags.length];
 	    boolean passed = true;
 	    for (int i = 0; i < outputs.length; i++) {
@@ -105,27 +116,29 @@ public class CommandTest extends CommandCircuitryBase {
 	}
 
 	private boolean shouldWait() {
-	    // Twenty ticks is one second.
-	    return wait < delay && !tickSet.isEmpty();
+	    // Twenty ticks is one second. That seems to be a safe wait period to
+	    // consistently work.
+	    return wait < 20 && !tickSet.isEmpty();
 	}
 
 	@Override
+	@SuppressWarnings("incomplete-switch")
 	public void update() {
-	    if (shouldWait())
+	    if (phase == Phase.DELAY && wait / 20 < delay || shouldWait())
 		wait++;
 	    else {
-		switch (phase % 2) {
-		case 0:
+		switch (phase) {
+		case SET:
 		    setInputs();
 		    break;
-		case 1:
-		    checkOutputs();
+		case GET:
+		    getOutputs();
 		    if (++test == tests.length) {
 			abort(world);
 			sendMessage(sender, "Testing complete.");
 		    }
 		}
-		phase++;
+		phase = phase.next();
 		wait = 0;
 	    }
 	}
@@ -135,6 +148,11 @@ public class CommandTest extends CommandCircuitryBase {
 
     public static void abort(World world) {
 	TESTERS.remove(world);
+    }
+
+    public static void execute(World world, ICommandSender sender, Integer delay, String output)
+	    throws CommandException {
+	TESTERS.put(world, new Tester(world, sender, delay == null ? 0 : delay, output));
     }
 
     public static boolean isRunning(World world) {
@@ -167,11 +185,5 @@ public class CommandTest extends CommandCircuitryBase {
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
-    }
-
-    @SuppressWarnings("static-method")
-    public void execute(World world, ICommandSender sender, @Nullable Integer delay, @Nullable String output)
-	    throws CommandException {
-	TESTERS.put(world, new Tester(world, sender, delay == null ? 20 : delay, output));
     }
 }

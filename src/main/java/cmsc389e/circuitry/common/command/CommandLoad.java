@@ -18,33 +18,8 @@ import net.minecraft.world.World;
 public final class CommandLoad extends CommandCircuitryBase {
     private static boolean[][] tests;
 
-    public static boolean[][] getTests() throws CommandException {
-	if (tests == null)
-	    try {
-		List<String> lines = Files.readAllLines(Paths.get(ConfigCircuitry.tests));
-		String[] tags = lines.get(1).split("\t(?=o)", 2);
-		ConfigCircuitry.inTags = tags[0].split("\t");
-		ConfigCircuitry.outTags = tags[1].split("\t");
-		ConfigCircuitry.sync();
-		tests = new boolean[lines.size() - 2][ConfigCircuitry.inTags.length + ConfigCircuitry.outTags.length];
-		for (int i = 2; i < lines.size(); i++) {
-		    tags = lines.get(i).split("\t");
-		    for (int j = 0; j < tags.length; j++)
-			tests[i - 2][j] = tags[j].equals("1");
-		}
-	    } catch (IOException e) {
-		throw new CommandException("Unable to read " + ConfigCircuitry.tests + ". Try running /load again.");
-	    }
-	return tests;
-    }
-
-    public CommandLoad() {
-	super("load");
-    }
-
-    @SuppressWarnings("static-method")
-    public void execute(@SuppressWarnings("unused") World world, ICommandSender sender, Integer projectNumber)
-	    throws CommandException {
+    public static void execute(@SuppressWarnings("unused") World world, ICommandSender sender,
+	    @Required Integer projectNumber) throws CommandException {
 	// Check if submit.jar exists and download a new one if it doesn't
 	if (Files.notExists(Paths.get(ConfigCircuitry.submit)))
 	    try {
@@ -73,5 +48,29 @@ public final class CommandLoad extends CommandCircuitryBase {
 	getTests();
 
 	sendMessage(sender, "Loaded passed file in correctly.");
+    }
+
+    public static boolean[][] getTests() throws CommandException {
+	if (tests == null)
+	    try {
+		List<String> lines = Files.readAllLines(Paths.get(ConfigCircuitry.tests));
+		String[] tags = lines.get(1).split("\t(?=o)", 2);
+		ConfigCircuitry.inTags = tags[0].split("\t");
+		ConfigCircuitry.outTags = tags[1].split("\t");
+		ConfigCircuitry.sync();
+		tests = new boolean[lines.size() - 2][ConfigCircuitry.inTags.length + ConfigCircuitry.outTags.length];
+		for (int i = 2; i < lines.size(); i++) {
+		    tags = lines.get(i).split("\t");
+		    for (int j = 0; j < tags.length; j++)
+			tests[i - 2][j] = tags[j].equals("1");
+		}
+	    } catch (IOException e) {
+		throw new CommandException("Unable to read " + ConfigCircuitry.tests + ". Try running /load again.");
+	    }
+	return tests;
+    }
+
+    public CommandLoad() {
+	super("load");
     }
 }
