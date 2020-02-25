@@ -1,0 +1,13 @@
+{
+	"homepage": "https://github.com/JamieBrassel/CMSC-389E-Circuitry/releases",
+	"1.12.2": {
+		"0.0.1.0-beta6": "-Fix permissive command parsing.\n-Implement decrease tag modifier key.\n-Fix /test.\nhttps://github.com/JamieBrassel/CMSC-389E-Circuitry/releases/tag/v0.0.1.0-beta.6",
+		"0.0.1.0-beta5": "-Rewrite /load and /test.\n-Add toggle node key.\n\nhttps://github.com/JamieBrassel/CMSC-389E-Circuitry/releases/tag/v0.0.1.0-beta.5",
+		"0.0.1.0-beta4": "-Fix redstone loop crash and server crash.\n-Add Alex Brassel to author list.\n\nhttps://github.com/JamieBrassel/CMSC-389E-Circuitry/releases/tag/v0.0.1.0-beta.4",
+		"0.0.1.0-beta3": "-Implement commands fix minor bugs.\n\nhttps://github.com/JamieBrassel/CMSC-389E-Circuitry/releases/tag/v0.0.1.0-beta.3",
+		"0.0.1.0": "Initial release.\n\nhttps://github.com/JamieBrassel/CMSC-389E-Circuitry/releases/tag/v0.0.1.0-beta.2\nhttps://github.com/JamieBrassel/CMSC-389E-Circuitry/releases/tag/v0.0.1.0-beta.1"
+	},
+	"promos": {
+		"1.12.2-latest": "0.0.1.0-beta6"
+	}
+}
