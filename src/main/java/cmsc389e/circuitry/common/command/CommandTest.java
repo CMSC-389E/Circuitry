@@ -6,15 +6,19 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import javax.annotation.Nullable;
 
 import cmsc389e.circuitry.ConfigCircuitry;
 import cmsc389e.circuitry.common.block.BlockNode;
 import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.Style;
@@ -77,6 +81,13 @@ public class CommandTest extends CommandCircuitryBase {
 	    init(in, out);
 	}
 
+	private String findMissingTag(String[] tags) {
+	    for (String tag : tags)
+		if (!this.tags.containsKey(tag))
+		    return tag;
+	    return null;
+	}
+
 	private void getOutputs() {
 	    boolean[] outputs = new boolean[ConfigCircuitry.outTags.length];
 	    boolean passed = true;
@@ -89,10 +100,16 @@ public class CommandTest extends CommandCircuitryBase {
 		    new Style().setColor(passed ? TextFormatting.GREEN : TextFormatting.RED));
 	}
 
-	private void init(String in, String out) {
-	    CircuitryWorldSavedData.get(world)
-		    .forEach(pos -> tags.put(BlockNode.getTag(world, pos, world.getBlockState(pos)), pos));
-
+	private void init(String in, String out) throws CommandException {
+	    for (BlockPos pos : CircuitryWorldSavedData.get(world)) {
+		String tag = BlockNode.getTag(world, pos, world.getBlockState(pos));
+		if (tags.put(tag, pos) != null)
+		    throw new CommandException("More than node block found with tag: " + tag + '!');
+	    }
+	    String tag;
+	    if ((tag = findMissingTag(ConfigCircuitry.inTags)) != null
+		    || (tag = findMissingTag(ConfigCircuitry.outTags)) != null)
+		throw new CommandException("No node block found with tag: " + tag + '!');
 	    sendMessage(sender, "Starting tests...");
 	    sendMessage(sender, in, new Style().setColor(TextFormatting.LIGHT_PURPLE));
 	    sendMessage(sender, out, new Style().setColor(TextFormatting.AQUA));
@@ -146,7 +163,7 @@ public class CommandTest extends CommandCircuitryBase {
 	TESTERS.remove(world);
     }
 
-    public static void execute(World world, ICommandSender sender, Integer delay, String output)
+    public static void execute(World world, ICommandSender sender, @Optional Integer delay, @Optional String output)
 	    throws CommandException {
 	if (isRunning(world))
 	    throw new CommandException("Another test is already running!");
@@ -183,5 +200,12 @@ public class CommandTest extends CommandCircuitryBase {
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
+	    @Nullable BlockPos targetPos) {
+	return args.length == 2 ? Arrays.asList(ConfigCircuitry.outTags)
+		: super.getTabCompletions(server, sender, args, targetPos);
     }
 }

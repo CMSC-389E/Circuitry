@@ -18,8 +18,8 @@ import net.minecraft.world.World;
 public final class CommandLoad extends CommandCircuitryBase {
     private static boolean[][] tests;
 
-    public static void execute(@SuppressWarnings("unused") World world, ICommandSender sender,
-	    @Required Integer projectNumber) throws CommandException {
+    public static void execute(@SuppressWarnings("unused") World world, ICommandSender sender, Integer projectNumber)
+	    throws CommandException {
 	// Check if submit.jar exists and download a new one if it doesn't
 	if (Files.notExists(Paths.get(ConfigCircuitry.submit)))
 	    try {

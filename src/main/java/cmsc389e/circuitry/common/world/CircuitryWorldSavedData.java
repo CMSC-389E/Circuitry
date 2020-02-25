@@ -1,8 +1,8 @@
 package cmsc389e.circuitry.common.world;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import cmsc389e.circuitry.Circuitry;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
-public class CircuitryWorldSavedData extends WorldSavedData {
+public class CircuitryWorldSavedData extends WorldSavedData implements Iterable<BlockPos> {
     private static final String DATA_NAME = Circuitry.MODID + "_CircuitryData";
 
     public static CircuitryWorldSavedData get(World world) {
@@ -36,12 +36,13 @@ public class CircuitryWorldSavedData extends WorldSavedData {
 	tags = new HashMap<>();
     }
 
-    public void forEach(Consumer<? super BlockPos> action) {
-	tags.keySet().forEach(action);
-    }
-
     public Integer get(BlockPos pos) {
 	return tags.get(pos);
+    }
+
+    @Override
+    public Iterator<BlockPos> iterator() {
+	return tags.keySet().iterator();
     }
 
     public void put(BlockPos pos, int tag) {
