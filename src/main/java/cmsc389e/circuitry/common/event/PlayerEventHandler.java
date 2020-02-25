@@ -18,11 +18,12 @@ public final class PlayerEventHandler {
 	if (event.side == Side.SERVER && event.phase == Phase.START) {
 	    EntityPlayer player = event.player;
 	    BlockPos pos = BlockNode.rayTraceEyes(player);
+	    String message = "";
 	    if (pos != null) {
 		World world = player.getEntityWorld();
-		player.sendStatusMessage(
-			new TextComponentString(BlockNode.getTag(world, pos, world.getBlockState(pos))), true);
+		message = BlockNode.getTag(world, pos, world.getBlockState(pos));
 	    }
+	    player.sendStatusMessage(new TextComponentString(message), true);
 	}
     }
 }
