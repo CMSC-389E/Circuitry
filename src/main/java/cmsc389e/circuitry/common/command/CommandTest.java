@@ -4,21 +4,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import cmsc389e.circuitry.ConfigCircuitry;
 import cmsc389e.circuitry.common.block.BlockNode;
 import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.Style;
@@ -42,18 +40,25 @@ public class CommandTest extends CommandCircuitryBase {
 	}
 
 	private static String toString(boolean[] array) {
+	    return toString(array, array.length);
+	}
+
+	private static String toString(boolean[] array, int newLength) {
+	    return toString(array, 0, newLength);
+	}
+
+	private static String toString(boolean[] array, int from, int size) {
 	    StringBuilder string = new StringBuilder();
-	    for (boolean element : array)
-		string.append(" " + (element ? '1' : '0'));
-	    return string.substring(1);
+	    for (int i = 0; i < size; i++)
+		string.append(" " + (array[i + from] ? '1' : '0'));
+	    return string.toString();
 	}
 
 	private final World world;
 	private final ICommandSender sender;
-	private final int delay;
-	private final String output;
+	private final int delay, from, size;
 
-	private final HoverEvent hoverEvent;
+	private final Style style;
 	private final Map<String, BlockPos> tags;
 	private final boolean[][] tests;
 	private final Set<?> tickSet;
@@ -65,16 +70,24 @@ public class CommandTest extends CommandCircuitryBase {
 	    this.world = world;
 	    this.sender = sender;
 	    this.delay = delay;
-	    this.output = output;
+	    if (output == null) {
+		from = 0;
+		size = ConfigCircuitry.outTags.length;
+	    } else {
+		from = ArrayUtils.indexOf(ConfigCircuitry.outTags, output);
+		size = 1;
+		if (from == ArrayUtils.INDEX_NOT_FOUND)
+		    throw new CommandException("Invalid output tag!");
+	    }
 
 	    tags = new HashMap<>();
 	    tests = CommandLoad.getTests();
 	    tickSet = ObfuscationReflectionHelper.getPrivateValue(WorldServer.class, (WorldServer) world,
 		    "field_73064_N"); // pendingTickListEntriesHashSet
-
-	    String in = "In: " + Arrays.toString(ConfigCircuitry.inTags);
-	    String out = "Out: " + Arrays.toString(ConfigCircuitry.outTags);
-	    hoverEvent = new HoverEvent(Action.SHOW_TEXT, new TextComponentString(in + '\n' + out));
+	    String in = "In: " + String.join(" ", ConfigCircuitry.inTags);
+	    String out = "Out: " + StringUtils.join(ConfigCircuitry.outTags, " ", from, from + size);
+	    style = new Style()
+		    .setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new TextComponentString(in + '\n' + out)));
 
 	    phase = Phase.SET;
 
@@ -89,14 +102,13 @@ public class CommandTest extends CommandCircuitryBase {
 	}
 
 	private void getOutputs() {
-	    boolean[] outputs = new boolean[ConfigCircuitry.outTags.length];
+	    boolean[] results = new boolean[size];
 	    boolean passed = true;
-	    for (int i = 0; i < outputs.length; i++) {
-		outputs[i] = BlockNode.isPowered(world.getBlockState(tags.get(ConfigCircuitry.outTags[i])));
-		passed &= output != null && ConfigCircuitry.outTags[i].equals(output)
-			|| outputs[i] == tests[test][i + ConfigCircuitry.inTags.length];
+	    for (int i = 0; i < size; i++) {
+		results[i] = BlockNode.isPowered(world.getBlockState(tags.get(ConfigCircuitry.outTags[i + from])));
+		passed &= results[i] == tests[test][i + from + ConfigCircuitry.inTags.length];
 	    }
-	    sendMessage(sender, "Result: " + toString(outputs) + (passed ? "" : " [FAILED]"),
+	    sendMessage(sender, "Result:" + toString(results) + (passed ? "" : " [FAILED]"),
 		    new Style().setColor(passed ? TextFormatting.GREEN : TextFormatting.RED));
 	}
 
@@ -110,6 +122,7 @@ public class CommandTest extends CommandCircuitryBase {
 	    if ((tag = findMissingTag(ConfigCircuitry.inTags)) != null
 		    || (tag = findMissingTag(ConfigCircuitry.outTags)) != null)
 		throw new CommandException("No node block found with tag: " + tag + '!');
+
 	    sendMessage(sender, "Starting tests...");
 	    sendMessage(sender, in, new Style().setColor(TextFormatting.LIGHT_PURPLE));
 	    sendMessage(sender, out, new Style().setColor(TextFormatting.AQUA));
@@ -117,11 +130,8 @@ public class CommandTest extends CommandCircuitryBase {
 	}
 
 	private void setInputs() {
-	    sendMessage(sender,
-		    "\nIn:       " + toString(Arrays.copyOf(tests[test], ConfigCircuitry.inTags.length)) + "\nOut:     "
-			    + toString(
-				    Arrays.copyOfRange(tests[test], ConfigCircuitry.inTags.length, tests[test].length)),
-		    new Style().setHoverEvent(hoverEvent));
+	    sendMessage(sender, "\nIn:      " + toString(tests[test], ConfigCircuitry.inTags.length) + "\nOut:    "
+		    + toString(tests[test], from + ConfigCircuitry.inTags.length, size), style);
 	    setInputs(i -> tests[test][i]);
 	}
 
@@ -200,12 +210,5 @@ public class CommandTest extends CommandCircuitryBase {
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
-    }
-
-    @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
-	    @Nullable BlockPos targetPos) {
-	return args.length == 2 ? Arrays.asList(ConfigCircuitry.outTags)
-		: super.getTabCompletions(server, sender, args, targetPos);
     }
 }

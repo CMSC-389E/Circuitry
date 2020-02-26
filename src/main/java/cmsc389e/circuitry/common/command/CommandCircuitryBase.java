@@ -7,15 +7,20 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import cmsc389e.circuitry.ConfigCircuitry;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -109,6 +114,15 @@ public abstract class CommandCircuitryBase extends CommandBase {
     @Override
     public String getName() {
 	return name;
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
+	    @Nullable BlockPos targetPos) {
+	List<String> tags = new ArrayList<>();
+	Collections.addAll(tags, ConfigCircuitry.inTags);
+	Collections.addAll(tags, ConfigCircuitry.outTags);
+	return tags;
     }
 
     @Override
