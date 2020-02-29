@@ -1,15 +1,15 @@
 {
 	"homepage": "https://github.com/JamieBrassel/CMSC-389E-Circuitry/releases",
 	"1.12.2": {
+		"1.12.2-0.0.1.0-beta8": "-Add automatic updater.",
 		"1.12.2-0.0.1.0-beta7": "-Fix delay.\n-Add /test tag check.\n-Add /set.\n-Fix tag overlay.\n-Add Forge update checker.\n-Fix testing for a specific output.",
 		"1.12.2-0.0.1.0-beta6": "-Fix permissive command parsing.\n-Implement decrease tag modifier key.\n-Fix /test.",
 		"1.12.2-0.0.1.0-beta5": "-Rewrite /load.\n-Rewrite /test.\n-Add toggle node key.",
 		"1.12.2-0.0.1.0-beta4": "-Fix redstone loop crash.\n-Fix server crash.\n-Add Alex Brassel to author list.",
-		"1.12.2-0.0.1.0-beta3": "-Implement commands.\n-Fix minor bugs.",
-		"1.12.2-0.0.1.0": "Initial release."
+		"1.12.2-0.0.1.0-beta3": "-Implement commands.\n-Fix minor bugs."
 	},
 	"promos": {
-		"1.12.2-latest": "1.12.2-0.0.1.0-beta7",
-		"1.12.2-recommended": "1.12.2-0.0.1.0-beta7"
+		"1.12.2-latest": "1.12.2-0.0.1.0-beta8",
+		"1.12.2-recommended": "1.12.2-0.0.1.0-beta8"
 	}
 }
