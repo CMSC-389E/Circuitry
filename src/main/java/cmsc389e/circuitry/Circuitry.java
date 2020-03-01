@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 /**
  * Mod class for CMSC 389E Circuitry.
  */
-@Mod(modid = Circuitry.MODID, version = "1.12.2-0.0.1.0-beta8", useMetadata = true, updateJSON = "https://raw.githubusercontent.com/JamieBrassel/CMSC-389E-Circuitry/master/update.json")
+@Mod(modid = Circuitry.MODID, version = "1.12.2-0.0.1.0-beta6", useMetadata = true, updateJSON = "https://raw.githubusercontent.com/JamieBrassel/CMSC-389E-Circuitry/master/update.json")
 public class Circuitry {
     public static final String MODID = "circuitry";
     @SidedProxy(clientSide = "cmsc389e.circuitry.client.ClientProxy", serverSide = "cmsc389e.circuitry.server.ServerProxy")
