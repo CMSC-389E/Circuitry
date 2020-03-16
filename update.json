@@ -1,7 +1,7 @@
 {
 	"homepage": "https://github.com/JamieBrassel/CMSC-389E-Circuitry/releases",
 	"1.12.2": {
-		"1.12.2-1.0.0.0": "-First stable release.",
+		"1.12.2-1.0.0.0": "-First stable release.\nMove test logs to the tested world folder.",
 		"1.12.2-0.0.1.0-beta7": "-Fix delay.\n-Add /test tag check.\n-Add /set.\n-Fix tag overlay.\n-Add Forge update checker.\n-Fix testing for a specific output.",
 		"1.12.2-0.0.1.0-beta6": "-Fix permissive command parsing.\n-Implement decrease tag modifier key.\n-Fix /test.",
 		"1.12.2-0.0.1.0-beta5": "-Rewrite /load.\n-Rewrite /test.\n-Add toggle node key.",
