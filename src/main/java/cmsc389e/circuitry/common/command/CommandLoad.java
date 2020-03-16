@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
-import cmsc389e.circuitry.ConfigCircuitry;
+import cmsc389e.circuitry.common.ConfigCircuitry;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.world.World;

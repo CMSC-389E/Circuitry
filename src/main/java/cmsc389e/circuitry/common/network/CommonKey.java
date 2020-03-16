@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.networking;
+package cmsc389e.circuitry.common.network;
 
 import org.lwjgl.input.Keyboard;
 

@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.common.world;
+package cmsc389e.circuitry.common;
 
 import java.util.HashMap;
 import java.util.Iterator;

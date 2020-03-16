@@ -1,33 +1,19 @@
-package cmsc389e.circuitry;
+package cmsc389e.circuitry.common;
 
 import java.io.File;
 
+import cmsc389e.circuitry.Circuitry;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Comment;
 import net.minecraftforge.common.config.Config.Name;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Configuration file for the mod.
  */
 @Config(modid = Circuitry.MODID)
 public class ConfigCircuitry {
-    /**
-     * Called when configuration values are changed.
-     */
-    @Mod.EventBusSubscriber
-    public static class EventHandler {
-	@SubscribeEvent
-	public static void onConfigChangedEvent(OnConfigChangedEvent event) {
-	    if (event.getModID().equals(Circuitry.MODID))
-		sync();
-	}
-    }
-
     @Comment("List of tags that inputs can cycle through. If this list is empty, displayed tags will be integers. Tests will expect every tag in this list to be used in the world with no two inputs having the same tag.")
     @Name("Input Tags")
     public static String[] inTags = new String[0];

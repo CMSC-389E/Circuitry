@@ -3,8 +3,8 @@ package cmsc389e.circuitry.common.block;
 import javax.annotation.Nullable;
 
 import cmsc389e.circuitry.Circuitry;
-import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
-import cmsc389e.circuitry.networking.CircuitryPacketHandler;
+import cmsc389e.circuitry.common.CircuitryWorldSavedData;
+import cmsc389e.circuitry.common.network.CircuitryPacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -86,6 +86,7 @@ public abstract class BlockNode extends Block {
 	return isPowered(state) ? 1 : 0;
     }
 
+    @Deprecated
     @Override
     public IBlockState getStateFromMeta(int meta) {
 	return getDefaultState().withProperty(POWERED, meta == 1);

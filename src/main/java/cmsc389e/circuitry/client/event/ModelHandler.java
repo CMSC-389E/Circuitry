@@ -1,8 +1,8 @@
 package cmsc389e.circuitry.client.event;
 
+import cmsc389e.circuitry.common.ItemsCircuitry;
 import cmsc389e.circuitry.common.block.BlockInNode;
 import cmsc389e.circuitry.common.block.BlockOutNode;
-import cmsc389e.circuitry.common.item.ItemsCircuitry;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -16,7 +16,12 @@ import net.minecraftforge.fml.relauncher.Side;
  * they display correctly in the inventory.
  */
 @EventBusSubscriber(Side.CLIENT)
-public class ModelEventHandler {
+public class ModelHandler {
+    @SubscribeEvent
+    public static void onModelRegistry(@SuppressWarnings("unused") ModelRegistryEvent event) {
+	registerModels(ItemsCircuitry.IN_NODE, ItemsCircuitry.OUT_NODE);
+    }
+
     /**
      * Registers all the {@link Item}s' models passed in.
      *
@@ -26,10 +31,5 @@ public class ModelEventHandler {
 	for (Item item : items)
 	    ModelLoader.setCustomModelResourceLocation(item, 0,
 		    new ModelResourceLocation(item.getRegistryName(), "inventory"));
-    }
-
-    @SubscribeEvent
-    public static void registerModels(@SuppressWarnings("unused") ModelRegistryEvent event) {
-	registerModels(ItemsCircuitry.IN_NODE, ItemsCircuitry.OUT_NODE);
     }
 }

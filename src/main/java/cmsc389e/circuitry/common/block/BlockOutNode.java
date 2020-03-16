@@ -1,6 +1,6 @@
 package cmsc389e.circuitry.common.block;
 
-import cmsc389e.circuitry.ConfigCircuitry;
+import cmsc389e.circuitry.common.ConfigCircuitry;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -21,6 +21,7 @@ public class BlockOutNode extends BlockNode {
 	return ConfigCircuitry.outTags;
     }
 
+    @Deprecated
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
 	update(world, pos, state);

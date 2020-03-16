@@ -4,16 +4,16 @@ import cmsc389e.circuitry.common.command.CommandTest;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 @EventBusSubscriber
-public final class WorldEventHandler {
+public final class WorldHandler {
     @SubscribeEvent
-    public static void onWorldLoad(WorldEvent.Load event) {
+    public static void onWorldLoad(Load event) {
 	World world = event.getWorld();
 	if (!world.isRemote) {
 	    GameRules gameRules = world.getGameRules();

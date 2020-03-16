@@ -2,6 +2,8 @@
 .gradle
 bin
 gradle
+libs
+libs-src
 run
 
 # Files

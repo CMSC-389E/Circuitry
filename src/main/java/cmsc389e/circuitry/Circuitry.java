@@ -1,10 +1,11 @@
 package cmsc389e.circuitry;
 
+import cmsc389e.circuitry.common.IProxy;
 import cmsc389e.circuitry.common.command.CommandAbort;
 import cmsc389e.circuitry.common.command.CommandLoad;
 import cmsc389e.circuitry.common.command.CommandSet;
 import cmsc389e.circuitry.common.command.CommandTest;
-import cmsc389e.circuitry.networking.CircuitryPacketHandler;
+import cmsc389e.circuitry.common.network.CircuitryPacketHandler;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 /**
  * Mod class for CMSC 389E Circuitry.
  */
-@Mod(modid = Circuitry.MODID, version = "1.12.2-0.0.1.0-beta6", useMetadata = true, updateJSON = "https://raw.githubusercontent.com/JamieBrassel/CMSC-389E-Circuitry/master/update.json")
+@Mod(modid = Circuitry.MODID, version = "1.12.2-1.0.0.0", useMetadata = true, updateJSON = "https://raw.githubusercontent.com/JamieBrassel/CMSC-389E-Circuitry/master/update.json")
 public class Circuitry {
     public static final String MODID = "circuitry";
     @SidedProxy(clientSide = "cmsc389e.circuitry.client.ClientProxy", serverSide = "cmsc389e.circuitry.server.ServerProxy")

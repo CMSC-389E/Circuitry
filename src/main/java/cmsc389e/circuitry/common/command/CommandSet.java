@@ -1,8 +1,8 @@
 package cmsc389e.circuitry.common.command;
 
+import cmsc389e.circuitry.common.CircuitryWorldSavedData;
 import cmsc389e.circuitry.common.block.BlockInNode;
 import cmsc389e.circuitry.common.block.BlockNode;
-import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;

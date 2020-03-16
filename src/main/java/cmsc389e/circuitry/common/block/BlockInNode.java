@@ -1,6 +1,6 @@
 package cmsc389e.circuitry.common.block;
 
-import cmsc389e.circuitry.ConfigCircuitry;
+import cmsc389e.circuitry.common.ConfigCircuitry;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -11,6 +11,7 @@ public class BlockInNode extends BlockNode {
 	super("in_node");
     }
 
+    @Deprecated
     @Override
     public boolean canProvidePower(IBlockState state) {
 	return true;
@@ -21,6 +22,7 @@ public class BlockInNode extends BlockNode {
 	return ConfigCircuitry.inTags;
     }
 
+    @Deprecated
     @Override
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 	return isPowered(blockState) ? 15 : 0;

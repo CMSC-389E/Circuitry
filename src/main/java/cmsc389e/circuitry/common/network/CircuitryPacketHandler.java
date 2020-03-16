@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.networking;
+package cmsc389e.circuitry.common.network;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -2,7 +2,7 @@ package cmsc389e.circuitry.common.command;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,9 +12,9 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import cmsc389e.circuitry.ConfigCircuitry;
+import cmsc389e.circuitry.common.CircuitryWorldSavedData;
+import cmsc389e.circuitry.common.ConfigCircuitry;
 import cmsc389e.circuitry.common.block.BlockNode;
-import cmsc389e.circuitry.common.world.CircuitryWorldSavedData;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ITickable;
@@ -26,6 +26,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.event.HoverEvent.Action;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class CommandTest extends CommandCircuitryBase {
@@ -62,11 +63,13 @@ public class CommandTest extends CommandCircuitryBase {
 	private final Map<String, BlockPos> tags;
 	private final boolean[][] tests;
 	private final Set<?> tickSet;
+	private final Path testLogs;
 
 	private Phase phase;
 	private int test, wait;
 
 	private Tester(World world, ICommandSender sender, int delay, String output) throws CommandException {
+	    System.out.println(FMLLog.log);
 	    this.world = world;
 	    this.sender = sender;
 	    this.delay = delay;
@@ -80,18 +83,37 @@ public class CommandTest extends CommandCircuitryBase {
 		    throw new CommandException("Invalid output tag!");
 	    }
 
-	    tags = new HashMap<>();
-	    tests = CommandLoad.getTests();
-	    tickSet = ObfuscationReflectionHelper.getPrivateValue(WorldServer.class, (WorldServer) world,
-		    "field_73064_N"); // pendingTickListEntriesHashSet
 	    String in = "In: " + String.join(" ", ConfigCircuitry.inTags);
 	    String out = "Out: " + StringUtils.join(ConfigCircuitry.outTags, " ", from, from + size);
 	    style = new Style()
 		    .setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new TextComponentString(in + '\n' + out)));
+	    tags = new HashMap<>();
+	    tests = CommandLoad.getTests();
+	    tickSet = ObfuscationReflectionHelper.getPrivateValue(WorldServer.class, (WorldServer) world,
+		    "field_73064_N"); // pendingTickListEntriesHashSet
+	    testLogs = world.getSaveHandler().getWorldDirectory().toPath().resolve(ConfigCircuitry.testLogs);
 
 	    phase = Phase.SET;
 
-	    init(in, out);
+	    try {
+		Files.deleteIfExists(testLogs);
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
+	    for (BlockPos pos : CircuitryWorldSavedData.get(world)) {
+		String tag = BlockNode.getTag(world, pos, world.getBlockState(pos));
+		if (tags.put(tag, pos) != null)
+		    throw new CommandException("More than node block found with tag: " + tag + '!');
+	    }
+	    String tag;
+	    if ((tag = findMissingTag(ConfigCircuitry.inTags)) != null
+		    || (tag = findMissingTag(ConfigCircuitry.outTags)) != null)
+		throw new CommandException("No node block found with tag: " + tag + '!');
+	    sendMessage(sender, "Starting tests...");
+	    sendMessage(sender, in, new Style().setColor(TextFormatting.LIGHT_PURPLE));
+	    sendMessage(sender, out, new Style().setColor(TextFormatting.AQUA));
+	    setInputs(i -> true);
+
 	}
 
 	private String findMissingTag(String[] tags) {
@@ -112,21 +134,18 @@ public class CommandTest extends CommandCircuitryBase {
 		    new Style().setColor(passed ? TextFormatting.GREEN : TextFormatting.RED));
 	}
 
-	private void init(String in, String out) throws CommandException {
-	    for (BlockPos pos : CircuitryWorldSavedData.get(world)) {
-		String tag = BlockNode.getTag(world, pos, world.getBlockState(pos));
-		if (tags.put(tag, pos) != null)
-		    throw new CommandException("More than node block found with tag: " + tag + '!');
-	    }
-	    String tag;
-	    if ((tag = findMissingTag(ConfigCircuitry.inTags)) != null
-		    || (tag = findMissingTag(ConfigCircuitry.outTags)) != null)
-		throw new CommandException("No node block found with tag: " + tag + '!');
+	public void sendMessage(ICommandSender sender, String msg) {
+	    sendMessage(sender, msg, new Style());
+	}
 
-	    sendMessage(sender, "Starting tests...");
-	    sendMessage(sender, in, new Style().setColor(TextFormatting.LIGHT_PURPLE));
-	    sendMessage(sender, out, new Style().setColor(TextFormatting.AQUA));
-	    setInputs(i -> true);
+	public void sendMessage(ICommandSender sender, String msg, Style style) {
+	    CommandCircuitryBase.sendMessage(sender, msg, style);
+	    try {
+		Files.write(testLogs, (msg + '\n').getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+	    } catch (IOException e) {
+		CommandCircuitryBase.sendMessage(sender, "Can't write to " + testLogs + '!',
+			new Style().setColor(TextFormatting.RED));
+	    }
 	}
 
 	private void setInputs() {
@@ -184,31 +203,11 @@ public class CommandTest extends CommandCircuitryBase {
 	return TESTERS.get(world) != null;
     }
 
-    public static void sendMessage(ICommandSender sender, String msg) {
-	sendMessage(sender, msg, new Style());
-    }
-
-    public static void sendMessage(ICommandSender sender, String msg, Style style) {
-	CommandCircuitryBase.sendMessage(sender, msg, style);
-	try {
-	    Files.write(Paths.get(ConfigCircuitry.testLogs), (msg + '\n').getBytes(), StandardOpenOption.APPEND,
-		    StandardOpenOption.CREATE);
-	} catch (IOException e) {
-	    CommandCircuitryBase.sendMessage(sender, "Can't write to " + ConfigCircuitry.testLogs + '!',
-		    new Style().setColor(TextFormatting.RED));
-	}
-    }
-
     public static void tick(World world) {
 	TESTERS.get(world).update();
     }
 
     public CommandTest() {
 	super("test");
-	try {
-	    Files.deleteIfExists(Paths.get(ConfigCircuitry.testLogs));
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
     }
 }

@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
-import cmsc389e.circuitry.ConfigCircuitry;
+import cmsc389e.circuitry.common.ConfigCircuitry;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -29,6 +29,7 @@ public abstract class CommandCircuitryBase extends CommandBase {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.PARAMETER)
     public static @interface Optional {
+	// TODO
     }
 
     private static boolean isOptional(Parameter parameter) {

@@ -1,5 +1,6 @@
-package cmsc389e.circuitry;
+package cmsc389e.circuitry.common;
 
+import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.client.ClientProxy;
 import cmsc389e.circuitry.server.ServerProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;

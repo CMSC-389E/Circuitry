@@ -1,4 +1,4 @@
-package cmsc389e.circuitry.common.item;
+package cmsc389e.circuitry.common;
 
 import cmsc389e.circuitry.common.block.BlocksCircuitry;
 import net.minecraft.block.Block;
