@@ -1,12 +1,9 @@
-# Directories
 .gradle
+.settings
 bin
+doc
 gradle
-libs
-libs-src
 run
-
-# Files
 .classpath
 .project
 *.launch

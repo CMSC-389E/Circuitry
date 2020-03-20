@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cmsc389e.circuitry.common.IProxy;
-import cmsc389e.circuitry.common.network.CommonKey;
+import cmsc389e.circuitry.common.network.CircuitryMessage.Key;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Loader;
@@ -15,16 +15,16 @@ import net.minecraftforge.fml.common.Loader;
  * instance.
  */
 public class ClientProxy implements IProxy {
-    public static final Map<CommonKey, KeyBinding> KEY_BINDINGS = new HashMap<>();
+    public static final Map<Key, KeyBinding> KEY_BINDINGS = new HashMap<>();
 
     /**
-     * Initializes {@link KeyBinding}s for the mod as specified by the
-     * {@link CommonKey} enum.
+     * Initializes {@link KeyBinding}s for the mod as specified by the {@link Key}
+     * enum.
      */
     @Override
     public void init() {
 	String name = Loader.instance().activeModContainer().getName();
-	for (CommonKey key : CommonKey.values()) {
+	for (Key key : Key.values()) {
 	    KeyBinding keyBinding = new KeyBinding(key.toString(), key.getKeyCode(), name);
 	    KEY_BINDINGS.put(key, keyBinding);
 	    ClientRegistry.registerKeyBinding(keyBinding);

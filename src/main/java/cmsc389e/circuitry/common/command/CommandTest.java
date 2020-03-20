@@ -179,6 +179,8 @@ public class CommandTest extends CommandCircuitryBase {
 			abort(world);
 			sendMessage(sender, "Testing complete.");
 		    }
+		    break;
+		default:
 		}
 		phase = phase.next();
 		wait = 0;
@@ -188,8 +190,8 @@ public class CommandTest extends CommandCircuitryBase {
 
     private static final Map<World, Tester> TESTERS = new HashMap<>();
 
-    public static void abort(World world) {
-	TESTERS.remove(world);
+    public static Tester abort(World world) {
+	return TESTERS.remove(world);
     }
 
     public static void execute(World world, ICommandSender sender, @Optional Integer delay, @Optional String output)

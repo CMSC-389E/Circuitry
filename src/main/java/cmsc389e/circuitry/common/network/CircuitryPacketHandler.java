@@ -5,6 +5,7 @@ import java.util.Set;
 
 import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.block.BlockNode;
+import cmsc389e.circuitry.common.network.CircuitryMessage.Key;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -26,7 +27,7 @@ public class CircuitryPacketHandler {
 
 	    // Execute the action on the main server thread by adding it as a scheduled task
 	    world.addScheduledTask(() -> {
-		switch (message.key) {
+		switch (message.getKey()) {
 		case DECREASE_TAG:
 		    if (!HOLDING_MODIFIER.remove(player))
 			HOLDING_MODIFIER.add(player);
@@ -51,7 +52,7 @@ public class CircuitryPacketHandler {
 	return HOLDING_MODIFIER.contains(player);
     }
 
-    public static void sendMessage(CommonKey key) {
+    public static void sendMessage(Key key) {
 	INSTANCE.sendToServer(new CircuitryMessage(key));
     }
 }
