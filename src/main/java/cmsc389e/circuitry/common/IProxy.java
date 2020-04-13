@@ -15,4 +15,9 @@ public interface IProxy {
      * from {@link Circuitry#init(FMLInitializationEvent)}.
      */
     void init();
+
+    /**
+     * TODO
+     */
+    void postInit();
 }

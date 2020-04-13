@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 /**
@@ -33,6 +34,16 @@ public class Circuitry {
     public static void init(@SuppressWarnings("unused") FMLInitializationEvent event) {
 	CircuitryPacketHandler.init();
 	proxy.init();
+    }
+
+    /**
+     * TODO
+     *
+     * @param event TODO
+     */
+    @EventHandler
+    public static void postInit(@SuppressWarnings("unused") FMLPostInitializationEvent event) {
+	proxy.postInit();
     }
 
     /**
