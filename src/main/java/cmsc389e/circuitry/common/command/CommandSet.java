@@ -9,7 +9,19 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * TODO
+ */
 public class CommandSet extends CommandCircuitryBase {
+    /**
+     * TODO
+     *
+     * @param world     TODO
+     * @param sender    TODO
+     * @param isPowered TODO
+     * @param input     TODO
+     * @throws CommandException TODO
+     */
     public static void execute(World world, ICommandSender sender, Boolean isPowered, @Optional String input)
 	    throws CommandException {
 	boolean valid = false;
@@ -27,6 +39,9 @@ public class CommandSet extends CommandCircuitryBase {
 	sendMessage(sender, "Input blocks set successfully!");
     }
 
+    /**
+     * TODO
+     */
     public CommandSet() {
 	super("set");
     }

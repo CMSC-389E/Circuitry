@@ -25,17 +25,37 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
+/**
+ * TODO
+ */
 public abstract class CommandCircuitryBase extends CommandBase {
+    /**
+     * TODO
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.PARAMETER)
     public static @interface Optional {
 	// TODO
     }
 
+    /**
+     * TODO
+     *
+     * @param parameter TODO
+     * @return TODO
+     */
     private static boolean isOptional(Parameter parameter) {
 	return parameter.isAnnotationPresent(Optional.class);
     }
 
+    /**
+     * TODO
+     *
+     * @param parameter TODO
+     * @param arg       TODO
+     * @return TODO
+     * @throws CommandException TODO
+     */
     @Nullable
     private static Object parseArg(Parameter parameter, String arg) throws CommandException {
 	Class<?> type = parameter.getType();
@@ -54,10 +74,23 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	return null;
     }
 
+    /**
+     * TODO
+     *
+     * @param sender TODO
+     * @param msg    TODO
+     */
     public static void sendMessage(ICommandSender sender, String msg) {
 	sendMessage(sender, msg, new Style());
     }
 
+    /**
+     * TODO
+     *
+     * @param sender TODO
+     * @param msg    TODO
+     * @param style  TODO
+     */
     public static void sendMessage(ICommandSender sender, String msg, Style style) {
 	sender.sendMessage(new TextComponentString(msg).setStyle(style.setItalic(true)));
     }
@@ -66,11 +99,19 @@ public abstract class CommandCircuitryBase extends CommandBase {
 
     private final Method execute;
 
+    /**
+     * TODO
+     *
+     * @param name TODO
+     */
     public CommandCircuitryBase(String name) {
 	this.name = name;
 	execute = findMethod();
     }
 
+    /**
+     * TODO
+     */
     @Override
     public final void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 	try {
@@ -101,6 +142,11 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	}
     }
 
+    /**
+     * TODO
+     *
+     * @return TODO
+     */
     private Method findMethod() {
 	for (Method method : getClass().getMethods())
 	    if (method.getName().equals("execute") && method.getParameterCount() >= 2) {
@@ -112,11 +158,17 @@ public abstract class CommandCircuitryBase extends CommandBase {
 		+ " matching signature execute(World, ICommandSender, ...).");
     }
 
+    /**
+     * TODO
+     */
     @Override
     public String getName() {
 	return name;
     }
 
+    /**
+     * TODO
+     */
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 	    @Nullable BlockPos targetPos) {
@@ -126,6 +178,9 @@ public abstract class CommandCircuitryBase extends CommandBase {
 	return tags;
     }
 
+    /**
+     * TODO
+     */
     @Override
     public String getUsage(ICommandSender sender) {
 	StringBuilder usage = new StringBuilder('/' + getName());

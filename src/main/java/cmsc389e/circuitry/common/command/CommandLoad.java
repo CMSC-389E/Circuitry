@@ -15,9 +15,20 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.world.World;
 
+/**
+ * TODO
+ */
 public final class CommandLoad extends CommandCircuitryBase {
     private static boolean[][] tests;
 
+    /**
+     * TODO
+     *
+     * @param world         TODO
+     * @param sender        TODO
+     * @param projectNumber TODO
+     * @throws CommandException TODO
+     */
     public static void execute(@SuppressWarnings("unused") World world, ICommandSender sender, Integer projectNumber)
 	    throws CommandException {
 	// Check if submit.jar exists and download a new one if it doesn't
@@ -50,6 +61,12 @@ public final class CommandLoad extends CommandCircuitryBase {
 	sendMessage(sender, "Loaded passed file in correctly.");
     }
 
+    /**
+     * TODO
+     *
+     * @return TODO
+     * @throws CommandException TODO
+     */
     public static boolean[][] getTests() throws CommandException {
 	if (tests == null)
 	    try {
@@ -70,6 +87,9 @@ public final class CommandLoad extends CommandCircuitryBase {
 	return tests;
     }
 
+    /**
+     * TODO
+     */
     public CommandLoad() {
 	super("load");
     }

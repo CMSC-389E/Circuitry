@@ -1,17 +1,19 @@
 package cmsc389e.circuitry.client.event;
 
 import net.minecraft.client.gui.GuiCreateWorld;
-import net.minecraft.client.gui.GuiFlatPresets;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.FlatGeneratorInfo;
+import net.minecraft.world.gen.FlatLayerInfo;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
@@ -20,47 +22,18 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventBusSubscriber(Side.CLIENT)
 public class GuiHandler {
     /**
-     * In a slightly over-complicated process, the settings for the Redstone Ready
-     * preset is obtained and returned. What makes it so complicated is that
-     * {@link GuiFlatPresets#FLAT_WORLD_PRESETS} and
-     * {@code GuiFlatPresets.LayerItem} are both private so nothing can be easily
-     * accessed.
-     * <hr>
-     * <b>The following steps are performed:</b>
-     * <ol>
-     * <li>The translation key for the preset is translated to the current language
-     * with {@link I18n#format(String, Object...)}.</li>
-     * <li>The {@link Class} object for {@code GuiFlatPresets.LayerItem} is
-     * acquired. It is saved to a {@code Class<Object>} so that
-     * {@link ObfuscationReflectionHelper#getPrivateValue(Class, Object, String...)}
-     * doesn't need to cast each element.</li>
-     * <li>{@link GuiFlatPresets#FLAT_WORLD_PRESETS} is acquired and iterated
-     * through.</li>
-     * <li>{@code GuiFlatPresets.LayerItem.name} is acquired and
-     * {@link String#equals(Object)} is called to see if it is the same as the
-     * Redstone Ready preset's name.</li>
-     * <li>Finally, if the previous item is true,
-     * {@code GuiFlatPresets.LayerItem.generatorInfo} is acquired and returned.</li>
-     * </ol>
-     * <hr>
-     * <b>Mappings</b>
-     * <ul>
-     * <li>{@code field_146431_f} = {@link GuiFlatPresets#FLAT_WORLD_PRESETS}</li>
-     * <li>{@code field_148232_b} = {@code GuiFlatPresets.LayerItem.name}</li>
-     * <li>{@code field_148233_c} =
-     * {@code GuiFlatPresets.LayerItem.generatorInfo}</li>
-     * </ul>
+     * TODO
      *
-     * @return a String representation of the Redstone Ready preset
+     * @return TODO
      */
     private static String getPreset() {
-	String name = I18n.format("createWorld.customize.preset.redstone_ready");
-	Class<Object> cl = ReflectionHelper.getClass(null, GuiFlatPresets.class.getName() + "$LayerItem");
-	for (Object obj : (Iterable<?>) ObfuscationReflectionHelper.getPrivateValue(GuiFlatPresets.class, null,
-		"field_146431_f"))
-	    if (ObfuscationReflectionHelper.getPrivateValue(cl, obj, "field_148232_b").equals(name))
-		return ObfuscationReflectionHelper.getPrivateValue(cl, obj, "field_148233_c");
-	return null;
+	FlatGeneratorInfo flatgeneratorinfo = new FlatGeneratorInfo();
+	flatgeneratorinfo.getFlatLayers().add(new FlatLayerInfo(1, Blocks.BEDROCK));
+	flatgeneratorinfo.getFlatLayers().add(new FlatLayerInfo(3, Blocks.STONE));
+	flatgeneratorinfo.getFlatLayers().add(new FlatLayerInfo(52, Blocks.SANDSTONE));
+	flatgeneratorinfo.setBiome(Biome.getIdForBiome(Biomes.DESERT));
+	flatgeneratorinfo.updateLayers();
+	return flatgeneratorinfo.toString();
     }
 
     /**

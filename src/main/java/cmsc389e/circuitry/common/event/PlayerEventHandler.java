@@ -11,8 +11,16 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * TODO
+ */
 @EventBusSubscriber
 public final class PlayerEventHandler {
+    /**
+     * TODO
+     *
+     * @param event TODO
+     */
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
 	if (event.side == Side.SERVER && event.phase == Phase.START) {

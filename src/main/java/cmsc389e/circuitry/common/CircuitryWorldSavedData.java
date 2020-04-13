@@ -11,9 +11,18 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
+/**
+ * TODO
+ */
 public class CircuitryWorldSavedData extends WorldSavedData implements Iterable<BlockPos> {
     private static final String DATA_NAME = Circuitry.MODID + "_CircuitryData";
 
+    /**
+     * TODO
+     *
+     * @param world TODO
+     * @return TODO
+     */
     public static CircuitryWorldSavedData get(World world) {
 	MapStorage storage = world.getMapStorage();
 	CircuitryWorldSavedData instance = (CircuitryWorldSavedData) storage
@@ -27,29 +36,55 @@ public class CircuitryWorldSavedData extends WorldSavedData implements Iterable<
 
     private final Map<BlockPos, Integer> tags;
 
+    /**
+     * TODO
+     */
     private CircuitryWorldSavedData() {
 	this(DATA_NAME);
     }
 
+    /**
+     * TODO
+     *
+     * @param name TODO
+     */
     public CircuitryWorldSavedData(String name) {
 	super(name);
 	tags = new HashMap<>();
     }
 
+    /**
+     * TODO
+     *
+     * @param pos TODO
+     * @return TODO
+     */
     public Integer get(BlockPos pos) {
 	return tags.get(pos);
     }
 
+    /**
+     * TODO
+     */
     @Override
     public Iterator<BlockPos> iterator() {
 	return tags.keySet().iterator();
     }
 
+    /**
+     * TODO
+     *
+     * @param pos TODO
+     * @param tag TODO
+     */
     public void put(BlockPos pos, int tag) {
 	tags.put(pos, tag);
 	markDirty();
     }
 
+    /**
+     * TODO
+     */
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
 	try {
@@ -66,11 +101,19 @@ public class CircuitryWorldSavedData extends WorldSavedData implements Iterable<
 	}
     }
 
+    /**
+     * TODO
+     *
+     * @param pos TODO
+     */
     public void remove(BlockPos pos) {
 	tags.remove(pos);
 	markDirty();
     }
 
+    /**
+     * TODO
+     */
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 	tags.forEach((pos, tag) -> compound.setInteger(String.valueOf(pos.toLong()), tag));

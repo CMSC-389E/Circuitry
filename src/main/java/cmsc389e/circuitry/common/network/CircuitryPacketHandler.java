@@ -15,10 +15,16 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+/**
+ * TODO
+ */
 public class CircuitryPacketHandler {
     public static final Set<EntityPlayer> HOLDING_MODIFIER = new HashSet<>();
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(Circuitry.MODID);
 
+    /**
+     * TODO
+     */
     public static void init() {
 	INSTANCE.registerMessage((message, ctx) -> {
 	    // This is the player the packet was sent to the server from
@@ -48,10 +54,21 @@ public class CircuitryPacketHandler {
 	}, CircuitryMessage.class, 0, Side.SERVER);
     }
 
+    /**
+     * TODO
+     *
+     * @param player TODO
+     * @return TODO
+     */
     public static boolean isPlayerHoldingModifier(EntityPlayer player) {
 	return HOLDING_MODIFIER.contains(player);
     }
 
+    /**
+     * TODO
+     *
+     * @param key TODO
+     */
     public static void sendMessage(Key key) {
 	INSTANCE.sendToServer(new CircuitryMessage(key));
     }

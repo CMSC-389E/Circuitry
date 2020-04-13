@@ -17,6 +17,11 @@ import net.minecraftforge.fml.relauncher.Side;
  */
 @EventBusSubscriber(Side.CLIENT)
 public class ModelHandler {
+    /**
+     * TODO
+     *
+     * @param event TODO
+     */
     @SubscribeEvent
     public static void onModelRegistry(@SuppressWarnings("unused") ModelRegistryEvent event) {
 	registerModels(ItemsCircuitry.IN_NODE, ItemsCircuitry.OUT_NODE);
