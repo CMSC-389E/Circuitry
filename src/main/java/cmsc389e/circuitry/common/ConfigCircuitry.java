@@ -26,9 +26,6 @@ public class ConfigCircuitry {
     @Comment("Path of the submit JAR used for submitting projects. Tests should be reloaded after changing this field.")
     @Name("Submit JAR Path")
     public static String submit = "submit" + File.separatorChar + "submit.jar";
-    @Comment("Path of the test logs file.")
-    @Name("Test Logs Path")
-    public static String testLogs = "test_logs.txt";
     @Comment("Path of the tests file used for running tests. Tests should be reloade after changing this field.")
     @Name("Tests Path")
     public static String tests = "tests.txt";
