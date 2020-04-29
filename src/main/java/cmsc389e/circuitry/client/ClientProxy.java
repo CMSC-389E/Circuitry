@@ -15,6 +15,8 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.CustomModLoadingErrorDisplayException;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 
 /**
  * Runs code specific to the physical client, but too generic to place into more
@@ -29,7 +31,7 @@ public class ClientProxy implements IProxy {
      * enum.
      */
     @Override
-    public void init() {
+    public void init(FMLInitializationEvent event) {
 	String name = Loader.instance().activeModContainer().getName();
 	for (Key key : Key.values()) {
 	    KeyBinding keyBinding = new KeyBinding(key.toString(), key.getKeyCode(), name);
@@ -39,10 +41,11 @@ public class ClientProxy implements IProxy {
     }
 
     /**
-     * TODO
+     * Checks for any other active mods loaded into the game and throws up a
+     * {@link GuiErrorScreen} if any are found.
      */
     @Override
-    public void postInit() {
+    public void postInit(FMLPostInitializationEvent event) {
 	List<String> mods = new ArrayList<>();
 	Loader.instance().getActiveModList().forEach(mod -> {
 	    if (!mod.getModId().equals(Circuitry.MODID) && mod.getSharedModDescriptor() != null)
@@ -52,7 +55,8 @@ public class ClientProxy implements IProxy {
 	    String message = "Extra mod(s) found. Please remove before proceeding:";
 	    throw new CustomModLoadingErrorDisplayException(message + " " + mods, null) {
 		/**
-		 * TODO
+		 * Draws a message on the given {@link GuiErrorScreen} that lists the offending
+		 * mods.
 		 */
 		@Override
 		public void drawScreen(GuiErrorScreen errorScreen, FontRenderer fontRenderer, int mouseRelX,
@@ -63,19 +67,18 @@ public class ClientProxy implements IProxy {
 		    errorScreen.drawCenteredString(fontRenderer, message, errorScreen.width / 2, offset,
 			    Color.WHITE.getRGB());
 		    offset += increment / 2;
-		    for (String mod : mods) {
-			offset += 1.5 * increment;
-			errorScreen.drawCenteredString(fontRenderer, mod, errorScreen.width / 2, offset,
-				Color.WHITE.getRGB());
-		    }
+		    for (String mod : mods)
+			errorScreen.drawCenteredString(fontRenderer, mod, errorScreen.width / 2,
+				offset += 1.5 * increment, Color.WHITE.getRGB());
 		}
 
 		/**
-		 * TODO
+		 * Doesn't do anything since no components need to be initialized on the
+		 * {@link GuiErrorScreen}.
 		 */
 		@Override
 		public void initGui(GuiErrorScreen errorScreen, FontRenderer fontRenderer) {
-		    // TODO
+		    // Nothing needs to be done here.
 		}
 	    };
 	}

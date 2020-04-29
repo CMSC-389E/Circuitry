@@ -1,6 +1,7 @@
 package cmsc389e.circuitry.client.event;
 
 import net.minecraft.client.gui.GuiCreateWorld;
+import net.minecraft.client.gui.GuiFlatPresets;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -22,9 +23,13 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventBusSubscriber(Side.CLIENT)
 public class GuiHandler {
     /**
-     * TODO
+     * Creates a {@link String} preset that is a copy of the Redstone Ready preset
+     * for Superflat worlds. The code is pretty much a copy and paste of line 187 of
+     * {@link GuiFlatPresets}:<br>
+     * <br>
+     * {@code registerPreset(I18n.format("createWorld.customize.preset.redstone_ready"), Items.REDSTONE, Biomes.DESERT, Collections.emptyList(), new FlatLayerInfo(52, Blocks.SANDSTONE), new FlatLayerInfo(3, Blocks.STONE), new FlatLayerInfo(1, Blocks.BEDROCK));}
      *
-     * @return TODO
+     * @return a {@link String} representation of the Redstone Ready preset
      */
     private static String getPreset() {
 	FlatGeneratorInfo flatgeneratorinfo = new FlatGeneratorInfo();

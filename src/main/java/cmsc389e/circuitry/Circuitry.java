@@ -26,24 +26,26 @@ public class Circuitry {
     /**
      * Called while Minecraft Forge is initializing during mod startup.<br>
      * Currently, this method calls {@link CircuitryPacketHandler#init()} and
-     * {@link IProxy#init()}.
+     * {@link IProxy#init(FMLInitializationEvent)}.
      *
      * @param event the {@link FMLInitializationEvent}
      */
     @EventHandler
-    public static void init(@SuppressWarnings("unused") FMLInitializationEvent event) {
+    public static void init(FMLInitializationEvent event) {
 	CircuitryPacketHandler.init();
-	proxy.init();
+	proxy.init(event);
     }
 
     /**
-     * TODO
+     * Called while Minecraft Forge is post-initializing during mod startup.<br>
+     * Currently, this method just calls
+     * {@link IProxy#postInit(FMLPostInitializationEvent)}.
      *
-     * @param event TODO
+     * @param event the {@link FMLPostInitializationEvent event}
      */
     @EventHandler
-    public static void postInit(@SuppressWarnings("unused") FMLPostInitializationEvent event) {
-	proxy.postInit();
+    public static void postInit(FMLPostInitializationEvent event) {
+	proxy.postInit(event);
     }
 
     /**

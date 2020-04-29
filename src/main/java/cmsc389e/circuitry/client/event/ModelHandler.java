@@ -18,9 +18,9 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventBusSubscriber(Side.CLIENT)
 public class ModelHandler {
     /**
-     * TODO
+     * Registers the item models for {@link BlockOutNode} and {@link BlockInNode}.
      *
-     * @param event TODO
+     * @param event a {@link ModelRegistryEvent}
      */
     @SubscribeEvent
     public static void onModelRegistry(@SuppressWarnings("unused") ModelRegistryEvent event) {
