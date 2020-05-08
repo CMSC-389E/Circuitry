@@ -7,9 +7,10 @@ import net.minecraft.item.ItemBlock;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 
 /**
- * TODO
+ * Code related to registering {@link Item}s for the mod.
  */
 @EventBusSubscriber
 public class ItemsCircuitry {
@@ -17,19 +18,22 @@ public class ItemsCircuitry {
 	    OUT_NODE = newItemBlock(BlocksCircuitry.OUT_NODE);
 
     /**
-     * TODO
+     * Creates a new {@link ItemBlock} for the given {@link Block}. This just
+     * equates to passing the {@link Block} into the {@link ItemBlock} constructor
+     * and setting its registry name to match the {@link Block}'s registry name.
      *
-     * @param block TODO
-     * @return TODO
+     * @param block a {@link Block} to be converted to an {@link ItemBlock}
+     * @return an {@link ItemBlock} representing the given {@link Block}
      */
     private static Item newItemBlock(Block block) {
 	return new ItemBlock(block).setRegistryName(block.getRegistryName());
     }
 
     /**
-     * TODO
+     * Registers the mod's {@link Item}s with the {@link IForgeRegistry} during the
+     * {@link Item} {@link Register} event.
      *
-     * @param event TODO
+     * @param event the {@link Item} {@link Register} event
      */
     @SubscribeEvent
     public static void registerItems(Register<Item> event) {

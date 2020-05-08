@@ -8,21 +8,22 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 
 /**
  * Proxy interface implemented by the client {@link ClientProxy} and the server
- * {@link ServerProxy}. Currently only contains the {@link #init()} method.
+ * {@link ServerProxy}.
  */
 public interface IProxy {
     /**
      * Runs any initialization code required by the current physical side. Called
      * from {@link Circuitry#init(FMLInitializationEvent)}.
      *
-     * @param event TODO
+     * @param event the {@link FMLInitializationEvent}
      */
     void init(FMLInitializationEvent event);
 
     /**
-     * TODO
+     * Runs any post-initialization code required by the current physical side.
+     * Called from {@link Circuitry#postInit(FMLPostInitializationEvent)}.
      *
-     * @param event TODO
+     * @param event the {@link FMLPostInitializationEvent event}
      */
     void postInit(FMLPostInitializationEvent event);
 }
