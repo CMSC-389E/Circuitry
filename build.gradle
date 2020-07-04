@@ -1,44 +1,58 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven {
-			url = "http://files.minecraftforge.net/maven"
+	repositories {
+		maven {
+			url = 'https://files.minecraftforge.net/maven'
 		}
-    }
+		
+		jcenter()
+		mavenCentral()
+	}
 	
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-    }
+	dependencies {
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+	}
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-version = "1.12.2-1.0.1.0"
-group = "cmsc3893.circuitry"
-archivesBaseName = "circuitry"
-sourceCompatibility = targetCompatibility = '1.8'
-
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-    options.compilerArgs << '-parameters'
-}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+version = '1.15.2-0.0.1.0'
+group = 'cmsc.389e.circuitry'
+archivesBaseName = 'circuitry'
 
 minecraft {
-    version = "1.12.2-14.23.5.2768"
-    runDir = "run"
-    mappings = "stable_39"
-	makeObfSourceJar = false
+	mappings channel: 'stable', version: '60-1.15'
+	
+	runs {
+		client {
+			workingDirectory project.file('run')
+
+			mods {
+				circuitry {
+					source sourceSets.main
+				}
+			}
+		}
+
+		server {
+			workingDirectory project.file('run')
+
+			mods {
+				circuitry {
+					source sourceSets.main
+				}
+			}
+		}
+	}
 }
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-	
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-	
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+dependencies {
+	minecraft 'net.minecraftforge:forge:1.15.2-31.2.0'
+}
+
+jar {
+	manifest {
+		attributes([
+			"Implementation-Version": "${version}"
+		])
+	}
 }

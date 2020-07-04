@@ -1,20 +1,6 @@
 {
-	"forge_marker": 1,
-	"defaults": {
-		"model": "cube_all"
-	},
 	"variants": {
-		"powered": {
-			"false": {
-				"textures": {
-					"all": "circuitry:blocks/in_node"
-				}
-			},
-			"true": {
-				"textures": {
-					"all": "circuitry:blocks/in_node_powered"
-				}
-			}
-		}
+		"powered=false": {"model": "circuitry:item/in_node"},
+		"powered=true": {"model": "circuitry:item/powered_in_node"}
 	}
 }

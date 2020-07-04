@@ -1,0 +1,6 @@
+{
+	"block.circuitry.in_node": "In Node",
+	"block.circuitry.out_node": "Out Node",
+	
+	"commands.circuitry.circuitry.set": "The value of %s has been set to %s."
+}
