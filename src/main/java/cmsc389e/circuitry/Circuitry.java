@@ -22,11 +22,11 @@ public class Circuitry {
 	private static final DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
 	private static final DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
 
-	private static final RegistryObject<Block> inNodeBlock = blocks.register("in_node", InNodeBlock::new),
+	private static final RegistryObject<NodeBlock> inNodeBlock = blocks.register("in_node", InNodeBlock::new),
 			outNodeBlock = blocks.register("out_node", OutNodeBlock::new);
 	private static final RegistryObject<Item> inNodeItem = items.register("in_node",
-			() -> ((NodeBlock) inNodeBlock.get()).createItem()),
-			outNodeItem = items.register("out_node", () -> ((NodeBlock) outNodeBlock.get()).createItem());
+			() -> inNodeBlock.get().createItem()),
+			outNodeItem = items.register("out_node", () -> outNodeBlock.get().createItem());
 
 	public Circuitry() {
 		ModLoadingContext.get().registerConfig(Type.COMMON, Config.SPEC_PAIR.getRight());

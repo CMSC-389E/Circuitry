@@ -3,7 +3,6 @@
 gradle
 run
 .classpath
-.gitignore
 .project
 gradlew
 gradlew.bat

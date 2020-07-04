@@ -15,7 +15,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 public class Config {
 	public enum Key {
 		LIGHT("Light", "", (path, builder) -> builder.defineInRange(path, 15, 0, 15)),
-		POWER("Power", "", (path, builder) -> builder.defineInRange(path, 15, 0, 15));
+		POWER("Power", "", (path, builder) -> builder.defineInRange(path, 15, 0, 15)),
+		TESTS("Tests", "", (path, builder) -> builder.define(path, "tests.txt"));
 
 		private final BiFunction<String, Builder, ConfigValue<?>> build;
 		private final String comment;
@@ -48,6 +49,10 @@ public class Config {
 	@SuppressWarnings("unchecked")
 	public static <T> T get(Key key) {
 		return (T) SPEC_PAIR.getLeft().map.get(key).get();
+	}
+
+	public static String getString(Key key) {
+		return get(key);
 	}
 
 	/**
