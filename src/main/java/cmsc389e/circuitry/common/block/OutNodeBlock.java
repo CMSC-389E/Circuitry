@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 public class OutNodeBlock extends NodeBlock {
 	@Override
 	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return super.getStateForPlacement(context).with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
+		return getDefaultState().with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
 	}
 
 	@Override
