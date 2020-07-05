@@ -17,17 +17,21 @@ public class CircuitryCommand {
 		LiteralArgumentBuilder<CommandSource> builder = Commands.literal(Circuitry.MODID);
 		for (Key key : Key.values()) {
 			Object value = Config.get(key);
-			ArgumentType<?> type = value instanceof Integer ? IntegerArgumentType.integer()
-					: StringArgumentType.greedyString();
+			ArgumentType<?> type = null;
+			if (value instanceof Integer)
+				type = IntegerArgumentType.integer();
+			else if (value instanceof String)
+				type = StringArgumentType.greedyString();
 
-			builder.then(Commands.literal(key.toString().replace(" ", ""))
-					.then(Commands.argument("value", type).executes(context -> {
-						Config.set(key, context.getArgument("value", value.getClass()));
-						context.getSource().sendFeedback(
-								new StringTextComponent("Set the value of " + key + " to " + Config.get(key) + '.'),
-								true);
-						return 0;
-					})));
+			if (type != null)
+				builder.then(Commands.literal(key.toString().replace(" ", ""))
+						.then(Commands.argument("value", type).executes(context -> {
+							Config.set(key, context.getArgument("value", value.getClass()));
+							context.getSource().sendFeedback(
+									new StringTextComponent("Set the value of " + key + " to " + Config.get(key) + '.'),
+									true);
+							return 0;
+						})));
 		}
 		return builder;
 	}

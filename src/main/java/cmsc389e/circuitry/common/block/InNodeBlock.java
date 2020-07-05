@@ -1,5 +1,7 @@
 package cmsc389e.circuitry.common.block;
 
+import java.util.List;
+
 import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.Config.Key;
 import net.minecraft.block.Block;
@@ -21,6 +23,11 @@ public class InNodeBlock extends NodeBlock {
 	@Override
 	public boolean canProvidePower(BlockState state) {
 		return true;
+	}
+
+	@Override
+	public List<String> getNodeTags() {
+		return Config.get(Key.IN_TAGS);
 	}
 
 	/**

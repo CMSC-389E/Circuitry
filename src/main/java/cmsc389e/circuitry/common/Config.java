@@ -1,28 +1,38 @@
 package cmsc389e.circuitry.common;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.config.ModConfig.Type;
 
 @EventBusSubscriber
 public class Config {
 	public enum Key {
-		LIGHT("Light", "", (path, builder) -> builder.defineInRange(path, 15, 0, 15)),
-		POWER("Power", "", (path, builder) -> builder.defineInRange(path, 15, 0, 15)),
-		TESTS("Tests", "", (path, builder) -> builder.define(path, "tests.txt"));
+		LIGHT(Type.COMMON, "Light", "The light level of Nodes. Zero is no light and fifteen is the maximum brightness.",
+				(path, builder) -> builder.defineInRange(path, 15, 0, 15)),
+		POWER(Type.COMMON, "Power",
+				"The power level of Nodes. The number determines the number of Redstone powered from the Node. Zero is no power and fifteen is maximum power.",
+				(path, builder) -> builder.defineInRange(path, 15, 0, 15)),
+		IN_TAGS(Type.SERVER, "In Tags", "The list of currently loaded tags for In Nodes.",
+				(path, builder) -> builder.defineList(path, ArrayList::new, obj -> true)),
+		OUT_TAGS(Type.SERVER, "Out Tags", "The list of currently loaded tags for Out Nodes.",
+				(path, builder) -> builder.defineList(path, ArrayList::new, obj -> true)),
+		TESTS(Type.SERVER, "Tests", "A two-dimensional list representing the currently loaded project tests.",
+				(path, builder) -> builder.defineList(path, ArrayList::new, obj -> true));
 
-		private final BiFunction<String, Builder, ConfigValue<?>> build;
-		private final String comment;
+		private final Type type;
 		private final String path;
+		private final String comment;
+		private final BiFunction<String, Builder, ConfigValue<?>> build;
 
-		private Key(String path, String comment, BiFunction<String, Builder, ConfigValue<?>> build) {
+		private Key(Type type, String path, String comment, BiFunction<String, Builder, ConfigValue<?>> build) {
+			this.type = type;
 			this.path = path;
 			this.comment = comment;
 			this.build = build;
@@ -34,7 +44,7 @@ public class Config {
 		}
 	}
 
-	public static final Pair<Config, ForgeConfigSpec> SPEC_PAIR = new Builder().configure(Config::new);
+	private static final Map<Key, ConfigValue<?>> map = new HashMap<>();
 
 	/**
 	 * Gets the current value for a {@link Key}. The type of the returned value is
@@ -48,11 +58,27 @@ public class Config {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T get(Key key) {
-		return (T) SPEC_PAIR.getLeft().map.get(key).get();
+		return (T) map.get(key).get();
 	}
 
 	public static String getString(Key key) {
 		return get(key);
+	}
+
+	public static void register() {
+		ModLoadingContext context = ModLoadingContext.get();
+		for (Type type : Type.values()) {
+			Builder builder = new Builder();
+			boolean empty = true;
+			for (Key key : Key.values())
+				if (key.type == type) {
+					builder.comment(key.comment);
+					map.put(key, key.build.apply(key.toString(), builder));
+					empty = false;
+				}
+			if (!empty)
+				context.registerConfig(type, builder.build());
+		}
 	}
 
 	/**
@@ -66,16 +92,6 @@ public class Config {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> void set(Key key, T value) {
-		((ConfigValue<T>) SPEC_PAIR.getLeft().map.get(key)).set(value);
-	}
-
-	private final Map<Key, ConfigValue<?>> map;
-
-	private Config(Builder builder) {
-		map = new HashMap<>();
-		for (Key key : Key.values()) {
-			builder.comment(key.comment);
-			map.put(key, key.build.apply(key.toString(), builder));
-		}
+		((ConfigValue<T>) map.get(key)).set(value);
 	}
 }

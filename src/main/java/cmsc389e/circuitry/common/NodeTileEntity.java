@@ -1,6 +1,9 @@
 package cmsc389e.circuitry.common;
 
+import java.util.List;
+
 import cmsc389e.circuitry.Circuitry;
+import cmsc389e.circuitry.common.block.NodeBlock;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 
@@ -11,8 +14,10 @@ public class NodeTileEntity extends TileEntity {
 		super(Circuitry.NODE_TYPE.get());
 	}
 
-	public int getTag() {
-		return tag;
+	public String getTag() {
+		List<String> tags = ((NodeBlock) getBlockState().getBlock()).getNodeTags();
+		int size = tags.size();
+		return tags.isEmpty() ? String.valueOf(tag) : tags.get((tag % size + size) % size);
 	}
 
 	@Override
@@ -31,8 +36,8 @@ public class NodeTileEntity extends TileEntity {
 		tag = compound.getInt("tag");
 	}
 
-	public void setTag(int tag) {
-		this.tag = tag;
+	public void setTag(boolean increment) {
+		tag += increment ? 1 : -1;
 		markDirty();
 	}
 

@@ -10,10 +10,8 @@ import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntityType.Builder;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -36,7 +34,7 @@ public class Circuitry {
 			() -> Builder.create(NodeTileEntity::new, IN_NODE_BLOCK.get(), OUT_NODE_BLOCK.get()).build(null));
 
 	public Circuitry() {
-		ModLoadingContext.get().registerConfig(Type.COMMON, Config.SPEC_PAIR.getRight());
+		Config.register();
 
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		blocks.register(bus);

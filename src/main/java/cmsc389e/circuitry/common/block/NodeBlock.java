@@ -1,5 +1,7 @@
 package cmsc389e.circuitry.common.block;
 
+import java.util.List;
+
 import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.Config.Key;
 import cmsc389e.circuitry.common.NodeTileEntity;
@@ -21,7 +23,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public class NodeBlock extends Block {
+public abstract class NodeBlock extends Block {
 	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
 	public NodeBlock() {
@@ -66,7 +68,7 @@ public class NodeBlock extends Block {
 	public ActionResultType func_225533_a_(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
 			BlockRayTraceResult result) {
 		NodeTileEntity entity = (NodeTileEntity) world.getTileEntity(pos);
-		entity.setTag(entity.getTag() + 1);
+		entity.setTag(true);
 		return ActionResultType.SUCCESS;
 	}
 
@@ -74,6 +76,8 @@ public class NodeBlock extends Block {
 	public int getLightValue(BlockState state) {
 		return state.get(POWERED) ? Config.get(Key.LIGHT) : 0;
 	}
+
+	public abstract List<String> getNodeTags();
 
 	@Override
 	public boolean hasTileEntity(BlockState state) {
