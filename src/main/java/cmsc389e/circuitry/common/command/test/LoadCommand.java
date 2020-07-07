@@ -13,7 +13,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 import cmsc389e.circuitry.common.Config;
-import cmsc389e.circuitry.common.Config.Key;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
@@ -21,37 +20,42 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class LoadCommand {
 	private static int execute(CommandContext<CommandSource> context) {
-		try {
-			int projectNumber = IntegerArgumentType.getInteger(context, "Project Number");
-			try (BufferedReader in = new BufferedReader(new InputStreamReader(
-					new URL("https://cs.umd.edu/~abrassel/proj" + projectNumber + "tests.txt").openStream()))) {
-				in.readLine();
-				String[] tags = in.readLine().split("\t(?=o)", 2);
-				Config.set(Key.IN_TAGS, Arrays.asList(tags[0].split("\t")));
-				Config.set(Key.OUT_TAGS, Arrays.asList(tags[1].split("\t")));
+		int projectNumber = IntegerArgumentType.getInteger(context, "Project Number");
+		try (BufferedReader in = new BufferedReader(
+				new InputStreamReader(new URL(String.format(Config.TEST_URL.get(), projectNumber)).openStream()))) {
+			in.readLine();
+			String[] tags = in.readLine().split("\t(?=o)", 2);
 
-				List<List<Boolean>> tests = new ArrayList<>();
-				String line;
-				while ((line = in.readLine()) != null) {
-					List<Boolean> test = new ArrayList<>();
-					tags = line.split("\t");
-					for (String tag : tags)
-						test.add(tag.equals("1"));
-					tests.add(test);
-				}
-				Config.set(Key.TESTS, tests);
+			List<String> inTags = Arrays.asList(tags[0].split("\t"));
+			int size = inTags.size();
+			Config.IN_TAGS.set(inTags);
+			Config.OUT_TAGS.set(Arrays.asList(tags[1].split("\t")));
+
+			List<List<Boolean>> inTests = new ArrayList<>();
+			List<List<Boolean>> outTests = new ArrayList<>();
+			String line;
+			while ((line = in.readLine()) != null) {
+				List<Boolean> inTest = new ArrayList<>();
+				List<Boolean> outTest = new ArrayList<>();
+				inTests.add(inTest);
+				outTests.add(outTest);
+				tags = line.split("\t");
+				for (int i = 0; i < tags.length; i++)
+					(i < size ? inTest : outTest).add(tags[i].equals("1"));
 			}
+			Config.IN_TESTS.set(inTests);
+			Config.OUT_TESTS.set(outTests);
 			context.getSource().sendFeedback(
 					new StringTextComponent("Project " + projectNumber + " has been loaded successfully."), true);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new CommandException(new StringTextComponent("Unable to read tests. Try running /load again."));
+			throw new CommandException(new StringTextComponent("Unable to read tests! Try running load again."));
 		}
 		return 0;
 	}
 
 	public static LiteralArgumentBuilder<CommandSource> getCommand() {
 		return Commands.literal("load").then(
-				Commands.argument("Project Number", IntegerArgumentType.integer(0)).executes(LoadCommand::execute));
+				Commands.argument("Project Number", IntegerArgumentType.integer(0, 9)).executes(LoadCommand::execute));
 	}
 }

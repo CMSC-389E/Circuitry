@@ -7,7 +7,7 @@ import net.minecraft.command.Commands;
 
 public class TestCommand {
 	public static LiteralArgumentBuilder<CommandSource> getCommand() {
-		return Commands.literal("test").then(AbortCommand.getCommand()).then(LoadCommand.getCommand())
-				.then(SubmitCommand.getCommand());
+		return Commands.literal("test").then(StopCommand.getCommand()).then(LoadCommand.getCommand())
+				.then(StartCommand.getCommand()).then(SubmitCommand.getCommand());
 	}
 }

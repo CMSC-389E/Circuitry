@@ -1,9 +1,6 @@
 package cmsc389e.circuitry.common.block;
 
-import java.util.List;
-
 import cmsc389e.circuitry.common.Config;
-import cmsc389e.circuitry.common.Config.Key;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -14,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -24,7 +22,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
 public abstract class NodeBlock extends Block {
-	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
+	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+
+	public static void setPowered(World world, BlockState state, BlockPos pos, boolean powered) {
+		if (state.get(POWERED) != powered)
+			world.setBlockState(pos, state.cycle(POWERED));
+	}
 
 	public NodeBlock() {
 		super(Block.Properties.create(Material.IRON));
@@ -45,6 +48,16 @@ public abstract class NodeBlock extends Block {
 		builder.add(POWERED);
 	}
 
+	@Override
+	public int getLightValue(BlockState state) {
+		return state.get(POWERED) ? Config.LIGHT.get() : 0;
+	}
+
+	@Override
+	public boolean hasTileEntity(BlockState state) {
+		return true;
+	}
+
 	/**
 	 * Called when a {@link InNodeBlock} is right-clicked and the
 	 * {@link PlayerEntity} is not crouching. The {@link World} is not checked
@@ -53,34 +66,21 @@ public abstract class NodeBlock extends Block {
 	 * the client-side {@link NodeTileEntity} is synced to the server-side one. That
 	 * means {@link NodeTileEntity#tag} will always be synchronized.
 	 *
-	 * @param state  the {@link BlockState} of the {@link InNodeBlock} that was
-	 *               clicked
-	 * @param world  the {@link World} that the {@link InNodeBlock} was clicked in
-	 * @param pos    the {@link BlockPos} of the {@link InNodeBlock} that was
-	 *               clicked
-	 * @param player the {@link PlayerEntity} who did the clicking
-	 * @param hand   the {@link Hand} with which the {@link PlayerEntity} clicked
-	 * @param result where on the {@link InNodeBlock}'s bounds it was hit
+	 * @param state   the {@link BlockState} of the {@link InNodeBlock} that was
+	 *                clicked
+	 * @param worldIn the {@link World} that the {@link InNodeBlock} was clicked in
+	 * @param pos     the {@link BlockPos} of the {@link InNodeBlock} that was
+	 *                clicked
+	 * @param player  the {@link PlayerEntity} who did the clicking
+	 * @param handIn  the {@link Hand} with which the {@link PlayerEntity} clicked
+	 * @param hit     where on the {@link InNodeBlock}'s bounds it was hit
 	 * @return {@link ActionResultType#SUCCESS}, which tells the game that the
 	 *         action was consumed correctly
 	 */
 	@Override
-	public ActionResultType func_225533_a_(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-			BlockRayTraceResult result) {
-		NodeTileEntity entity = (NodeTileEntity) world.getTileEntity(pos);
-		entity.setTag(true);
+	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
+			Hand handIn, BlockRayTraceResult hit) {
+		((NodeTileEntity) worldIn.getTileEntity(pos)).setTag(true);
 		return ActionResultType.SUCCESS;
-	}
-
-	@Override
-	public int getLightValue(BlockState state) {
-		return state.get(POWERED) ? Config.get(Key.LIGHT) : 0;
-	}
-
-	public abstract List<String> getNodeTags();
-
-	@Override
-	public boolean hasTileEntity(BlockState state) {
-		return true;
 	}
 }

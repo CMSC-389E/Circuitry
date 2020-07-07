@@ -20,7 +20,7 @@ group = 'cmsc.389e.circuitry'
 archivesBaseName = 'circuitry'
 
 minecraft {
-	mappings channel: 'stable', version: '60-1.15'
+	mappings channel: 'snapshot', version: '20200514-1.15.1'
 	
 	runs {
 		client {

@@ -20,25 +20,25 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class Circuitry {
 	public static final String MODID = "circuitry";
 
-	private static final DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-	private static final DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-	private static final DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(
+	public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+	public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+	public static final DeferredRegister<TileEntityType<?>> TYPES = new DeferredRegister<>(
 			ForgeRegistries.TILE_ENTITIES, MODID);
 
-	public static final RegistryObject<NodeBlock> IN_NODE_BLOCK = blocks.register("in_node", InNodeBlock::new),
-			OUT_NODE_BLOCK = blocks.register("out_node", OutNodeBlock::new);
-	public static final RegistryObject<Item> IN_NODE_ITEM = items.register("in_node",
-			() -> IN_NODE_BLOCK.get().createItem()),
-			OUT_NODE_ITEM = items.register("out_node", () -> OUT_NODE_BLOCK.get().createItem());
-	public static final RegistryObject<TileEntityType<?>> NODE_TYPE = types.register("node",
+	public static final RegistryObject<NodeBlock> IN_NODE_BLOCK = BLOCKS.register("in_node", InNodeBlock::new),
+			OUT_NODE_BLOCK = BLOCKS.register("out_node", OutNodeBlock::new);
+	public static final RegistryObject<TileEntityType<?>> NODE_TYPE = TYPES.register("node",
 			() -> Builder.create(NodeTileEntity::new, IN_NODE_BLOCK.get(), OUT_NODE_BLOCK.get()).build(null));
 
 	public Circuitry() {
 		Config.register();
 
+		ITEMS.register("in_node", () -> IN_NODE_BLOCK.get().createItem());
+		ITEMS.register("out_node", () -> OUT_NODE_BLOCK.get().createItem());
+
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		blocks.register(bus);
-		items.register(bus);
-		types.register(bus);
+		BLOCKS.register(bus);
+		ITEMS.register(bus);
+		TYPES.register(bus);
 	}
 }

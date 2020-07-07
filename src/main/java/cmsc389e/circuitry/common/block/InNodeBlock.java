@@ -1,9 +1,6 @@
 package cmsc389e.circuitry.common.block;
 
-import java.util.List;
-
 import cmsc389e.circuitry.common.Config;
-import cmsc389e.circuitry.common.Config.Key;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneBlock;
@@ -25,11 +22,6 @@ public class InNodeBlock extends NodeBlock {
 		return true;
 	}
 
-	@Override
-	public List<String> getNodeTags() {
-		return Config.get(Key.IN_TAGS);
-	}
-
 	/**
 	 * Determines how much power a {@link InNodeBlock} creates. This is the distance
 	 * {@link RedstoneBlock}s will be powered from where they are connected to the
@@ -46,6 +38,6 @@ public class InNodeBlock extends NodeBlock {
 	 */
 	@Override
 	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(POWERED) ? Config.get(Key.POWER) : 0;
+		return blockState.get(POWERED) ? Config.POWER.get() : 0;
 	}
 }
