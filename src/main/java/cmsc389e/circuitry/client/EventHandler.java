@@ -85,6 +85,6 @@ public class EventHandler {
 		Minecraft minecraft = Minecraft.getInstance();
 		TileEntity te = minecraft.world.getTileEntity(event.getTarget().getPos());
 		minecraft.ingameGUI.setOverlayMessage(
-				te != null && te.getType() == Circuitry.NODE_TYPE.get() ? ((NodeTileEntity) te).getTag() : "", false);
+				te != null && te.getType() == Circuitry.nodeType ? ((NodeTileEntity) te).getTag() : "", false);
 	}
 }

@@ -2,10 +2,8 @@ package cmsc389e.circuitry.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,7 +13,6 @@ import net.minecraft.block.Block;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -34,13 +31,11 @@ public class Tester {
 	}
 
 	private static String toString(List<Boolean> list) {
-		List<Integer> iterable = new ArrayList<>();
-		list.forEach(element -> iterable.add(element ? 1 : 0));
-		return toString(iterable);
+		List<Integer> intList = new ArrayList<>();
+		list.forEach(element -> intList.add(element ? 1 : 0));
+		return toString(intList);
 	}
 
-	private final List<String> inTags, outTags;
-	private final List<List<Boolean>> inTests, outTests;
 	private final int inSize, testsSize;
 	private final Style inStyle, outStyle;
 	private final Map<String, TileEntity> tags;
@@ -53,16 +48,12 @@ public class Tester {
 	private List<Boolean> outTest;
 
 	public Tester(CommandSource source, World world, int delay) {
-		inTags = Config.IN_TAGS.get();
-		outTags = Config.OUT_TAGS.get();
-		inTests = Config.IN_TESTS.get();
-		outTests = Config.OUT_TESTS.get();
-		inSize = inTags.size();
-		testsSize = inTests.size();
+		inSize = Config.inTags.size();
+		testsSize = Config.inTests.size();
 		inStyle = new Style().setColor(TextFormatting.LIGHT_PURPLE)
-				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(inTags))));
+				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(Config.inTags))));
 		outStyle = new Style().setColor(TextFormatting.AQUA)
-				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(outTags))));
+				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(Config.outTags))));
 		tags = new HashMap<>();
 		ticks = (ServerTickList<Block>) world.getPendingBlockTicks();
 
@@ -70,20 +61,20 @@ public class Tester {
 		this.world = world;
 		this.delay = delay;
 
-		if (inTags.isEmpty() || outTags.isEmpty() || inTests.isEmpty() || outTests.isEmpty())
+		if (Config.inTags.isEmpty() || Config.outTags.isEmpty() || Config.inTests.isEmpty()
+				|| Config.outTests.isEmpty())
 			throw new CommandException(new StringTextComponent("No test is loaded! Try running load first."));
 
-		TileEntityType<?> type = Circuitry.NODE_TYPE.get();
 		world.loadedTileEntityList.forEach(te -> {
-			if (te.getType() == type) {
+			if (te.getType() == Circuitry.nodeType) {
 				String tag = ((NodeTileEntity) te).getTag();
 				if (tags.put(tag, te) != null)
 					throw new CommandException(new StringTextComponent("Duplicate tag found: " + tag));
 			}
 		});
 
-		Set<String> view = new HashSet<>(inTags);
-		view.addAll(outTags);
+		List<String> view = new ArrayList<>(Config.inTags);
+		view.addAll(Config.outTags);
 		view.removeAll(tags.keySet());
 		if (!view.isEmpty())
 			throw new CommandException(new StringTextComponent("The following tags are missing: " + view));
@@ -101,7 +92,7 @@ public class Tester {
 		if (--waiting <= 0 && ticks.func_225420_a() == 0) {
 			if (outTest != null) {
 				List<Boolean> actual = new ArrayList<>();
-				outTags.forEach(tag -> actual.add(tags.get(tag).getBlockState().get(NodeBlock.POWERED)));
+				Config.outTags.forEach(tag -> actual.add(tags.get(tag).getBlockState().get(NodeBlock.POWERED)));
 				sendFeedback("Actual: " + toString(actual) + '\n',
 						actual.equals(outTest) ? PASSED_STYLE : FAILED_STYLE);
 
@@ -114,13 +105,13 @@ public class Tester {
 				sendFeedback("Testing complete.", DEFAULT_STYLE);
 				INSTANCES.remove(world);
 			} else if (waiting <= 0) {
-				List<Boolean> inTest = inTests.get(index);
-				outTest = outTests.get(index);
+				List<Boolean> inTest = Config.inTests.get(index);
+				outTest = Config.outTests.get(index);
 				sendFeedback("Test " + index + ':', DEFAULT_STYLE);
 				sendFeedback("In: " + toString(inTest), inStyle);
 				sendFeedback("Out: " + toString(outTest), outStyle);
 				for (int i = 0; i < inSize; i++) {
-					TileEntity te = tags.get(inTags.get(i));
+					TileEntity te = tags.get(Config.inTags.get(i));
 					NodeBlock.setPowered(world, te.getBlockState(), te.getPos(), inTest.get(i));
 				}
 			}

@@ -1,5 +1,7 @@
 package cmsc389e.circuitry.common.block;
 
+import java.util.List;
+
 import cmsc389e.circuitry.common.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -10,6 +12,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
 public class InNodeBlock extends NodeBlock {
+	public InNodeBlock() {
+		super("in_node");
+	}
+
 	/**
 	 * Determines whether neighboring {@link Block}s can be powered by a
 	 * {@link InNodeBlock}. This method always returns true, which causes
@@ -20,6 +26,16 @@ public class InNodeBlock extends NodeBlock {
 	@Override
 	public boolean canProvidePower(BlockState state) {
 		return true;
+	}
+
+	@Override
+	public List<String> getNodeTags() {
+		return Config.inTags;
+	}
+
+	@Override
+	public String getPrefix() {
+		return "i";
 	}
 
 	/**
@@ -38,6 +54,6 @@ public class InNodeBlock extends NodeBlock {
 	 */
 	@Override
 	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(POWERED) ? Config.POWER.get() : 0;
+		return blockState.get(POWERED) ? Config.power : 0;
 	}
 }

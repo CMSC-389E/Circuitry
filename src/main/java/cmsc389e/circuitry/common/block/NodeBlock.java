@@ -1,14 +1,13 @@
 package cmsc389e.circuitry.common.block;
 
+import java.util.List;
+
 import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -29,13 +28,10 @@ public abstract class NodeBlock extends Block {
 			world.setBlockState(pos, state.cycle(POWERED));
 	}
 
-	public NodeBlock() {
-		super(Block.Properties.create(Material.IRON));
+	public NodeBlock(String name) {
+		super(Properties.create(Material.IRON));
 		setDefaultState(getDefaultState().with(POWERED, false));
-	}
-
-	public BlockItem createItem() {
-		return new BlockItem(this, new Item.Properties().group(ItemGroup.REDSTONE));
+		setRegistryName(name);
 	}
 
 	@Override
@@ -50,8 +46,12 @@ public abstract class NodeBlock extends Block {
 
 	@Override
 	public int getLightValue(BlockState state) {
-		return state.get(POWERED) ? Config.LIGHT.get() : 0;
+		return state.get(POWERED) ? Config.light : 0;
 	}
+
+	public abstract List<String> getNodeTags();
+
+	public abstract String getPrefix();
 
 	@Override
 	public boolean hasTileEntity(BlockState state) {
