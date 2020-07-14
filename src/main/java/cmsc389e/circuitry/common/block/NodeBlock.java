@@ -44,9 +44,10 @@ public abstract class NodeBlock extends Block {
 		builder.add(POWERED);
 	}
 
+	@Deprecated
 	@Override
 	public int getLightValue(BlockState state) {
-		return state.get(POWERED) ? Config.light : 0;
+		return state.get(POWERED) ? Config.LIGHT.get() : 0;
 	}
 
 	public abstract List<String> getNodeTags();
@@ -76,7 +77,9 @@ public abstract class NodeBlock extends Block {
 	 * @param hit     where on the {@link InNodeBlock}'s bounds it was hit
 	 * @return {@link ActionResultType#SUCCESS}, which tells the game that the
 	 *         action was consumed correctly
+	 * @deprecated
 	 */
+	@Deprecated
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {

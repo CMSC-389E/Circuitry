@@ -1,13 +1,13 @@
 modLoader="javafml"
 loaderVersion="[31,)"
-issueTrackerURL="https://github.com/CMSC-389E/Circuitry/issues"
+issueTrackerURL="https://github.com/CMSC-389E/mod-framework-and-testing-framework/issues"
 
 [[mods]]
 modId="circuitry"
 version="${file.jarVersion}"
 displayName="CMSC 389E Circuitry"
-updateJSONURL="https://raw.githubusercontent.com/CMSC-389E/Circuitry/1.15.x/update.json"
-displayURL="https://github.com/CMSC-389E/Circuitry"
+updateJSONURL="https://raw.githubusercontent.com/CMSC-389E/mod-framework-and-testing-framework/master/update.json"
+displayURL="https://github.com/CMSC-389E/mod-framework-and-testing-framework"
 logoFile="circuitry.png"
 authors="Jamie Brassel"
 description=''''''

@@ -36,6 +36,8 @@ public class Tester {
 		return toString(intList);
 	}
 
+	private final List<String> inTags, outTags;
+	private final List<List<Boolean>> inTests, outTests;
 	private final int inSize, testsSize;
 	private final Style inStyle, outStyle;
 	private final Map<String, TileEntity> tags;
@@ -48,12 +50,16 @@ public class Tester {
 	private List<Boolean> outTest;
 
 	public Tester(CommandSource source, World world, int delay) {
-		inSize = Config.inTags.size();
-		testsSize = Config.inTests.size();
+		inTags = Config.IN_TAGS.get();
+		outTags = Config.OUT_TAGS.get();
+		inTests = Config.IN_TESTS.get();
+		outTests = Config.OUT_TESTS.get();
+		inSize = inTags.size();
+		testsSize = inTests.size();
 		inStyle = new Style().setColor(TextFormatting.LIGHT_PURPLE)
-				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(Config.inTags))));
+				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(inTags))));
 		outStyle = new Style().setColor(TextFormatting.AQUA)
-				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(Config.outTags))));
+				.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(toString(outTags))));
 		tags = new HashMap<>();
 		ticks = (ServerTickList<Block>) world.getPendingBlockTicks();
 
@@ -61,8 +67,7 @@ public class Tester {
 		this.world = world;
 		this.delay = delay;
 
-		if (Config.inTags.isEmpty() || Config.outTags.isEmpty() || Config.inTests.isEmpty()
-				|| Config.outTests.isEmpty())
+		if (inTags.isEmpty() || outTags.isEmpty() || inTests.isEmpty() || outTests.isEmpty())
 			throw new CommandException(new StringTextComponent("No test is loaded! Try running load first."));
 
 		world.loadedTileEntityList.forEach(te -> {
@@ -73,8 +78,8 @@ public class Tester {
 			}
 		});
 
-		List<String> view = new ArrayList<>(Config.inTags);
-		view.addAll(Config.outTags);
+		List<String> view = new ArrayList<>(inTags);
+		view.addAll(outTags);
 		view.removeAll(tags.keySet());
 		if (!view.isEmpty())
 			throw new CommandException(new StringTextComponent("The following tags are missing: " + view));
@@ -92,7 +97,7 @@ public class Tester {
 		if (--waiting <= 0 && ticks.func_225420_a() == 0) {
 			if (outTest != null) {
 				List<Boolean> actual = new ArrayList<>();
-				Config.outTags.forEach(tag -> actual.add(tags.get(tag).getBlockState().get(NodeBlock.POWERED)));
+				outTags.forEach(tag -> actual.add(tags.get(tag).getBlockState().get(NodeBlock.POWERED)));
 				sendFeedback("Actual: " + toString(actual) + '\n',
 						actual.equals(outTest) ? PASSED_STYLE : FAILED_STYLE);
 
@@ -105,13 +110,13 @@ public class Tester {
 				sendFeedback("Testing complete.", DEFAULT_STYLE);
 				INSTANCES.remove(world);
 			} else if (waiting <= 0) {
-				List<Boolean> inTest = Config.inTests.get(index);
-				outTest = Config.outTests.get(index);
+				List<Boolean> inTest = inTests.get(index);
+				outTest = outTests.get(index);
 				sendFeedback("Test " + index + ':', DEFAULT_STYLE);
 				sendFeedback("In: " + toString(inTest), inStyle);
 				sendFeedback("Out: " + toString(outTest), outStyle);
 				for (int i = 0; i < inSize; i++) {
-					TileEntity te = tags.get(Config.inTags.get(i));
+					TileEntity te = tags.get(inTags.get(i));
 					NodeBlock.setPowered(world, te.getBlockState(), te.getPos(), inTest.get(i));
 				}
 			}

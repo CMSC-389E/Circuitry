@@ -3,7 +3,7 @@ package cmsc389e.circuitry.common;
 import com.mojang.brigadier.CommandDispatcher;
 
 import cmsc389e.circuitry.common.command.SetCommand;
-import cmsc389e.circuitry.common.command.test.TestCommand;
+import cmsc389e.circuitry.common.command.TestCommand;
 import net.minecraft.command.CommandSource;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
@@ -22,8 +22,8 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void onServerStarting(FMLServerStartingEvent event) {
 		CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
-		dispatcher.register(SetCommand.getCommand());
-		dispatcher.register(TestCommand.getCommand());
+		SetCommand.register(dispatcher);
+		TestCommand.register(dispatcher);
 	}
 
 	@SubscribeEvent

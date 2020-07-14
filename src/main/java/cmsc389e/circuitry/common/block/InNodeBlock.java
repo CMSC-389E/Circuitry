@@ -22,7 +22,9 @@ public class InNodeBlock extends NodeBlock {
 	 * {@link RedstoneBlock}s to be visually connected.
 	 *
 	 * @param state the {@link BlockState} of the {@link InNodeBlock}
+	 * @deprecated
 	 */
+	@Deprecated
 	@Override
 	public boolean canProvidePower(BlockState state) {
 		return true;
@@ -30,7 +32,7 @@ public class InNodeBlock extends NodeBlock {
 
 	@Override
 	public List<String> getNodeTags() {
-		return Config.inTags;
+		return Config.IN_TAGS.get();
 	}
 
 	@Override
@@ -51,9 +53,11 @@ public class InNodeBlock extends NodeBlock {
 	 * @param side        the side of the {@link InNodeBlock} that the power is
 	 *                    coming out of
 	 * @return the power of the {@link InNodeBlock} between 0 and 15, inclusive
+	 * @deprecated
 	 */
+	@Deprecated
 	@Override
 	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(POWERED) ? Config.power : 0;
+		return blockState.get(POWERED) ? Config.POWER.get() : 0;
 	}
 }

@@ -47,7 +47,7 @@ public class Circuitry {
 			registry.register(new BlockItem(block, properties).setRegistryName(block.getRegistryName()));
 	}
 
-	public Circuitry() throws IllegalAccessException {
+	public Circuitry() {
 		Config.register();
 	}
 }

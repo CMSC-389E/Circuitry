@@ -16,7 +16,7 @@ public class OutNodeBlock extends NodeBlock {
 
 	@Override
 	public List<String> getNodeTags() {
-		return Config.outTags;
+		return Config.OUT_TAGS.get();
 	}
 
 	@Override
@@ -30,6 +30,7 @@ public class OutNodeBlock extends NodeBlock {
 		return getDefaultState().with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
 	}
 
+	@Deprecated
 	@Override
 	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {
