@@ -2,6 +2,8 @@ package cmsc389e.circuitry.common.block;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import cmsc389e.circuitry.common.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -14,20 +16,15 @@ public class OutNodeBlock extends NodeBlock {
 		super("out_node");
 	}
 
-	@Override
-	public List<String> getNodeTags() {
-		return Config.OUT_TAGS.get();
-	}
-
-	@Override
-	public String getPrefix() {
-		return "o";
-	}
-
 	@SuppressWarnings("resource")
 	@Override
 	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return getDefaultState().with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
+	}
+
+	@Override
+	public Pair<String, List<String>> getTagInfo() {
+		return Pair.of("o", Config.OUT_TAGS.get());
 	}
 
 	@Deprecated

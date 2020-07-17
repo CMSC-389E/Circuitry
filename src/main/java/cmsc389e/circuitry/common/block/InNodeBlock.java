@@ -2,6 +2,8 @@ package cmsc389e.circuitry.common.block;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import cmsc389e.circuitry.common.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -31,13 +33,8 @@ public class InNodeBlock extends NodeBlock {
 	}
 
 	@Override
-	public List<String> getNodeTags() {
-		return Config.IN_TAGS.get();
-	}
-
-	@Override
-	public String getPrefix() {
-		return "i";
+	public Pair<String, List<String>> getTagInfo() {
+		return Pair.of("i", Config.IN_TAGS.get());
 	}
 
 	/**
