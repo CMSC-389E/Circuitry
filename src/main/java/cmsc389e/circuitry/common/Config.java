@@ -6,10 +6,8 @@ import java.util.List;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.config.ModConfig.Type;
 
-@EventBusSubscriber
 public class Config {
 	public static class Value<T> {
 		private final String path, comment;

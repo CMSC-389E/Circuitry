@@ -10,9 +10,11 @@ import com.mojang.brigadier.context.CommandContext;
 import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import cmsc389e.circuitry.common.block.NodeBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
@@ -22,10 +24,13 @@ public class SetCommand {
 		boolean powered = BoolArgumentType.getBool(context, "Powered");
 		CommandSource source = context.getSource();
 		World world = source.getEntity().getEntityWorld();
+
+		Block block = Circuitry.IN_NODE.get();
+		TileEntityType<?> type = Circuitry.TYPE.get();
 		world.loadedTileEntityList.forEach(te -> {
-			if (te.getType() == Circuitry.nodeType && (tag == null || ((NodeTileEntity) te).getTag().equals(tag))) {
+			if (te.getType() == type && (tag == null || ((NodeTileEntity) te).getTag().equals(tag))) {
 				BlockState state = te.getBlockState();
-				if (state.getBlock() == Circuitry.inNodeBlock)
+				if (state.getBlock() == block)
 					NodeBlock.setPowered(world, state, te.getPos(), powered);
 			}
 		});

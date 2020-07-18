@@ -15,21 +15,36 @@ import net.minecraft.item.Item.Properties;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntityType.Builder;
-import net.minecraftforge.event.RegistryEvent.Register;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod(Circuitry.MODID)
 @EventBusSubscriber(bus = Bus.MOD)
 public class Circuitry {
 	public static final String MODID = "circuitry";
-	public static Block inNodeBlock, outNodeBlock;
-	public static TileEntityType<?> nodeType;
+
+	public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+	public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+	public static final DeferredRegister<TileEntityType<?>> TE = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES,
+			MODID);
+
+	public static final RegistryObject<Block> IN_NODE = BLOCKS.register("in_node", InNodeBlock::new),
+			OUT_NODE = BLOCKS.register("out_node", OutNodeBlock::new);
+	public static final RegistryObject<TileEntityType<?>> TYPE = TE.register("node",
+			() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
+	static {
+		ITEMS.register("in_node", () -> new BlockItem(IN_NODE.get(), new Properties().group(ItemGroup.REDSTONE)));
+		ITEMS.register("out_node", () -> new BlockItem(OUT_NODE.get(), new Properties().group(ItemGroup.REDSTONE)));
+	}
 
 	@SuppressWarnings("resource")
 	@SubscribeEvent
@@ -53,29 +68,12 @@ public class Circuitry {
 				}, "drawnChatLines");
 	}
 
-	@SubscribeEvent
-	public static void onRegisterBlocks(Register<Block> event) {
-		event.getRegistry().registerAll(inNodeBlock = new InNodeBlock(), outNodeBlock = new OutNodeBlock());
-	}
-
-	@SubscribeEvent
-	public static void onRegisterItems(Register<Item> event) {
-		registerItems(event.getRegistry(), inNodeBlock, outNodeBlock);
-	}
-
-	@SubscribeEvent
-	public static void onRegisterTETypes(Register<TileEntityType<?>> event) {
-		event.getRegistry().register(nodeType = Builder.create(NodeTileEntity::new, inNodeBlock, outNodeBlock)
-				.build(null).setRegistryName("node"));
-	}
-
-	private static void registerItems(IForgeRegistry<Item> registry, Block... blocks) {
-		Properties properties = new Properties().group(ItemGroup.REDSTONE);
-		for (Block block : blocks)
-			registry.register(new BlockItem(block, properties).setRegistryName(block.getRegistryName()));
-	}
-
 	public Circuitry() {
 		Config.register();
+
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		BLOCKS.register(bus);
+		ITEMS.register(bus);
+		TE.register(bus);
 	}
 }

@@ -12,10 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class OutNodeBlock extends NodeBlock {
-	public OutNodeBlock() {
-		super("out_node");
-	}
-
 	@SuppressWarnings("resource")
 	@Override
 	public BlockState getStateForPlacement(BlockItemUseContext context) {

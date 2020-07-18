@@ -13,7 +13,7 @@ public class NodeTileEntity extends TileEntity {
 	private int tag;
 
 	public NodeTileEntity() {
-		super(Circuitry.nodeType);
+		super(Circuitry.TYPE.get());
 	}
 
 	public String getTag() {

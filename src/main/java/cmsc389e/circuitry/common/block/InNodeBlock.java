@@ -14,10 +14,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
 public class InNodeBlock extends NodeBlock {
-	public InNodeBlock() {
-		super("in_node");
-	}
-
 	/**
 	 * Determines whether neighboring {@link Block}s can be powered by a
 	 * {@link InNodeBlock}. This method always returns true, which causes

@@ -30,10 +30,9 @@ public abstract class NodeBlock extends Block {
 			world.setBlockState(pos, state.cycle(POWERED));
 	}
 
-	public NodeBlock(String name) {
+	public NodeBlock() {
 		super(Properties.create(Material.IRON));
 		setDefaultState(getDefaultState().with(POWERED, false));
-		setRegistryName(name);
 	}
 
 	@Override

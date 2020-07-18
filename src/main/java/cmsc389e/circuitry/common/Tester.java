@@ -13,6 +13,7 @@ import net.minecraft.block.Block;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -70,8 +71,9 @@ public class Tester {
 		if (inTags.isEmpty() || outTags.isEmpty() || inTests.isEmpty() || outTests.isEmpty())
 			throw new CommandException(new StringTextComponent("No test is loaded! Try running load first."));
 
+		TileEntityType<?> type = Circuitry.TYPE.get();
 		world.loadedTileEntityList.forEach(te -> {
-			if (te.getType() == Circuitry.nodeType) {
+			if (te.getType() == type) {
 				String tag = ((NodeTileEntity) te).getTag();
 				if (tags.put(tag, te) != null)
 					throw new CommandException(new StringTextComponent("Duplicate tag found: " + tag));
