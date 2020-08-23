@@ -1,52 +1,52 @@
 package cmsc389e.circuitry.common;
 
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.function.Consumer;
 
 import cmsc389e.circuitry.Circuitry;
-import cmsc389e.circuitry.common.block.NodeBlock;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 
 public class NodeTileEntity extends TileEntity {
-	private int tag;
+    public static void forEach(MinecraftServer server, Consumer<NodeTileEntity> action) {
+	TileEntityType<?> type = Circuitry.TYPE.get();
+	server.getWorlds().forEach(world -> world.loadedTileEntityList.forEach(te -> {
+	    if (te.getType() == type)
+		action.accept((NodeTileEntity) te);
+	}));
+    }
 
-	public NodeTileEntity() {
-		super(Circuitry.TYPE.get());
-	}
+    public int index;
 
-	public String getTag() {
-		Pair<String, List<String>> pair = ((NodeBlock) getBlockState().getBlock()).getTagInfo();
-		List<String> tags = pair.getRight();
-		int size = tags.size();
-		return tags.isEmpty() ? pair.getLeft() + tag : tags.get((tag % size + size) % size);
-	}
+    public NodeTileEntity() {
+	super(Circuitry.TYPE.get());
+    }
 
-	@Override
-	public CompoundNBT getUpdateTag() {
-		return write(new CompoundNBT());
-	}
+    public String getTag() {
+	String[] tags = getBlockState().getBlock() == Circuitry.IN_NODE_BLOCK.get() ? Config.inTags : Config.outTags;
+	return tags[index % tags.length];
+    }
 
-	@Override
-	public void handleUpdateTag(CompoundNBT tag) {
-		read(tag);
-	}
+    @Override
+    public CompoundNBT getUpdateTag() {
+	return write(new CompoundNBT());
+    }
 
-	@Override
-	public void read(CompoundNBT compound) {
-		super.read(compound);
-		tag = compound.getInt("tag");
-	}
+    @Override
+    public void handleUpdateTag(CompoundNBT tag) {
+	read(tag);
+    }
 
-	public void setTag(boolean increment) {
-		tag += increment ? 1 : -1;
-		markDirty();
-	}
+    @Override
+    public void read(CompoundNBT compound) {
+	super.read(compound);
+	index = compound.getInt("index");
+    }
 
-	@Override
-	public CompoundNBT write(CompoundNBT compound) {
-		compound.putInt("tag", tag);
-		return super.write(compound);
-	}
+    @Override
+    public CompoundNBT write(CompoundNBT compound) {
+	compound.putInt("index", index);
+	return super.write(compound);
+    }
 }

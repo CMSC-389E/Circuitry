@@ -30,50 +30,52 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(Circuitry.MODID)
 @EventBusSubscriber(bus = Bus.MOD)
 public class Circuitry {
-	public static final String MODID = "circuitry";
+    public static final String MODID = "circuitry";
 
-	public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-	public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-	public static final DeferredRegister<TileEntityType<?>> TE = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES,
-			MODID);
+    public static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+    public static final DeferredRegister<Item> ITEMS = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<TileEntityType<?>> TE = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES,
+	    MODID);
 
-	public static final RegistryObject<Block> IN_NODE = BLOCKS.register("in_node", InNodeBlock::new),
-			OUT_NODE = BLOCKS.register("out_node", OutNodeBlock::new);
-	public static final RegistryObject<TileEntityType<?>> TYPE = TE.register("node",
-			() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
-	static {
-		ITEMS.register("in_node", () -> new BlockItem(IN_NODE.get(), new Properties().group(ItemGroup.REDSTONE)));
-		ITEMS.register("out_node", () -> new BlockItem(OUT_NODE.get(), new Properties().group(ItemGroup.REDSTONE)));
-	}
+    public static final RegistryObject<Block> IN_NODE_BLOCK = BLOCKS.register("in_node", InNodeBlock::new),
+	    OUT_NODE_BLOCK = BLOCKS.register("out_node", OutNodeBlock::new);
+    public static final RegistryObject<TileEntityType<?>> TYPE = TE.register("node",
+	    () -> Builder.create(NodeTileEntity::new, IN_NODE_BLOCK.get(), OUT_NODE_BLOCK.get()).build(null));
 
-	@SuppressWarnings("resource")
-	@SubscribeEvent
-	public static void onClientSetup(FMLClientSetupEvent event) {
-		ObfuscationReflectionHelper.setPrivateValue(NewChatGui.class,
-				event.getMinecraftSupplier().get().ingameGUI.getChatGUI(), new ArrayList<ChatLine>() {
-					private boolean frozen;
+    static {
+	ITEMS.register("in_node", () -> new BlockItem(IN_NODE_BLOCK.get(), new Properties().group(ItemGroup.REDSTONE)));
+	ITEMS.register("out_node",
+		() -> new BlockItem(OUT_NODE_BLOCK.get(), new Properties().group(ItemGroup.REDSTONE)));
+    }
 
-					@Override
-					public ChatLine remove(int index) {
-						frozen = true;
-						return get(index);
-					}
+    @SuppressWarnings("resource")
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+	ObfuscationReflectionHelper.setPrivateValue(NewChatGui.class,
+		event.getMinecraftSupplier().get().ingameGUI.getChatGUI(), new ArrayList<ChatLine>() {
+		    private boolean frozen;
 
-					@Override
-					public int size() {
-						int size = frozen ? 0 : super.size();
-						frozen = false;
-						return size;
-					}
-				}, "drawnChatLines");
-	}
+		    @Override
+		    public ChatLine remove(int index) {
+			frozen = true;
+			return get(index);
+		    }
 
-	public Circuitry() {
-		Config.register();
+		    @Override
+		    public int size() {
+			int size = frozen ? 0 : super.size();
+			frozen = false;
+			return size;
+		    }
+		}, "drawnChatLines");
+    }
 
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		BLOCKS.register(bus);
-		ITEMS.register(bus);
-		TE.register(bus);
-	}
+    public Circuitry() {
+	IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+	BLOCKS.register(bus);
+	ITEMS.register(bus);
+	TE.register(bus);
+
+	Config.register();
+    }
 }

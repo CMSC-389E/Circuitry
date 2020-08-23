@@ -1,19 +1,22 @@
 package cmsc389e.circuitry.common.command;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import javax.annotation.Nullable;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
@@ -23,97 +26,109 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
 
 public class TestCommand {
-	private static CommandException exception(@Nullable Exception e, String message) {
-		if (e != null)
-			e.printStackTrace();
-		return new CommandException(new StringTextComponent(message));
+    private static String execute(CommandSource source, CloseableHttpClient client, String uri, HttpEntity entity,
+	    Object... parameters) throws IOException {
+	RequestBuilder builder = RequestBuilder.post().setUri(uri).setEntity(entity);
+	for (int i = 0; i < parameters.length; i += 2)
+	    builder.addParameter(parameters[i].toString(), parameters[i + 1].toString());
+
+	try (CloseableHttpResponse response = client.execute(builder.build())) {
+	    String contents = EntityUtils.toString(response.getEntity());
+	    if (response.getStatusLine().getStatusCode() != 200)
+		throw new CommandException(new StringTextComponent(contents));
+	    source.sendFeedback(new StringTextComponent(contents), true);
+	    return contents;
 	}
+    }
 
-	private static int load(CommandContext<CommandSource> context, int projectNumber) {
-		try (BufferedReader in = new BufferedReader(
-				new InputStreamReader(new URL(String.format(Config.TESTS_URL.get(), projectNumber)).openStream()))) {
-			in.readLine();
-			String[] tags = in.readLine().split("\t(?=o)", 2);
+    private static int load(CommandContext<CommandSource> context, int projectNumber) {
+	if (Tester.INSTANCE.running)
+	    throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
-			List<String> inTags = Config.IN_TAGS.get();
-			List<String> outTags = Config.OUT_TAGS.get();
-			List<List<Boolean>> inTests = Config.IN_TESTS.get();
-			List<List<Boolean>> outTests = Config.OUT_TESTS.get();
-			inTags.clear();
-			outTags.clear();
-			inTests.clear();
-			outTests.clear();
-
-			Collections.addAll(inTags, tags[0].split("\t"));
-			Collections.addAll(outTags, tags[1].split("\t"));
-
-			int inSize = inTags.size();
-			String line;
-			while ((line = in.readLine()) != null) {
-				List<Boolean> inTest = new ArrayList<>();
-				List<Boolean> outTest = new ArrayList<>();
-				inTests.add(inTest);
-				outTests.add(outTest);
-				tags = line.split("\t");
-				for (int j = 0; j < tags.length; j++)
-					(j < inSize ? inTest : outTest).add(tags[j].equals("1"));
-			}
-
-			context.getSource().sendFeedback(new StringTextComponent("The project has been loaded successfully."),
-					true);
-		} catch (IndexOutOfBoundsException e) {
-			throw exception(e, "The tests file was malformed!");
-		} catch (FileNotFoundException e) {
-			throw exception(e, "No tests file found at " + e.getLocalizedMessage() + '!');
-		} catch (MalformedURLException e) {
-			throw exception(e, e.getLocalizedMessage() + " is not a valid URL!");
-		} catch (IOException e) {
-			throw exception(e, "Unable to read tests! Try running load again.");
-		}
-		return 0;
+	Config.projectNumber.set(projectNumber);
+	try {
+	    Config.load();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
 	}
+	context.getSource().sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"),
+		true);
+	return 0;
+    }
 
-	public static void register(CommandDispatcher<CommandSource> dispatcher) {
-		String delay = "Delay";
-		String projectNumber = "Project Number";
+    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+	String projectNumber = "Project Number";
+	String delay = "Delay";
+	String campusUID = "Campus UID";
+	String uidPassword = "UID Password";
 
-		ArgumentBuilder<CommandSource, ?> load = Commands.literal("load")
-				.then(Commands.argument(projectNumber, IntegerArgumentType.integer(0))
-						.executes(context -> load(context, IntegerArgumentType.getInteger(context, projectNumber))));
-		ArgumentBuilder<CommandSource, ?> start = Commands.literal("start").executes(context -> start(context, 0))
-				.then(Commands.argument(delay, IntegerArgumentType.integer(0))
-						.executes(context -> start(context, IntegerArgumentType.getInteger(context, delay))));
-		ArgumentBuilder<CommandSource, ?> stop = Commands.literal("stop").executes(TestCommand::stop);
-		ArgumentBuilder<CommandSource, ?> submit = Commands.literal("submit").executes(TestCommand::submit);
+	ArgumentBuilder<CommandSource, ?> load = Commands.literal("load")
+		.then(Commands.argument(projectNumber, IntegerArgumentType.integer(0, 9))
+			.executes(context -> load(context, IntegerArgumentType.getInteger(context, projectNumber))));
+	ArgumentBuilder<CommandSource, ?> start = Commands.literal("start").executes(context -> start(context, 0))
+		.then(Commands.argument(delay, IntegerArgumentType.integer(0))
+			.executes(context -> start(context, IntegerArgumentType.getInteger(context, delay))));
+	ArgumentBuilder<CommandSource, ?> stop = Commands.literal("stop").executes(TestCommand::stop);
+	ArgumentBuilder<CommandSource, ?> submit = Commands.literal("submit")
+		.executes(context -> submit(context, "", ""))
+		.then(Commands.argument(campusUID, StringArgumentType.string())
+			.then(Commands.argument(uidPassword, StringArgumentType.string())
+				.executes(context -> submit(context, StringArgumentType.getString(context, campusUID),
+					StringArgumentType.getString(context, uidPassword)))));
 
-		dispatcher.register(Commands.literal("test").then(load).then(start).then(stop).then(submit));
+	dispatcher.register(Commands.literal("test").then(load).then(start).then(stop).then(submit));
+    }
+
+    private static int start(CommandContext<CommandSource> context, int delay) {
+	if (Tester.INSTANCE.running)
+	    throw new CommandException(new StringTextComponent("A test is already running!"));
+	Tester.INSTANCE.start(context.getSource(), delay);
+	return 0;
+    }
+
+    private static int stop(CommandContext<CommandSource> context) {
+	if (!Tester.INSTANCE.running)
+	    throw new CommandException(new StringTextComponent("No test is currently running!"));
+	context.getSource().sendFeedback(new StringTextComponent("Test stopped successfully!"), true);
+	return 0;
+    }
+
+    @SuppressWarnings("resource")
+    private static int submit(CommandContext<CommandSource> context, String campusUID, String uidPassword) {
+	if (Tester.INSTANCE.running)
+	    throw new CommandException(new StringTextComponent("Cannot submit test results while a test is running!"));
+	if (Tester.RESULTS.length() == 0)
+	    throw new CommandException(new StringTextComponent("Cannot find any test results!"));
+
+	try (CloseableHttpClient client = HttpClients.createMinimal()) {
+	    CommandSource source = context.getSource();
+	    String base = "https://submit.cs.umd.edu/spring2020/eclipse/";
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    ZipOutputStream zip = new ZipOutputStream(out);
+	    zip.putNextEntry(new ZipEntry("Dummy.java"));
+	    zip.write("public class Dummy{public static void main(String[]args){}}".getBytes());
+	    zip.putNextEntry(new ZipEntry("Results.txt"));
+	    zip.write(Tester.RESULTS.toString().getBytes());
+	    zip.close();
+
+	    if (!campusUID.isEmpty())
+		execute(source, client, base + "NegotiateOneTimePassword", null, "campusUID", campusUID, "courseName",
+			"CMSC389E", "projectNumber", Config.projectNumber.get(), "uidPassword", uidPassword);
+
+	    execute(source, client, base + "SubmitProjectViaEclipse",
+		    MultipartEntityBuilder.create()
+			    .addBinaryBody("submittedFiles", out.toByteArray(), ContentType.DEFAULT_BINARY,
+				    "submit.zip")
+			    .build(),
+		    "courseName", "CMSC389E", "cvsAccount", Config.cvsAccount.get(), "oneTimePassword",
+		    Config.oneTimePassword.get());
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
 	}
-
-	@SuppressWarnings("resource")
-	public static int start(CommandContext<CommandSource> context, int delay) {
-		CommandSource source = context.getSource();
-		World world = source.getWorld();
-		if (Tester.INSTANCES.containsKey(world))
-			throw exception(null, "A Tester is already running!");
-		Tester.INSTANCES.put(world, new Tester(source, world, delay));
-		return 0;
-	}
-
-	@SuppressWarnings("resource")
-	private static int stop(CommandContext<CommandSource> context) {
-		CommandSource source = context.getSource();
-		World world = source.getWorld();
-		if (!Tester.INSTANCES.containsKey(world))
-			throw exception(null, "No Tester is currently running!");
-		Tester.INSTANCES.remove(world);
-		source.sendFeedback(new StringTextComponent("Tester stopped successfully."), true);
-		return 0;
-	}
-
-	private static int submit(@SuppressWarnings("unused") CommandContext<CommandSource> context) {
-		return 0;
-	}
+	return 0;
+    }
 }
