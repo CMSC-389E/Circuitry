@@ -1,7 +1,7 @@
 {
 	"homepage": "https://github.com/CMSC-389E/mod-framework-and-testing-framework/releases",
 	"1.15.2": {
-		"1.15.2-1.0.0.0": "Update to 1.15.2."
+		"1.15.2-0.0.1.0": "Update to 1.15.2."
 	},
 	"1.12.2": {
 		"1.12.2-1.0.1.0": "-Remove specialized test logging.\n-Add required check for other mods on startup.\n-Add more specific duplicate tag information in /test.",
