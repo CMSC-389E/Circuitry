@@ -13,8 +13,8 @@
 		"1.12.2-0.0.1.0-beta3": "-Implement commands.\n-Fix minor bugs."
 	},
 	"promos": {
-		"1.15.2-latest": "1.15.2-1.0.0.0",
-		"1.15.2-recommended": "1.15.2-1.0.0.0",
+		"1.15.2-latest": "1.15.2-0.0.1.0",
+		"1.15.2-recommended": "1.15.2-0.0.1.0",
 		
 		"1.12.2-latest": "1.12.2-1.0.1.0",
 		"1.12.2-recommended": "1.12.2-1.0.1.0"
