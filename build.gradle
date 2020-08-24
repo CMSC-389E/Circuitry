@@ -15,9 +15,10 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
-version = '1.15.2-1.0.0.0'
+version = '1.15.2-0.0.1.0'
 group = 'cmsc389e.circuitry'
 archivesBaseName = 'circuitry'
+compileJava.options.compilerArgs << '-proc:none'
 
 minecraft {
 	mappings channel: 'snapshot', version: '20200514-1.15.1'
@@ -53,7 +54,15 @@ dependencies {
 jar {
 	manifest {
 		attributes([
-			"Implementation-Version": "${version}"
+			'Implementation-Version': '${version}'
 		])
+	}
+	
+	from {
+		configurations.compile.filter {
+			it.getName().startsWith('httpmime')
+		}.collect {
+			zipTree(it)
+		}
 	}
 }

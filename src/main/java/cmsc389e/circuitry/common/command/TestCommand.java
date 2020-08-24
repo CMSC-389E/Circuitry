@@ -2,6 +2,8 @@ package cmsc389e.circuitry.common.command;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -106,6 +108,16 @@ public class TestCommand {
 	try (CloseableHttpClient client = HttpClients.createMinimal()) {
 	    CommandSource source = context.getSource();
 	    String base = "https://submit.cs.umd.edu/spring2020/eclipse/";
+	    if (!campusUID.isEmpty()) {
+		String content = execute(source, client, base + "NegotiateOneTimePassword", null, "campusUID",
+			campusUID, "courseName", "CMSC389E", "projectNumber", Config.projectNumber.get(), "uidPassword",
+			uidPassword);
+		Properties properties = new Properties();
+		properties.load(new StringReader(content));
+		Config.cvsAccount.set(properties.getProperty("cvsAccount"));
+		Config.oneTimePassword.set(properties.getProperty("oneTimePassword"));
+	    }
+
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    ZipOutputStream zip = new ZipOutputStream(out);
 	    zip.putNextEntry(new ZipEntry("Dummy.java"));
@@ -113,10 +125,6 @@ public class TestCommand {
 	    zip.putNextEntry(new ZipEntry("Results.txt"));
 	    zip.write(Tester.RESULTS.toString().getBytes());
 	    zip.close();
-
-	    if (!campusUID.isEmpty())
-		execute(source, client, base + "NegotiateOneTimePassword", null, "campusUID", campusUID, "courseName",
-			"CMSC389E", "projectNumber", Config.projectNumber.get(), "uidPassword", uidPassword);
 
 	    execute(source, client, base + "SubmitProjectViaEclipse",
 		    MultipartEntityBuilder.create()
