@@ -67,7 +67,7 @@ public class Circuitry {
 			frozen = false;
 			return size;
 		    }
-		}, "drawnChatLines");
+		}, "field_146253_i"); // drawnChatLines
     }
 
     public Circuitry() {

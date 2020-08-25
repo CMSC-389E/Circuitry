@@ -57,14 +57,12 @@ public class EventHandler {
 			os -> os.openFile(FMLPaths.MODSDIR.get().toFile()));
 
 	    IModInfo info = list.getModContainerById(Circuitry.MODID).get().getModInfo();
-	    if (!info.getVersion().getQualifier().equals("NONE")) {
-		CheckResult result = VersionChecker.getResult(info);
-		if (result.status == Status.OUTDATED)
-		    alert(event, info.getDisplayName() + " is out of date.",
-			    "You must update to version " + result.target
-				    + " before proceeding.\nOpen Link will bring you to the page below:",
-			    result.url, "Open Link", os -> os.openURI(result.url));
-	    }
+	    CheckResult result = VersionChecker.getResult(info);
+	    if (result.status == Status.OUTDATED)
+		alert(event, info.getDisplayName() + " is out of date.",
+			"You must update to version " + result.target
+				+ " before proceeding.\nOpen Link will bring you to the page below:",
+			result.url, "Open Link", os -> os.openURI(result.url));
 	}
     }
 

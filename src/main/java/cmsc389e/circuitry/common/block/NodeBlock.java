@@ -52,21 +52,20 @@ public abstract class NodeBlock extends Block {
     }
 
     /**
-     * Called when a {@link InNodeBlock} is right-clicked and the
-     * {@link PlayerEntity} is not crouching. The {@link World} is not checked
-     * whether it is remote since all this method does is modify
-     * {@link NodeTileEntity#index} at the {@link BlockPos}. On {@link Chunk} load,
-     * the client-side {@link NodeTileEntity} is synced to the server-side one. That
-     * means {@link NodeTileEntity#index} will always be synchronized.
+     * Called when a {@link NodeBlock} is right-clicked and the {@link PlayerEntity}
+     * is not crouching. The {@link World} is not checked whether it is remote since
+     * all this method does is modify {@link NodeTileEntity#index} at the
+     * {@link BlockPos}. On {@link Chunk} load, the client-side
+     * {@link NodeTileEntity} is synced to the server-side one. That means
+     * {@link NodeTileEntity#index} will always be synchronized.
      *
-     * @param state   the {@link BlockState} of the {@link InNodeBlock} that was
+     * @param state   the {@link BlockState} of the {@link NodeBlock} that was
      *                clicked
-     * @param worldIn the {@link World} that the {@link InNodeBlock} was clicked in
-     * @param pos     the {@link BlockPos} of the {@link InNodeBlock} that was
-     *                clicked
+     * @param worldIn the {@link World} that the {@link NodeBlock} was clicked in
+     * @param pos     the {@link BlockPos} of the {@link NodeBlock} that was clicked
      * @param player  the {@link PlayerEntity} who did the clicking
      * @param handIn  the {@link Hand} with which the {@link PlayerEntity} clicked
-     * @param hit     where on the {@link InNodeBlock}'s bounds it was hit
+     * @param hit     where on the {@link NodeBlock}'s bounds it was hit
      * @return {@link ActionResultType#SUCCESS}, which tells the game that the
      *         action was consumed correctly
      * @deprecated

@@ -10,8 +10,6 @@ import java.util.zip.ZipOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -23,6 +21,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 import cmsc389e.circuitry.common.Config;
+import cmsc389e.circuitry.common.MultipartFormEntity;
 import cmsc389e.circuitry.common.Tester;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
@@ -127,12 +126,8 @@ public class TestCommand {
 	    zip.close();
 
 	    execute(source, client, base + "SubmitProjectViaEclipse",
-		    MultipartEntityBuilder.create()
-			    .addBinaryBody("submittedFiles", out.toByteArray(), ContentType.DEFAULT_BINARY,
-				    "submit.zip")
-			    .build(),
-		    "courseName", "CMSC389E", "cvsAccount", Config.cvsAccount.get(), "oneTimePassword",
-		    Config.oneTimePassword.get());
+		    new MultipartFormEntity("submittedfiles", "submit.zip", out.toByteArray()), "courseName",
+		    "CMSC389E", "cvsAccount", Config.cvsAccount.get(), "oneTimePassword", Config.oneTimePassword.get());
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
