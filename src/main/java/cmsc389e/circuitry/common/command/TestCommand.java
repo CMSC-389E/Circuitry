@@ -93,6 +93,7 @@ public class TestCommand {
     private static int stop(CommandContext<CommandSource> context) {
 	if (!Tester.INSTANCE.running)
 	    throw new CommandException(new StringTextComponent("No test is currently running!"));
+	Tester.INSTANCE.running = false;
 	context.getSource().sendFeedback(new StringTextComponent("Test stopped successfully!"), true);
 	return 0;
     }

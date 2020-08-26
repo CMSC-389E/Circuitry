@@ -42,8 +42,9 @@ public class Tester implements Runnable {
     private final Map<String, TileEntity> tagMap;
     private final List<ServerTickList<Block>> tickLists;
     private final MinecraftServer server;
-    private int delay, index, waiting;
+    private int delay, index, wait;
     private CommandSource source;
+    private boolean waiting;
     public boolean running;
 
     public Tester(MinecraftServer server) {
@@ -57,29 +58,32 @@ public class Tester implements Runnable {
     @SuppressWarnings("resource")
     @Override
     public void run() {
-	if (running && --waiting <= 0 && tickLists.stream().allMatch(tickList -> tickList.func_225420_a() == 0)) {
-	    if (index >= 0) {
+	if (running)
+	    if (waiting) {
+		if (--wait <= 0) {
+		    sendFeedback("Test " + index + ':', DEFAULT);
+		    sendFeedback("In: " + join(Config.inTests[index]), IN);
+		    sendFeedback("Out: " + join(Config.outTests[index]), OUT);
+		    for (int i = 0; i < Config.inTags.length; i++) {
+			TileEntity te = tagMap.get(Config.inTags[i]);
+			NodeBlock.setPowered(te.getWorld(), te.getBlockState(), te.getPos(), Config.inTests[index][i]);
+		    }
+		    waiting = false;
+		}
+	    } else if (tickLists.stream().allMatch(tickList -> tickList.func_225420_a() == 0)) {
 		boolean[] actual = new boolean[Config.outTags.length];
 		for (int i = 0; i < Config.outTags.length; i++)
 		    actual[i] = tagMap.get(Config.outTags[i]).getBlockState().get(NodeBlock.POWERED);
 		sendFeedback("Actual: " + join(actual) + '\n',
 			Arrays.equals(actual, Config.outTests[index]) ? PASSED : FAILED);
-		waiting = delay;
-	    }
 
-	    if (++index == Config.inTests.length) {
-		sendFeedback("Testing complete.", DEFAULT);
-		running = false;
-	    } else if (waiting <= 0) {
-		sendFeedback("Test " + index + ':', DEFAULT);
-		sendFeedback("In: " + join(Config.inTests[index]), IN);
-		sendFeedback("Out: " + join(Config.outTests[index]), OUT);
-		for (int i = 0; i < Config.inTags.length; i++) {
-		    TileEntity te = tagMap.get(Config.inTags[i]);
-		    NodeBlock.setPowered(te.getWorld(), te.getBlockState(), te.getPos(), Config.inTests[index][i]);
+		if (++index == Config.inTests.length) {
+		    sendFeedback("Testing complete.", DEFAULT);
+		    running = false;
 		}
+		waiting = true;
+		wait = delay;
 	    }
-	}
     }
 
     private void sendFeedback(String message, Style style) {
@@ -95,8 +99,9 @@ public class Tester implements Runnable {
 
 	this.source = source;
 	this.delay = delay;
-	index = -1;
-	waiting = 0;
+	index = 0;
+	wait = 0;
+	waiting = true;
 
 	List<String> tags = new ArrayList<>(Arrays.asList(Config.inTags));
 	tags.addAll(Arrays.asList(Config.outTags));
