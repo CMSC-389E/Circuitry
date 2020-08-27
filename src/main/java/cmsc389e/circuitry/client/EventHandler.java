@@ -5,18 +5,27 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.types.JsonOps;
 
 import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.AlertScreen;
+import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.Util.OS;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.GameType;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.gen.FlatGenerationSettings;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawHighlightEvent.HighlightBlock;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -45,7 +54,17 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onGuiOpen(GuiOpenEvent event) {
-	if (event.getGui() instanceof MainMenuScreen) {
+	Screen screen = event.getGui();
+	if (screen instanceof CreateWorldScreen) {
+	    CreateWorldScreen cws = (CreateWorldScreen) screen;
+	    if (cws.chunkProviderSettingsJson.size() == 0)
+		cws.recreateFromExistingWorld(new WorldInfo(
+			new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT)
+				.setGeneratorOptions(FlatGenerationSettings.createFlatGeneratorFromString(
+					"minecraft:bedrock,3*minecraft:stone,52*minecraft:sandstone;minecraft:desert;")
+					.func_210834_a(JsonOps.INSTANCE).getValue()),
+			I18n.format("selectWorld.newWorld")));
+	} else if (screen instanceof MainMenuScreen) {
 	    ModList list = ModList.get();
 
 	    Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft");

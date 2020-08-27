@@ -17,10 +17,12 @@ public class Config {
     public static ConfigValue<String> cvsAccount, oneTimePassword;
     public static ConfigValue<Integer> projectNumber;
 
+    public static boolean loaded;
     public static String[] inTags, outTags;
     public static boolean[][] inTests, outTests;
 
     public static void load() throws IOException {
+	loaded = false;
 	try (InputStream in = new URL("https://cs.umd.edu/~abrassel/proj" + projectNumber.get() + "tests.txt")
 		.openStream()) {
 	    List<String> lines = IOUtils.readLines(in, (Charset) null);
@@ -40,6 +42,7 @@ public class Config {
 		}
 	    }
 	}
+	loaded = true;
     }
 
     public static void register() {

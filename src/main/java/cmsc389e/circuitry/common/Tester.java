@@ -92,6 +92,9 @@ public class Tester implements Runnable {
     }
 
     public void start(CommandSource source, int delay) {
+	if (!Config.loaded)
+	    throw new CommandException(new StringTextComponent("No tests are loaded!"));
+
 	IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
 	OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
 	RESULTS.setLength(0);

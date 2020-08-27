@@ -3,6 +3,7 @@ package cmsc389e.circuitry.common.command;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.UnknownHostException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -51,9 +52,13 @@ public class TestCommand {
 	Config.projectNumber.set(projectNumber);
 	try {
 	    Config.load();
+	} catch (UnknownHostException e) {
+	    e.printStackTrace();
+	    throw new CommandException(new StringTextComponent("Unable to connect to " + e.getLocalizedMessage()));
 	} catch (IOException e) {
 	    e.printStackTrace();
-	    throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
+	    throw new CommandException(
+		    new StringTextComponent(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()));
 	}
 	context.getSource().sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"),
 		true);
@@ -105,7 +110,7 @@ public class TestCommand {
 	if (Tester.RESULTS.length() == 0)
 	    throw new CommandException(new StringTextComponent("Cannot find any test results!"));
 
-	try (CloseableHttpClient client = HttpClients.createMinimal()) {
+	try (CloseableHttpClient client = HttpClients.createDefault()) {
 	    CommandSource source = context.getSource();
 	    String base = "https://submit.cs.umd.edu/spring2020/eclipse/";
 	    if (!campusUID.isEmpty()) {

@@ -24,8 +24,12 @@ public class NodeTileEntity extends TileEntity {
     }
 
     public String getTag() {
-	String[] tags = getBlockState().getBlock() == Circuitry.IN_NODE_BLOCK.get() ? Config.inTags : Config.outTags;
-	return tags[index % tags.length];
+	if (Config.loaded) {
+	    String[] tags = getBlockState().getBlock() == Circuitry.IN_NODE_BLOCK.get() ? Config.inTags
+		    : Config.outTags;
+	    return tags[index % tags.length];
+	}
+	return String.valueOf(index);
     }
 
     @Override
