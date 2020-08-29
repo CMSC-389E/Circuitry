@@ -81,7 +81,7 @@ public class TestCommand {
 	ArgumentBuilder<CommandSource, ?> submit = Commands.literal("submit")
 		.executes(context -> submit(context, "", ""))
 		.then(Commands.argument(campusUID, StringArgumentType.string())
-			.then(Commands.argument(uidPassword, StringArgumentType.string())
+			.then(Commands.argument(uidPassword, StringArgumentType.greedyString())
 				.executes(context -> submit(context, StringArgumentType.getString(context, campusUID),
 					StringArgumentType.getString(context, uidPassword)))));
 

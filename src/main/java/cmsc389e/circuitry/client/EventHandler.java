@@ -29,6 +29,7 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawHighlightEvent.HighlightBlock;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
@@ -54,17 +55,7 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onGuiOpen(GuiOpenEvent event) {
-	Screen screen = event.getGui();
-	if (screen instanceof CreateWorldScreen) {
-	    CreateWorldScreen cws = (CreateWorldScreen) screen;
-	    if (cws.chunkProviderSettingsJson.size() == 0)
-		cws.recreateFromExistingWorld(new WorldInfo(
-			new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT)
-				.setGeneratorOptions(FlatGenerationSettings.createFlatGeneratorFromString(
-					"minecraft:bedrock,3*minecraft:stone,52*minecraft:sandstone;minecraft:desert;")
-					.func_210834_a(JsonOps.INSTANCE).getValue()),
-			I18n.format("selectWorld.newWorld")));
-	} else if (screen instanceof MainMenuScreen) {
+	if (event.getGui() instanceof MainMenuScreen) {
 	    ModList list = ModList.get();
 
 	    Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft");
@@ -92,5 +83,17 @@ public class EventHandler {
 	TileEntity te = minecraft.world.getTileEntity(event.getTarget().getPos());
 	minecraft.ingameGUI.setOverlayMessage(
 		te != null && te.getType() == Circuitry.TYPE.get() ? ((NodeTileEntity) te).getTag() : "", false);
+    }
+
+    @SubscribeEvent
+    public static void onPreInitGui(InitGuiEvent.Post event) {
+	Screen screen = event.getGui();
+	if (screen instanceof CreateWorldScreen)
+	    ((CreateWorldScreen) screen).recreateFromExistingWorld(
+		    new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT)
+			    .setGeneratorOptions(FlatGenerationSettings.createFlatGeneratorFromString(
+				    "minecraft:bedrock,3*minecraft:stone,52*minecraft:sandstone;minecraft:desert;")
+				    .func_210834_a(JsonOps.INSTANCE).getValue()),
+			    I18n.format("selectWorld.newWorld")));
     }
 }
