@@ -107,12 +107,12 @@ public class TestCommand {
     private static int submit(CommandContext<CommandSource> context, String campusUID, String uidPassword) {
 	if (Tester.INSTANCE.running)
 	    throw new CommandException(new StringTextComponent("Cannot submit test results while a test is running!"));
-	if (Tester.RESULTS.length() == 0)
+	if (Tester.INSTANCE.results.length() == 0)
 	    throw new CommandException(new StringTextComponent("Cannot find any test results!"));
 
 	try (CloseableHttpClient client = HttpClients.createDefault()) {
 	    CommandSource source = context.getSource();
-	    String base = "https://submit.cs.umd.edu/spring2020/eclipse/";
+	    String base = "https://submit.cs.umd.edu/fall2020/eclipse/";
 	    if (!campusUID.isEmpty()) {
 		String content = execute(source, client, base + "NegotiateOneTimePassword", null, "campusUID",
 			campusUID, "courseName", "CMSC389E", "projectNumber", Config.projectNumber.get(), "uidPassword",
@@ -128,7 +128,7 @@ public class TestCommand {
 	    zip.putNextEntry(new ZipEntry("Dummy.java"));
 	    zip.write("public class Dummy{public static void main(String[]args){}}".getBytes());
 	    zip.putNextEntry(new ZipEntry("Results.txt"));
-	    zip.write(Tester.RESULTS.toString().getBytes());
+	    zip.write(Tester.INSTANCE.results.toString().getBytes());
 	    zip.close();
 
 	    execute(source, client, base + "SubmitProjectViaEclipse",

@@ -20,9 +20,9 @@ public class SetCommand {
     @SuppressWarnings("resource")
     private static int execute(CommandContext<CommandSource> context, boolean powered, @Nullable String tag) {
 	CommandSource source = context.getSource();
-	Block block = Circuitry.IN_NODE_BLOCK.get();
+	Block block = Circuitry.IN_NODE.get();
 	NodeTileEntity.forEach(source.getServer(), te -> {
-	    if (te.getTag().equals(tag)) {
+	    if (tag == null || te.getTag().equals(tag)) {
 		BlockState state = te.getBlockState();
 		if (state.getBlock() == block)
 		    NodeBlock.setPowered(te.getWorld(), state, te.getPos(), powered);

@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.base.Predicates;
 
 import cmsc389e.circuitry.common.block.NodeBlock;
 import net.minecraft.block.Block;
@@ -20,12 +24,12 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.event.HoverEvent.Action;
 import net.minecraft.world.server.ServerTickList;
+import net.minecraft.world.server.ServerWorld;
 
 public class Tester implements Runnable {
-    public static final Style DEFAULT = new Style(), FAILED = new Style().setColor(TextFormatting.RED),
+    private static final Style DEFAULT = new Style(), FAILED = new Style().setColor(TextFormatting.RED),
 	    IN = new Style().setColor(TextFormatting.LIGHT_PURPLE), OUT = new Style().setColor(TextFormatting.AQUA),
 	    PASSED = new Style().setColor(TextFormatting.GREEN);
-    public static final StringBuilder RESULTS = new StringBuilder();
     public static Tester INSTANCE;
 
     private static String join(boolean[] actual) {
@@ -39,20 +43,22 @@ public class Tester implements Runnable {
 	return StringUtils.join(array, ' ');
     }
 
-    private final Map<String, TileEntity> tagMap;
-    private final List<ServerTickList<Block>> tickLists;
-    private final MinecraftServer server;
-    private int delay, index, wait;
-    private CommandSource source;
-    private boolean waiting;
+    public final StringBuilder results;
     public boolean running;
 
-    public Tester(MinecraftServer server) {
-	tagMap = new HashMap<>();
-	tickLists = new ArrayList<>();
-	this.server = server;
+    private final MinecraftServer server;
+    private final Map<String, TileEntity> tagMap;
+    private final List<ServerTickList<Block>> tickList;
+    private CommandSource source;
+    private int delay, index, wait;
+    private boolean waiting;
 
-	server.getWorlds().forEach(world -> tickLists.add(world.getPendingBlockTicks()));
+    public Tester(MinecraftServer server) {
+	this.server = server;
+	results = new StringBuilder();
+	tagMap = new HashMap<>();
+	tickList = StreamSupport.stream(server.getWorlds().spliterator(), true).map(ServerWorld::getPendingBlockTicks)
+		.collect(Collectors.toList());
     }
 
     @SuppressWarnings("resource")
@@ -70,7 +76,7 @@ public class Tester implements Runnable {
 		    }
 		    waiting = false;
 		}
-	    } else if (tickLists.stream().allMatch(tickList -> tickList.func_225420_a() == 0)) {
+	    } else if (tickList.parallelStream().map(ServerTickList::func_225420_a).allMatch(Predicates.equalTo(0))) {
 		boolean[] actual = new boolean[Config.outTags.length];
 		for (int i = 0; i < Config.outTags.length; i++)
 		    actual[i] = tagMap.get(Config.outTags[i]).getBlockState().get(NodeBlock.POWERED);
@@ -87,7 +93,7 @@ public class Tester implements Runnable {
     }
 
     private void sendFeedback(String message, Style style) {
-	RESULTS.append(message + '\n');
+	results.append(message + '\n');
 	source.sendFeedback(new StringTextComponent(message).setStyle(style), true);
     }
 
@@ -95,16 +101,8 @@ public class Tester implements Runnable {
 	if (!Config.loaded)
 	    throw new CommandException(new StringTextComponent("No tests are loaded!"));
 
-	IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
-	OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
-	RESULTS.setLength(0);
+	results.setLength(0);
 	tagMap.clear();
-
-	this.source = source;
-	this.delay = delay;
-	index = 0;
-	wait = 0;
-	waiting = true;
 
 	List<String> tags = new ArrayList<>(Arrays.asList(Config.inTags));
 	tags.addAll(Arrays.asList(Config.outTags));
@@ -117,10 +115,18 @@ public class Tester implements Runnable {
 	if (!tags.isEmpty())
 	    throw new CommandException(new StringTextComponent("The following tags are missing: " + tags));
 
+	IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
+	OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
+
+	this.source = source;
+	this.delay = delay;
+	index = 0;
+	wait = 0;
+	waiting = true;
+	running = true;
+
 	String message = "Starting Testing...";
 	String separator = StringUtils.repeat('-', message.length());
 	sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
-
-	running = true;
     }
 }

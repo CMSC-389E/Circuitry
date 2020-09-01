@@ -1,6 +1,7 @@
 package cmsc389e.circuitry.common;
 
 import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
 import cmsc389e.circuitry.Circuitry;
 import net.minecraft.nbt.CompoundNBT;
@@ -10,23 +11,21 @@ import net.minecraft.tileentity.TileEntityType;
 
 public class NodeTileEntity extends TileEntity {
     public static void forEach(MinecraftServer server, Consumer<NodeTileEntity> action) {
-	TileEntityType<?> type = Circuitry.TYPE.get();
-	server.getWorlds().forEach(world -> world.loadedTileEntityList.forEach(te -> {
-	    if (te.getType() == type)
-		action.accept((NodeTileEntity) te);
-	}));
+	TileEntityType<?> type = Circuitry.NODE.get();
+	StreamSupport.stream(server.getWorlds().spliterator(), true)
+		.flatMap(world -> world.loadedTileEntityList.parallelStream()).filter(te -> te.getType() == type)
+		.map(te -> (NodeTileEntity) te).forEach(action);
     }
 
     public int index;
 
     public NodeTileEntity() {
-	super(Circuitry.TYPE.get());
+	super(Circuitry.NODE.get());
     }
 
     public String getTag() {
 	if (Config.loaded) {
-	    String[] tags = getBlockState().getBlock() == Circuitry.IN_NODE_BLOCK.get() ? Config.inTags
-		    : Config.outTags;
+	    String[] tags = getBlockState().getBlock() == Circuitry.IN_NODE.get() ? Config.inTags : Config.outTags;
 	    return tags[index % tags.length];
 	}
 	return String.valueOf(index);
