@@ -19,7 +19,7 @@ public class Config {
 
     public static boolean loaded;
     public static String[] inTags, outTags;
-    public static boolean[][] inTests, outTests;
+    public static Boolean[][] inTests, outTests;
 
     public static void load() throws IOException {
 	loaded = false;
@@ -29,12 +29,12 @@ public class Config {
 	    String[] tags = lines.get(1).split("\t(?=o)", 2);
 	    inTags = tags[0].split("\t");
 	    outTags = tags[1].split("\t");
-	    inTests = new boolean[lines.size() - 2][inTags.length];
-	    outTests = new boolean[inTests.length][outTags.length];
+	    inTests = new Boolean[lines.size() - 2][inTags.length];
+	    outTests = new Boolean[inTests.length][outTags.length];
 	    for (int i = 0; i < inTests.length; i++) {
 		tags = lines.get(i + 2).split("\t");
 		for (int j = 0; j < tags.length; j++) {
-		    boolean value = tags[j].equals("1");
+		    Boolean value = tags[j].equals("1");
 		    if (j < inTags.length)
 			inTests[i][j] = value;
 		    else

@@ -4,4 +4,4 @@ This is the source code for the CMSC 389E Circuitry mod, created for UMD class C
 
 However, having this code available is not to be used to cheat or take advantage of. It is only here for academic purposes, debugging, and a means to effectively collaborate on this project.
 
-More information on the class and what you are expected to do can be found <a href="https://cs.umd.edu/class/spring2020/cmsc389E">here</a>.
+More information on the class and what you are expected to do can be found <a href="https://cs.umd.edu/class/fall2020/cmsc389E">here</a>.

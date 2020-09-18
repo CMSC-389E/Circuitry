@@ -1,13 +1,14 @@
 package cmsc389e.circuitry.common;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Predicates;
@@ -32,11 +33,8 @@ public class Tester implements Runnable {
 	    PASSED = new Style().setColor(TextFormatting.GREEN);
     public static Tester INSTANCE;
 
-    private static String join(boolean[] actual) {
-	Integer[] integers = new Integer[actual.length];
-	for (int i = 0; i < integers.length; i++)
-	    integers[i] = actual[i] ? 1 : 0;
-	return join(integers);
+    private static String join(Boolean[] actual) {
+	return join(Arrays.stream(actual).parallel().map(BooleanUtils::toIntegerObject).sequential().toArray());
     }
 
     private static String join(Object[] array) {
@@ -50,7 +48,7 @@ public class Tester implements Runnable {
     private final Map<String, TileEntity> tagMap;
     private final List<ServerTickList<Block>> tickList;
     private CommandSource source;
-    private int delay, index, wait;
+    private int delay, index, passed, wait;
     private boolean waiting;
 
     public Tester(MinecraftServer server) {
@@ -77,14 +75,19 @@ public class Tester implements Runnable {
 		    waiting = false;
 		}
 	    } else if (tickList.parallelStream().map(ServerTickList::func_225420_a).allMatch(Predicates.equalTo(0))) {
-		boolean[] actual = new boolean[Config.outTags.length];
+		Boolean[] actual = new Boolean[Config.outTags.length];
 		for (int i = 0; i < Config.outTags.length; i++)
 		    actual[i] = tagMap.get(Config.outTags[i]).getBlockState().get(NodeBlock.POWERED);
-		sendFeedback("Actual: " + join(actual) + '\n',
-			Arrays.equals(actual, Config.outTests[index]) ? PASSED : FAILED);
+		Style style = FAILED;
+		if (Arrays.equals(actual, Config.outTests[index])) {
+		    passed++;
+		    style = PASSED;
+		}
+		sendFeedback("Actual: " + join(actual) + '\n', style);
 
 		if (++index == Config.inTests.length) {
-		    sendFeedback("Testing complete.", DEFAULT);
+		    sendFeedback("Testing complete. Passed " + passed + " out of " + Config.inTests.length + " tests.",
+			    passed == Config.inTests.length ? PASSED : FAILED);
 		    running = false;
 		}
 		waiting = true;
@@ -104,14 +107,13 @@ public class Tester implements Runnable {
 	results.setLength(0);
 	tagMap.clear();
 
-	List<String> tags = new ArrayList<>(Arrays.asList(Config.inTags));
-	tags.addAll(Arrays.asList(Config.outTags));
 	NodeTileEntity.forEach(server, te -> {
 	    String tag = te.getTag();
 	    if (tagMap.put(tag, te) != null)
 		throw new CommandException(new StringTextComponent("Duplicate tag found: " + tag));
-	    tags.remove(tag);
 	});
+	String tags = Stream.concat(Arrays.stream(Config.inTags).parallel(), Arrays.stream(Config.outTags))
+		.filter(tag -> !tagMap.containsKey(tag)).collect(Collectors.joining("\n"));
 	if (!tags.isEmpty())
 	    throw new CommandException(new StringTextComponent("The following tags are missing: " + tags));
 
@@ -121,6 +123,7 @@ public class Tester implements Runnable {
 	this.source = source;
 	this.delay = delay;
 	index = 0;
+	passed = 0;
 	wait = 0;
 	waiting = true;
 	running = true;
