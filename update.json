@@ -1,5 +1,10 @@
 {
-	"homepage": "https://github.com/JamieBrassel/CMSC-389E-Circuitry/releases",
+	"homepage": "https://github.com/CMSC-389E/mod-framework-and-testing-framework/releases",
+	"1.15.2": {
+		"1.15.2-1.0.0.0": "-Add checks for problems loading test files and set default world settings.\n-Fix testing delay and stop command.\n-Add testing summary.\n-Fix version information.",
+		"1.15.2-0.0.1.1": "Fix Apache HttpClient Mime embedding",
+		"1.15.2-0.0.1.0": "Update to 1.15.2."
+	},
 	"1.12.2": {
 		"1.12.2-1.0.1.0": "-Remove specialized test logging.\n-Add required check for other mods on startup.\n-Add more specific duplicate tag information in /test.",
 		"1.12.2-1.0.0.0": "-First stable release.\nMove test logs to the tested world folder.",
@@ -10,7 +15,10 @@
 		"1.12.2-0.0.1.0-beta3": "-Implement commands.\n-Fix minor bugs."
 	},
 	"promos": {
-		"1.12.2-latest": "1.12.2-0.0.1.0-beta7",
+		"1.15.2-latest": "1.15.2-1.0.0.0",
+		"1.15.2-recommended": "1.15.2-1.0.0.0",
+		
+		"1.12.2-latest": "1.12.2-1.0.1.0",
 		"1.12.2-recommended": "1.12.2-1.0.1.0"
 	}
 }

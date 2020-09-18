@@ -1,11 +1,6 @@
-.gradle
-.settings
-bin
-doc
+.*
 gradle
 run
-.classpath
-.project
-*.launch
 gradlew
 gradlew.bat
+*.launch
