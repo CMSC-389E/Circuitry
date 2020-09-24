@@ -11,6 +11,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -30,115 +31,124 @@ import net.minecraft.command.Commands;
 import net.minecraft.util.text.StringTextComponent;
 
 public class TestCommand {
-    private static String execute(CommandSource source, CloseableHttpClient client, String uri, HttpEntity entity,
-	    Object... parameters) throws IOException {
-	RequestBuilder builder = RequestBuilder.post().setUri(uri).setEntity(entity);
-	for (int i = 0; i < parameters.length; i += 2)
-	    builder.addParameter(parameters[i].toString(), parameters[i + 1].toString());
-
-	try (CloseableHttpResponse response = client.execute(builder.build())) {
-	    String contents = EntityUtils.toString(response.getEntity());
-	    if (response.getStatusLine().getStatusCode() != 200)
-		throw new CommandException(new StringTextComponent(contents));
-	    source.sendFeedback(new StringTextComponent(contents), true);
-	    return contents;
+	private static HttpEntity buildEntity(byte[] b, Object... bodies) {
+		MultipartEntityBuilder builder = MultipartEntityBuilder.create().addBinaryBody("submittedFiles", b,
+				ContentType.DEFAULT_BINARY, "submit.zip");
+		for (int i = 0; i < bodies.length; i += 2)
+			builder.addTextBody(bodies[i].toString(), bodies[i + 1].toString());
+		return builder.build();
 	}
-    }
 
-    private static int load(CommandContext<CommandSource> context, int projectNumber) {
-	if (Tester.INSTANCE.running)
-	    throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
+	private static String execute(CommandSource source, CloseableHttpClient client, String uri, HttpEntity entity,
+			Object... parameters) throws IOException {
+		RequestBuilder builder = RequestBuilder.post().setUri(uri).setEntity(entity);
+		for (int i = 0; i < parameters.length; i += 2)
+			builder.addParameter(parameters[i].toString(), parameters[i + 1].toString());
 
-	Config.projectNumber.set(projectNumber);
-	try {
-	    Config.load();
-	} catch (UnknownHostException e) {
-	    e.printStackTrace();
-	    throw new CommandException(new StringTextComponent("Unable to connect to " + e.getLocalizedMessage()));
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    throw new CommandException(
-		    new StringTextComponent(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()));
+		try (CloseableHttpResponse response = client.execute(builder.build())) {
+			String contents = EntityUtils.toString(response.getEntity());
+			if (response.getStatusLine().getStatusCode() != 200)
+				throw new CommandException(new StringTextComponent(contents));
+			source.sendFeedback(new StringTextComponent(contents), true);
+			return contents;
+		}
 	}
-	context.getSource().sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"),
-		true);
-	return 0;
-    }
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
-	String projectNumber = "Project Number";
-	String delay = "Delay";
-	String campusUID = "Campus UID";
-	String uidPassword = "UID Password";
+	private static int load(CommandContext<CommandSource> context, int projectNumber) {
+		if (Tester.INSTANCE.running)
+			throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
-	ArgumentBuilder<CommandSource, ?> load = Commands.literal("load")
-		.then(Commands.argument(projectNumber, IntegerArgumentType.integer(0, 9))
-			.executes(context -> load(context, IntegerArgumentType.getInteger(context, projectNumber))));
-	ArgumentBuilder<CommandSource, ?> start = Commands.literal("start").executes(context -> start(context, 0))
-		.then(Commands.argument(delay, IntegerArgumentType.integer(0))
-			.executes(context -> start(context, IntegerArgumentType.getInteger(context, delay))));
-	ArgumentBuilder<CommandSource, ?> stop = Commands.literal("stop").executes(TestCommand::stop);
-	ArgumentBuilder<CommandSource, ?> submit = Commands.literal("submit")
-		.executes(context -> submit(context, "", ""))
-		.then(Commands.argument(campusUID, StringArgumentType.string())
-			.then(Commands.argument(uidPassword, StringArgumentType.greedyString())
-				.executes(context -> submit(context, StringArgumentType.getString(context, campusUID),
-					StringArgumentType.getString(context, uidPassword)))));
-
-	dispatcher.register(Commands.literal("test").then(load).then(start).then(stop).then(submit));
-    }
-
-    private static int start(CommandContext<CommandSource> context, int delay) {
-	if (Tester.INSTANCE.running)
-	    throw new CommandException(new StringTextComponent("A test is already running!"));
-	Tester.INSTANCE.start(context.getSource(), delay);
-	return 0;
-    }
-
-    private static int stop(CommandContext<CommandSource> context) {
-	if (!Tester.INSTANCE.running)
-	    throw new CommandException(new StringTextComponent("No test is currently running!"));
-	Tester.INSTANCE.running = false;
-	context.getSource().sendFeedback(new StringTextComponent("Test stopped successfully!"), true);
-	return 0;
-    }
-
-    @SuppressWarnings("resource")
-    private static int submit(CommandContext<CommandSource> context, String campusUID, String uidPassword) {
-	if (Tester.INSTANCE.running)
-	    throw new CommandException(new StringTextComponent("Cannot submit test results while a test is running!"));
-	if (Tester.INSTANCE.results.length() == 0)
-	    throw new CommandException(new StringTextComponent("Cannot find any test results!"));
-
-	try (CloseableHttpClient client = HttpClients.createDefault()) {
-	    CommandSource source = context.getSource();
-	    String base = "https://submit.cs.umd.edu/fall2020/eclipse/";
-	    if (!campusUID.isEmpty()) {
-		String content = execute(source, client, base + "NegotiateOneTimePassword", null, "campusUID",
-			campusUID, "courseName", "CMSC389E", "projectNumber", Config.projectNumber.get(), "uidPassword",
-			uidPassword);
-		Properties properties = new Properties();
-		properties.load(new StringReader(content));
-		Config.cvsAccount.set(properties.getProperty("cvsAccount"));
-		Config.oneTimePassword.set(properties.getProperty("oneTimePassword"));
-	    }
-
-	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    ZipOutputStream zip = new ZipOutputStream(out);
-	    zip.putNextEntry(new ZipEntry("Dummy.java"));
-	    zip.write("public class Dummy{public static void main(String[]args){}}".getBytes());
-	    zip.putNextEntry(new ZipEntry("Results.txt"));
-	    zip.write(Tester.INSTANCE.results.toString().getBytes());
-	    zip.close();
-
-	    execute(source, client, base + "SubmitProjectViaEclipse",
-		    MultipartEntityBuilder.create().addBinaryBody("submittedfiles", out.toByteArray()).build(),
-		    "courseName", "CMSC389E", "cvsAccount", Config.cvsAccount.get(), "oneTimePassword",
-		    Config.oneTimePassword.get());
-	} catch (IOException e) {
-	    e.printStackTrace();
-	    throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
+		Config.projectNumber.set(projectNumber);
+		try {
+			Config.load();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			throw new CommandException(new StringTextComponent("Unable to connect to " + e.getLocalizedMessage()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CommandException(
+					new StringTextComponent(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()));
+		}
+		context.getSource().sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"),
+				true);
+		return 0;
 	}
-	return 0;
-    }
+
+	public static void register(CommandDispatcher<CommandSource> dispatcher) {
+		String projectNumber = "Project Number";
+		String delay = "Delay";
+		String loginName = "Login Name";
+		String password = "Password";
+
+		ArgumentBuilder<CommandSource, ?> load = Commands.literal("load")
+				.then(Commands.argument(projectNumber, IntegerArgumentType.integer(0))
+						.executes(context -> load(context, IntegerArgumentType.getInteger(context, projectNumber))));
+		ArgumentBuilder<CommandSource, ?> start = Commands.literal("start").executes(context -> start(context, 0))
+				.then(Commands.argument(delay, IntegerArgumentType.integer(0))
+						.executes(context -> start(context, IntegerArgumentType.getInteger(context, delay))));
+		ArgumentBuilder<CommandSource, ?> stop = Commands.literal("stop").executes(TestCommand::stop);
+		ArgumentBuilder<CommandSource, ?> submit = Commands.literal("submit")
+				.executes(context -> submit(context, "", ""))
+				.then(Commands.argument(loginName, StringArgumentType.string())
+						.then(Commands.argument(password, StringArgumentType.greedyString())
+								.executes(context -> submit(context, StringArgumentType.getString(context, loginName),
+										StringArgumentType.getString(context, password)))));
+
+		dispatcher.register(Commands.literal("test").then(load).then(start).then(stop).then(submit));
+	}
+
+	private static int start(CommandContext<CommandSource> context, int delay) {
+		if (Tester.INSTANCE.running)
+			throw new CommandException(new StringTextComponent("A test is already running!"));
+		Tester.INSTANCE.start(context.getSource(), delay);
+		return 0;
+	}
+
+	private static int stop(CommandContext<CommandSource> context) {
+		if (!Tester.INSTANCE.running)
+			throw new CommandException(new StringTextComponent("No test is currently running!"));
+		Tester.INSTANCE.running = false;
+		context.getSource().sendFeedback(new StringTextComponent("Test stopped successfully!"), true);
+		return 0;
+	}
+
+	private static int submit(CommandContext<CommandSource> context, String loginName, String password) {
+		if (Tester.INSTANCE.running)
+			throw new CommandException(new StringTextComponent("Cannot submit test results while a test is running!"));
+		if (Tester.INSTANCE.results.length() == 0)
+			throw new CommandException(new StringTextComponent("Cannot find any test results!"));
+
+		CommandSource source = context.getSource();
+		String base = "https://submit.cs.umd.edu:443/fall2020/eclipse/";
+		int projectNumber = Config.projectNumber.get();
+		String cvsAccount = Config.cvsAccount.get();
+		String oneTimePassword = Config.oneTimePassword.get();
+		try (CloseableHttpClient client = HttpClients.createDefault()) {
+			if (!loginName.isEmpty()) {
+				Properties properties = new Properties();
+				properties.load(new StringReader(execute(source, client, base + "NegotiateOneTimePassword", null,
+						"courseKey", "3b66b95c85961489", "loginName", loginName, "password", password, "projectNumber",
+						projectNumber)));
+				Config.cvsAccount.set(cvsAccount = properties.getProperty("cvsAccount"));
+				Config.oneTimePassword.set(oneTimePassword = properties.getProperty("oneTimePassword"));
+			}
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			try (ZipOutputStream zip = new ZipOutputStream(out)) {
+				zip.putNextEntry(new ZipEntry("Dummy.java"));
+				zip.write("public class Dummy{public static void main(String[]args){}}".getBytes());
+				zip.putNextEntry(new ZipEntry("Results.txt"));
+				zip.write(Tester.INSTANCE.results.toString().getBytes());
+			}
+
+			execute(source, client, base + "SubmitProjectViaEclipse",
+					buildEntity(out.toByteArray(), "courseName", "CMSC389E", "cvsAccount", cvsAccount,
+							"oneTimePassword", oneTimePassword, "projectNumber", projectNumber, "semester", 202008,
+							"submitClientTool", "CommandLineTool", "submitClientVersion", Integer.MAX_VALUE));
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
+		}
+		return 0;
+	}
 }

@@ -30,49 +30,49 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(Circuitry.MODID)
 @EventBusSubscriber(bus = Bus.MOD)
 public class Circuitry {
-    public static final String MODID = "circuitry";
+	public static final String MODID = "circuitry";
 
-    private static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-    private static final DeferredRegister<TileEntityType<?>> TES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES,
-	    MODID);
+	private static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+	private static final DeferredRegister<TileEntityType<?>> TES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES,
+			MODID);
 
-    public static final RegistryObject<Block> IN_NODE = BLOCKS.register("in_node", InNodeBlock::new),
-	    OUT_NODE = BLOCKS.register("out_node", OutNodeBlock::new);
-    public static final RegistryObject<TileEntityType<?>> NODE = TES.register("node",
-	    () -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
+	public static final RegistryObject<Block> IN_NODE = BLOCKS.register("in_node", InNodeBlock::new),
+			OUT_NODE = BLOCKS.register("out_node", OutNodeBlock::new);
+	public static final RegistryObject<TileEntityType<?>> NODE = TES.register("node",
+			() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
 
-    @SuppressWarnings("resource")
-    @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent event) {
-	ObfuscationReflectionHelper.setPrivateValue(NewChatGui.class,
-		event.getMinecraftSupplier().get().ingameGUI.getChatGUI(), new ArrayList<ChatLine>() {
-		    private boolean frozen;
+	@SuppressWarnings("resource")
+	@SubscribeEvent
+	public static void onClientSetup(FMLClientSetupEvent event) {
+		ObfuscationReflectionHelper.setPrivateValue(NewChatGui.class,
+				event.getMinecraftSupplier().get().ingameGUI.getChatGUI(), new ArrayList<ChatLine>() {
+					private boolean frozen;
 
-		    @Override
-		    public ChatLine remove(int index) {
-			frozen = true;
-			return get(index);
-		    }
+					@Override
+					public ChatLine remove(int index) {
+						frozen = true;
+						return get(index);
+					}
 
-		    @Override
-		    public int size() {
-			int size = frozen ? 0 : super.size();
-			frozen = false;
-			return size;
-		    }
-		}, "field_146253_i"); // drawnChatLines
-    }
+					@Override
+					public int size() {
+						int size = frozen ? 0 : super.size();
+						frozen = false;
+						return size;
+					}
+				}, "field_146253_i"); // drawnChatLines
+	}
 
-    public Circuitry() {
-	DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-	BLOCKS.getEntries().forEach(block -> items.register(block.getId().getPath(),
-		() -> new BlockItem(block.get(), new Properties().group(ItemGroup.REDSTONE))));
+	public Circuitry() {
+		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+		BLOCKS.getEntries().forEach(block -> items.register(block.getId().getPath(),
+				() -> new BlockItem(block.get(), new Properties().group(ItemGroup.REDSTONE))));
 
-	IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-	BLOCKS.register(bus);
-	TES.register(bus);
-	items.register(bus);
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		BLOCKS.register(bus);
+		TES.register(bus);
+		items.register(bus);
 
-	Config.register();
-    }
+		Config.register();
+	}
 }

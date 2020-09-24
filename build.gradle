@@ -1,23 +1,26 @@
 buildscript {
 	repositories {
 		maven {
-			url = 'https://files.minecraftforge.net/maven'
+			url 'https://files.minecraftforge.net/maven'
 		}
 		
 		jcenter()
-		mavenCentral()
 	}
 	
 	dependencies {
-		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '+', changing: true
+		classpath 'net.minecraftforge.gradle:ForgeGradle:+'
 	}
 }
 
+plugins {
+	id 'com.github.johnrengelman.shadow' version '4.0.4'
+}
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-version = '1.15.2-1.0.0.0'
-group = 'cmsc389e.circuitry'
+
 archivesBaseName = 'circuitry'
+group = 'cmsc389e.circuitry'
+version = '1.15.2-1.0.0.0'
+
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 compileJava.options.compilerArgs << '-proc:none'
 
@@ -27,7 +30,7 @@ minecraft {
 	runs {
 		client {
 			workingDirectory project.file('run')
-	
+			
 			mods {
 				circuitry.source sourceSets.main
 			}
@@ -35,7 +38,7 @@ minecraft {
 		
 		server {
 			workingDirectory project.file('run')
-	
+			
 			mods {
 				circuitry.source sourceSets.main
 			}
@@ -45,15 +48,21 @@ minecraft {
 
 dependencies {
 	minecraft 'net.minecraftforge:forge:1.15.2-31.2.0'
-	compile 'org.apache.httpcomponents:httpmime:+'
+	compile 'org.apache.httpcomponents:httpmime:4.3.3'
 }
 
-jar.manifest.attributes (
-	'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-	'Implementation-Title': project.name,
-	'Implementation-Vendor': project.archivesBaseName,
-	'Implementation-Version': "${version}",
-	'Specification-Title': project.name,
-	'Specification-Vendor': project.archivesBaseName,
-	'Specification-Version': "${version}"
-)
+reobf {
+	shadowJar {
+	}
+}
+
+shadowJar {
+	dependencies {
+		include(dependency(':httpmime'))
+	}
+	
+ 	classifier = ''
+	manifest.attributes 'Implementation-Version': "${version}"
+	minimize()
+	relocate 'org.apache.http.entity.mime', project.group + '.org.apache.http.entity.mime'
+}
