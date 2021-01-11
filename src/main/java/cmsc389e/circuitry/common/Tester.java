@@ -1,23 +1,17 @@
 package cmsc389e.circuitry.common;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.base.Predicates;
 
 import cmsc389e.circuitry.common.block.NodeBlock;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
@@ -33,10 +27,6 @@ public class Tester implements Runnable {
 			PASSED = new Style().setColor(TextFormatting.GREEN);
 	public static Tester INSTANCE;
 
-	private static String join(Boolean[] actual) {
-		return join(Arrays.stream(actual).parallel().map(BooleanUtils::toIntegerObject).sequential().toArray());
-	}
-
 	private static String join(Object[] array) {
 		return StringUtils.join(array, ' ');
 	}
@@ -44,23 +34,24 @@ public class Tester implements Runnable {
 	public final StringBuilder results;
 	public boolean running;
 
-	private final MinecraftServer server;
-	private final Map<String, TileEntity> tagMap;
-	private final List<ServerTickList<Block>> tickList;
+	private final ServerTickList<Block> tickList;
+	private final ServerWorld world;
+
+	private Map<String, TileEntity> map;
 	private CommandSource source;
 	private int delay, index, passed, wait;
 	private boolean waiting;
 
-	public Tester(MinecraftServer server) {
-		this.server = server;
+	public Tester(ServerWorld world) {
+		INSTANCE = this;
+
+		this.world = world;
 		results = new StringBuilder();
-		tagMap = new HashMap<>();
-		tickList = StreamSupport.stream(server.getWorlds().spliterator(), true).map(ServerWorld::getPendingBlockTicks)
-				.collect(Collectors.toList());
+		tickList = world.getPendingBlockTicks();
 	}
 
-	@SuppressWarnings("resource")
 	@Override
+	@SuppressWarnings("resource")
 	public void run() {
 		if (running)
 			if (waiting) {
@@ -69,15 +60,16 @@ public class Tester implements Runnable {
 					sendFeedback("In: " + join(Config.inTests[index]), IN);
 					sendFeedback("Out: " + join(Config.outTests[index]), OUT);
 					for (int i = 0; i < Config.inTags.length; i++) {
-						TileEntity te = tagMap.get(Config.inTags[i]);
-						NodeBlock.setPowered(te.getWorld(), te.getBlockState(), te.getPos(), Config.inTests[index][i]);
+						TileEntity te = map.get(Config.inTags[i]);
+						NodeBlock.setPowered(te.getWorld(), te.getBlockState(), te.getPos(),
+								Config.inTests[index][i].equals("1"));
 					}
 					waiting = false;
 				}
-			} else if (tickList.parallelStream().map(ServerTickList::func_225420_a).allMatch(Predicates.equalTo(0))) {
-				Boolean[] actual = new Boolean[Config.outTags.length];
-				for (int i = 0; i < Config.outTags.length; i++)
-					actual[i] = tagMap.get(Config.outTags[i]).getBlockState().get(NodeBlock.POWERED);
+			} else if (tickList.func_225420_a() == 0) { // Number of pending block ticks
+				String[] actual = Arrays.stream(Config.outTags)
+						.map(tag -> map.get(tag).getBlockState().get(NodeBlock.POWERED) ? "1" : "0")
+						.toArray(String[]::new);
 				Style style = FAILED;
 				if (Arrays.equals(actual, Config.outTests[index])) {
 					passed++;
@@ -95,30 +87,26 @@ public class Tester implements Runnable {
 			}
 	}
 
-	private void sendFeedback(String message, Style style) {
-		results.append(message + '\n');
-		source.sendFeedback(new StringTextComponent(message).setStyle(style), true);
+	private void sendFeedback(String msg, Style style) {
+		results.append(msg + '\n');
+		source.sendFeedback(new StringTextComponent(msg).setStyle(style), true);
 	}
 
 	public void start(CommandSource source, int delay) {
 		if (!Config.loaded)
 			throw new CommandException(new StringTextComponent("No tests are loaded!"));
 
-		results.setLength(0);
-		tagMap.clear();
-
-		NodeTileEntity.forEach(server, te -> {
-			String tag = te.getTag();
-			if (tagMap.put(tag, te) != null)
-				throw new CommandException(new StringTextComponent("Duplicate tag found: " + tag));
-		});
+		map = NodeTileEntity.stream(world).collect(Collectors.toMap(NodeTileEntity::getTag, Function.identity()));
 		String tags = Stream.concat(Arrays.stream(Config.inTags).parallel(), Arrays.stream(Config.outTags))
-				.filter(tag -> !tagMap.containsKey(tag)).collect(Collectors.joining(", "));
+				.filter(tag -> !map.containsKey(tag)).collect(Collectors.joining(", "));
 		if (!tags.isEmpty())
 			throw new CommandException(new StringTextComponent("The following tags are missing: " + tags));
 
 		IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
 		OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
+
+		results.setLength(0);
+		running = true;
 
 		this.source = source;
 		this.delay = delay;
@@ -126,7 +114,6 @@ public class Tester implements Runnable {
 		passed = 0;
 		wait = 0;
 		waiting = true;
-		running = true;
 
 		String message = "Starting Testing...";
 		String separator = StringUtils.repeat('-', message.length());

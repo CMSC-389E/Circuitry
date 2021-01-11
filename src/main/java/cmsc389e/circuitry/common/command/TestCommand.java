@@ -100,13 +100,19 @@ public class TestCommand {
 	private static int start(CommandContext<CommandSource> context, int delay) {
 		if (Tester.INSTANCE.running)
 			throw new CommandException(new StringTextComponent("A test is already running!"));
-		Tester.INSTANCE.start(context.getSource(), delay);
+
+		try {
+			Tester.INSTANCE.start(context.getSource(), delay);
+		} catch (IllegalStateException e) {
+			throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
+		}
 		return 0;
 	}
 
 	private static int stop(CommandContext<CommandSource> context) {
 		if (!Tester.INSTANCE.running)
 			throw new CommandException(new StringTextComponent("No test is currently running!"));
+
 		Tester.INSTANCE.running = false;
 		context.getSource().sendFeedback(new StringTextComponent("Test stopped successfully!"), true);
 		return 0;
@@ -118,11 +124,11 @@ public class TestCommand {
 		if (Tester.INSTANCE.results.length() == 0)
 			throw new CommandException(new StringTextComponent("Cannot find any test results!"));
 
-		CommandSource source = context.getSource();
-		String base = "https://submit.cs.umd.edu:443/fall2020/eclipse/";
-		int projectNumber = Config.projectNumber.get();
+		String base = "https://submit.cs.umd.edu/spring2021/eclipse/";
 		String cvsAccount = Config.cvsAccount.get();
 		String oneTimePassword = Config.oneTimePassword.get();
+		int projectNumber = Config.projectNumber.get();
+		CommandSource source = context.getSource();
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
 			if (!loginName.isEmpty()) {
 				Properties properties = new Properties();
@@ -132,7 +138,6 @@ public class TestCommand {
 				Config.cvsAccount.set(cvsAccount = properties.getProperty("cvsAccount"));
 				Config.oneTimePassword.set(oneTimePassword = properties.getProperty("oneTimePassword"));
 			}
-
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try (ZipOutputStream zip = new ZipOutputStream(out)) {
 				zip.putNextEntry(new ZipEntry("Dummy.java"));
@@ -140,7 +145,6 @@ public class TestCommand {
 				zip.putNextEntry(new ZipEntry("Results.txt"));
 				zip.write(Tester.INSTANCE.results.toString().getBytes());
 			}
-
 			execute(source, client, base + "SubmitProjectViaEclipse",
 					buildEntity(out.toByteArray(), "courseName", "CMSC389E", "cvsAccount", cvsAccount,
 							"oneTimePassword", oneTimePassword, "projectNumber", projectNumber, "semester", 202008,

@@ -1,6 +1,7 @@
 {
-	"homepage": "https://github.com/CMSC-389E/mod-framework-and-testing-framework/releases",
+	"homepage": "https://github.com/CMSC-389E/mod-and-testing-framework/releases",
 	"1.15.2": {
+		"1.15.2-1.0.1.0": "-Fix Apache HttpClient Mime embedding.\n-Clean up code slightly.\n-Update semester.",
 		"1.15.2-1.0.0.0": "-Add checks for problems loading test files.\n-Set default world settings.\n-Fix testing delay.\n-Fix stop command.\n-Add testing summary.\n-Fix version information.",
 		"1.15.2-0.0.1.1": "Fix Apache HttpClient Mime embedding",
 		"1.15.2-0.0.1.0": "Update to 1.15.2."
@@ -15,8 +16,8 @@
 		"1.12.2-0.0.1.0-beta3": "-Implement commands.\n-Fix minor bugs."
 	},
 	"promos": {
-		"1.15.2-latest": "1.15.2-1.0.0.0",
-		"1.15.2-recommended": "1.15.2-1.0.0.0",
+		"1.15.2-latest": "1.15.2-1.0.1.0",
+		"1.15.2-recommended": "1.15.2-1.0.1.0",
 		
 		"1.12.2-latest": "1.12.2-1.0.1.0",
 		"1.12.2-recommended": "1.12.2-1.0.1.0"

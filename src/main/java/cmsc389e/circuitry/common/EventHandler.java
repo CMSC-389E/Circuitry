@@ -10,8 +10,10 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.storage.WorldInfo;
-import net.minecraftforge.event.world.WorldEvent.CreateSpawnPosition;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -19,16 +21,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 @EventBusSubscriber
 public class EventHandler {
 	@SubscribeEvent
-	public static void onCreateSpawnPosition(CreateSpawnPosition event) {
-		WorldInfo info = event.getWorld().getWorldInfo();
-		info.setDayTime(6000);
-		info.setDifficulty(Difficulty.PEACEFUL);
-
-		GameRules rules = info.getGameRulesInstance();
-		rules.get(GameRules.DO_DAYLIGHT_CYCLE).set(false, null);
-		rules.get(GameRules.DO_MOB_SPAWNING).set(false, null);
-		rules.get(GameRules.DO_TILE_DROPS).set(false, null);
-		rules.get(GameRules.DO_WEATHER_CYCLE).set(false, null);
+	public static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
+		event.setCanceled(true);
 	}
 
 	/**
@@ -38,7 +32,8 @@ public class EventHandler {
 	 * @param event the {@link FMLServerStartingEvent}
 	 */
 	@SubscribeEvent
-	public static void onServerStarting(FMLServerStartingEvent event) {
+	@SuppressWarnings("resource")
+	public static void onFMLServerStarting(FMLServerStartingEvent event) {
 		CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
 		SetCommand.register(dispatcher);
 		TestCommand.register(dispatcher);
@@ -49,8 +44,20 @@ public class EventHandler {
 			e.printStackTrace();
 		}
 
-		@SuppressWarnings("resource")
 		MinecraftServer server = event.getServer();
-		server.registerTickable(Tester.INSTANCE = new Tester(server));
+		server.registerTickable(new Tester(server.getWorld(DimensionType.OVERWORLD)));
+	}
+
+	@SubscribeEvent
+	public static void onWorldCreateSpawnPosition(WorldEvent.CreateSpawnPosition event) {
+		WorldInfo info = event.getWorld().getWorldInfo();
+		info.setDayTime(6000);
+		info.setDifficulty(Difficulty.PEACEFUL);
+
+		GameRules rules = info.getGameRulesInstance();
+		rules.get(GameRules.DO_DAYLIGHT_CYCLE).set(false, null);
+		rules.get(GameRules.DO_MOB_SPAWNING).set(false, null);
+		rules.get(GameRules.DO_TILE_DROPS).set(false, null);
+		rules.get(GameRules.DO_WEATHER_CYCLE).set(false, null);
 	}
 }

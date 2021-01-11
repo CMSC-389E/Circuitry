@@ -1,13 +1,13 @@
 modLoader="javafml"
 loaderVersion="[31,)"
-issueTrackerURL="https://github.com/CMSC-389E/mod-framework-and-testing-framework/issues"
+issueTrackerURL="https://github.com/CMSC-389E/mod-and-testing-framework/issues"
 
 [[mods]]
 modId="circuitry"
 version="${file.jarVersion}"
 displayName="CMSC 389E Circuitry"
-updateJSONURL="https://raw.githubusercontent.com/CMSC-389E/mod-framework-and-testing-framework/master/update.json"
-displayURL="https://cs.umd.edu/class/fall2020/cmsc389E"
+updateJSONURL="https://raw.githubusercontent.com/CMSC-389E/mod-and-testing-framework/master/update.json"
+displayURL="https://cs.umd.edu/class/spring2021/cmsc389E"
 logoFile="circuitry.png"
 authors="Jamie Brassel"
 description=''''''

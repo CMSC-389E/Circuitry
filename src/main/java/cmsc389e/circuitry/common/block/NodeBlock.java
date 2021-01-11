@@ -32,7 +32,7 @@ public abstract class NodeBlock extends Block {
 
 	@Override
 	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-		return new NodeTileEntity();
+		return new NodeTileEntity((World) world, this);
 	}
 
 	@Override

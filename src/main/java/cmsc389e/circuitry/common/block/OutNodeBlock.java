@@ -7,8 +7,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class OutNodeBlock extends NodeBlock {
-	@SuppressWarnings("resource")
 	@Override
+	@SuppressWarnings("resource")
 	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return getDefaultState().with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
 	}

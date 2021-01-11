@@ -27,22 +27,22 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-@Mod(Circuitry.MODID)
 @EventBusSubscriber(bus = Bus.MOD)
+@Mod(Circuitry.MODID)
 public class Circuitry {
 	public static final String MODID = "circuitry";
 
 	private static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-	private static final DeferredRegister<TileEntityType<?>> TES = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES,
-			MODID);
+	private static final DeferredRegister<TileEntityType<?>> TYPES = new DeferredRegister<>(
+			ForgeRegistries.TILE_ENTITIES, MODID);
 
 	public static final RegistryObject<Block> IN_NODE = BLOCKS.register("in_node", InNodeBlock::new),
 			OUT_NODE = BLOCKS.register("out_node", OutNodeBlock::new);
-	public static final RegistryObject<TileEntityType<?>> NODE = TES.register("node",
+	public static final RegistryObject<TileEntityType<?>> NODE = TYPES.register("node",
 			() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
 
-	@SuppressWarnings("resource")
 	@SubscribeEvent
+	@SuppressWarnings("resource")
 	public static void onClientSetup(FMLClientSetupEvent event) {
 		ObfuscationReflectionHelper.setPrivateValue(NewChatGui.class,
 				event.getMinecraftSupplier().get().ingameGUI.getChatGUI(), new ArrayList<ChatLine>() {
@@ -65,12 +65,12 @@ public class Circuitry {
 
 	public Circuitry() {
 		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-		BLOCKS.getEntries().forEach(block -> items.register(block.getId().getPath(),
+		BLOCKS.getEntries().parallelStream().forEach(block -> items.register(block.getId().getPath(),
 				() -> new BlockItem(block.get(), new Properties().group(ItemGroup.REDSTONE))));
 
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		BLOCKS.register(bus);
-		TES.register(bus);
+		TYPES.register(bus);
 		items.register(bus);
 
 		Config.register();

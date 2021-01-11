@@ -21,13 +21,12 @@ public class SetCommand {
 	private static int execute(CommandContext<CommandSource> context, boolean powered, @Nullable String tag) {
 		CommandSource source = context.getSource();
 		Block block = Circuitry.IN_NODE.get();
-		NodeTileEntity.forEach(source.getServer(), te -> {
-			if (tag == null || te.getTag().equals(tag)) {
-				BlockState state = te.getBlockState();
-				if (state.getBlock() == block)
-					NodeBlock.setPowered(te.getWorld(), state, te.getPos(), powered);
-			}
-		});
+		NodeTileEntity.stream(source.getWorld()).filter(entity -> tag == null || entity.getTag().equals(tag))
+				.forEach(entity -> {
+					BlockState state = entity.getBlockState();
+					if (state.getBlock() == block)
+						NodeBlock.setPowered(entity.getWorld(), state, entity.getPos(), powered);
+				});
 		source.sendFeedback(new StringTextComponent((tag == null ? "All In Nodes" : "In Nodes with tag " + tag)
 				+ " are now " + (powered ? "powered" : "unpowered") + '.'), true);
 		return 0;
