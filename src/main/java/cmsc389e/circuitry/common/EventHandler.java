@@ -34,18 +34,18 @@ public class EventHandler {
 	@SubscribeEvent
 	@SuppressWarnings("resource")
 	public static void onFMLServerStarting(FMLServerStartingEvent event) {
-		CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
-		SetCommand.register(dispatcher);
-		TestCommand.register(dispatcher);
-
 		try {
+			CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
+			SetCommand.register(dispatcher);
+			TestCommand.register(dispatcher);
+
+			MinecraftServer server = event.getServer();
+			server.registerTickable(new Tester(server.getWorld(DimensionType.OVERWORLD)));
+
 			Config.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		MinecraftServer server = event.getServer();
-		server.registerTickable(new Tester(server.getWorld(DimensionType.OVERWORLD)));
 	}
 
 	@SubscribeEvent

@@ -1,6 +1,5 @@
 package cmsc389e.circuitry.client;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -9,7 +8,8 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.types.JsonOps;
 
 import cmsc389e.circuitry.Circuitry;
-import cmsc389e.circuitry.common.NodeTileEntity;
+import cmsc389e.circuitry.common.network.PacketHandler;
+import cmsc389e.circuitry.common.network.TagMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.AlertScreen;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
@@ -44,18 +44,9 @@ import net.minecraftforge.versions.forge.ForgeVersion;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class EventHandler {
-	private final static Minecraft MINECRAFT = Minecraft.getInstance();
-	private final static Field WORLD_SEED = ObfuscationReflectionHelper.findField(CreateWorldScreen.class,
-			"field_146329_I"); // worldSeed
-	private final static WorldSettings SETTINGS = new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT)
-			.enableCommands()
-			.setGeneratorOptions(FlatGenerationSettings
-					.createFlatGeneratorFromString(
-							"minecraft:bedrock,3*minecraft:stone,52*minecraft:sandstone;minecraft:desert")
-					.func_210834_a(JsonOps.INSTANCE).getValue());
-
+	@SuppressWarnings("resource")
 	private static void alert(String msg1, String msg2, String msg3, String button, Consumer<OS> consumer) {
-		MINECRAFT
+		Minecraft.getInstance()
 				.displayGuiScreen(new AlertScreen(() -> consumer.accept(Util.getOSType()),
 						new StringTextComponent(msg1).setStyle(new Style().setColor(TextFormatting.RED)),
 						new StringTextComponent(msg2 + "\n\n").appendSibling(
@@ -64,19 +55,27 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
+	@SuppressWarnings("resource")
 	public static void onDrawHighlightBlock(DrawHighlightEvent.HighlightBlock event) {
-		TileEntity entity = MINECRAFT.world.getTileEntity(event.getTarget().getPos());
-		MINECRAFT.ingameGUI.setOverlayMessage(
-				entity != null && entity.getType() == Circuitry.NODE.get() ? ((NodeTileEntity) entity).getTag() : "",
-				false);
+		Minecraft minecraft = Minecraft.getInstance();
+		TileEntity entity = minecraft.world.getTileEntity(event.getTarget().getPos());
+		if (entity != null && entity.getType() == Circuitry.NODE.get())
+			PacketHandler.CHANNEL.sendToServer(new TagMessage(entity.getPos()));
+		else
+			minecraft.ingameGUI.setOverlayMessage("", false);
 	}
 
 	@SubscribeEvent
 	public static void onGuiScreenInitPost(GuiScreenEvent.InitGuiEvent.Post event) throws IllegalAccessException {
 		Screen screen = event.getGui();
-		if (screen instanceof CreateWorldScreen && WORLD_SEED.get(screen).equals(""))
-			((CreateWorldScreen) screen)
-					.recreateFromExistingWorld(new WorldInfo(SETTINGS, I18n.format("selectWorld.newWorld")));
+		if (screen instanceof CreateWorldScreen && ObfuscationReflectionHelper
+				.findField(CreateWorldScreen.class, "field_146329_I").get(screen).equals("")) // worldSeed
+			((CreateWorldScreen) screen).recreateFromExistingWorld(
+					new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT).enableCommands()
+							.setGeneratorOptions(FlatGenerationSettings.createFlatGeneratorFromString(
+									"minecraft:bedrock,3*minecraft:stone,52*minecraft:sandstone;minecraft:desert")
+									.func_210834_a(JsonOps.INSTANCE).getValue()),
+							I18n.format("selectWorld.newWorld")));
 		else if (event.getGui() instanceof MainMenuScreen) {
 			ModList list = ModList.get();
 

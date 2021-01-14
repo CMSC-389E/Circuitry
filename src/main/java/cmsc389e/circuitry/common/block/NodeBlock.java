@@ -14,6 +14,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -31,8 +32,9 @@ public abstract class NodeBlock extends Block {
 	}
 
 	@Override
+	@SuppressWarnings("resource")
 	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-		return new NodeTileEntity((World) world, this);
+		return new NodeTileEntity(this, ((IWorld) world).getWorld());
 	}
 
 	@Override
@@ -74,9 +76,11 @@ public abstract class NodeBlock extends Block {
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {
-		NodeTileEntity te = (NodeTileEntity) worldIn.getTileEntity(pos);
-		te.index++;
-		te.markDirty();
+		if (!worldIn.isRemote) {
+			NodeTileEntity entity = (NodeTileEntity) worldIn.getTileEntity(pos);
+			entity.index++;
+			entity.markDirty();
+		}
 		return ActionResultType.SUCCESS;
 	}
 }

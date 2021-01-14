@@ -15,18 +15,19 @@ import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.World;
 
 public class SetCommand {
 	@SuppressWarnings("resource")
 	private static int execute(CommandContext<CommandSource> context, boolean powered, @Nullable String tag) {
 		CommandSource source = context.getSource();
 		Block block = Circuitry.IN_NODE.get();
-		NodeTileEntity.stream(source.getWorld()).filter(entity -> tag == null || entity.getTag().equals(tag))
-				.forEach(entity -> {
-					BlockState state = entity.getBlockState();
-					if (state.getBlock() == block)
-						NodeBlock.setPowered(entity.getWorld(), state, entity.getPos(), powered);
-				});
+		World world = source.getWorld();
+		NodeTileEntity.stream(world).filter(entity -> tag == null || entity.getTag().equals(tag)).forEach(entity -> {
+			BlockState state = entity.getBlockState();
+			if (state.getBlock() == block)
+				NodeBlock.setPowered(world, state, entity.getPos(), powered);
+		});
 		source.sendFeedback(new StringTextComponent((tag == null ? "All In Nodes" : "In Nodes with tag " + tag)
 				+ " are now " + (powered ? "powered" : "unpowered") + '.'), true);
 		return 0;

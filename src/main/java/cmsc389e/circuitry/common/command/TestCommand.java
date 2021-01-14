@@ -58,19 +58,19 @@ public class TestCommand {
 		if (Tester.INSTANCE.running)
 			throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
-		Config.projectNumber.set(projectNumber);
 		try {
+			Config.projectNumber.set(projectNumber); // TODO
 			Config.load();
+			context.getSource()
+					.sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"), true);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			throw new CommandException(new StringTextComponent("Unable to connect to " + e.getLocalizedMessage()));
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CommandException(
 					new StringTextComponent(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()));
 		}
-		context.getSource().sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"),
-				true);
 		return 0;
 	}
 
@@ -101,11 +101,7 @@ public class TestCommand {
 		if (Tester.INSTANCE.running)
 			throw new CommandException(new StringTextComponent("A test is already running!"));
 
-		try {
-			Tester.INSTANCE.start(context.getSource(), delay);
-		} catch (IllegalStateException e) {
-			throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
-		}
+		Tester.INSTANCE.start(context.getSource(), delay);
 		return 0;
 	}
 
@@ -124,12 +120,12 @@ public class TestCommand {
 		if (Tester.INSTANCE.results.length() == 0)
 			throw new CommandException(new StringTextComponent("Cannot find any test results!"));
 
-		String base = "https://submit.cs.umd.edu/spring2021/eclipse/";
-		String cvsAccount = Config.cvsAccount.get();
-		String oneTimePassword = Config.oneTimePassword.get();
-		int projectNumber = Config.projectNumber.get();
-		CommandSource source = context.getSource();
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
+			int projectNumber = Config.projectNumber.get();
+			String base = "https://submit.cs.umd.edu/spring2021/eclipse/";
+			String cvsAccount = Config.cvsAccount.get();
+			String oneTimePassword = Config.oneTimePassword.get();
+			CommandSource source = context.getSource();
 			if (!loginName.isEmpty()) {
 				Properties properties = new Properties();
 				properties.load(new StringReader(execute(source, client, base + "NegotiateOneTimePassword", null,
@@ -149,7 +145,7 @@ public class TestCommand {
 					buildEntity(out.toByteArray(), "courseName", "CMSC389E", "cvsAccount", cvsAccount,
 							"oneTimePassword", oneTimePassword, "projectNumber", projectNumber, "semester", 202008,
 							"submitClientTool", "CommandLineTool", "submitClientVersion", Integer.MAX_VALUE));
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
 		}

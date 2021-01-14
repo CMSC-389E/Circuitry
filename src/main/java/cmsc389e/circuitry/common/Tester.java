@@ -105,9 +105,6 @@ public class Tester implements Runnable {
 		IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
 		OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
 
-		results.setLength(0);
-		running = true;
-
 		this.source = source;
 		this.delay = delay;
 		index = 0;
@@ -118,5 +115,8 @@ public class Tester implements Runnable {
 		String message = "Starting Testing...";
 		String separator = StringUtils.repeat('-', message.length());
 		sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
+
+		results.setLength(0);
+		running = true;
 	}
 }

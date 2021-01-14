@@ -13,7 +13,7 @@ public class NodeTileEntity extends TileEntity {
 	public static Stream<NodeTileEntity> stream(World world) {
 		TileEntityType<?> type = Circuitry.NODE.get();
 		return world.loadedTileEntityList.parallelStream().filter(entity -> entity.getType() == type)
-				.map(entity -> (NodeTileEntity) entity).sequential();
+				.map(entity -> (NodeTileEntity) entity);
 	}
 
 	public int index;
@@ -22,7 +22,7 @@ public class NodeTileEntity extends TileEntity {
 		super(Circuitry.NODE.get());
 	}
 
-	public NodeTileEntity(World world, Block block) {
+	public NodeTileEntity(Block block, World world) {
 		this();
 		index = stream(world).filter(entity -> entity.getBlockState().getBlock() == block)
 				.mapToInt(entity -> entity.index).sorted().reduce(-1, (left, right) -> left + 1 < right ? left : right)
@@ -38,19 +38,9 @@ public class NodeTileEntity extends TileEntity {
 	}
 
 	@Override
-	public CompoundNBT getUpdateTag() {
-		return write(new CompoundNBT());
-	}
-
-	@Override
-	public void handleUpdateTag(CompoundNBT tag) {
-		read(tag);
-	}
-
-	@Override
 	public void read(CompoundNBT compound) {
-		super.read(compound);
 		index = compound.getInt("index");
+		super.read(compound);
 	}
 
 	@Override
