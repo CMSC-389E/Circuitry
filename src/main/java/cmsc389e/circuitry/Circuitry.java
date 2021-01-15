@@ -32,15 +32,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(Circuitry.MODID)
 public class Circuitry {
 	public static final String MODID = "circuitry";
-
-	private static final DeferredRegister<Block> BLOCKS = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-	private static final DeferredRegister<TileEntityType<?>> TYPES = new DeferredRegister<>(
-			ForgeRegistries.TILE_ENTITIES, MODID);
-
-	public static final RegistryObject<Block> IN_NODE = BLOCKS.register("in_node", InNodeBlock::new),
-			OUT_NODE = BLOCKS.register("out_node", OutNodeBlock::new);
-	public static final RegistryObject<TileEntityType<?>> NODE = TYPES.register("node",
-			() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
+	public static RegistryObject<Block> IN_NODE, OUT_NODE;
+	public static RegistryObject<TileEntityType<?>> NODE;
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
@@ -65,14 +58,23 @@ public class Circuitry {
 	}
 
 	public Circuitry() {
+		Properties properties = new Properties().group(ItemGroup.REDSTONE);
+
+		DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
 		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-		BLOCKS.getEntries().parallelStream().forEach(block -> items.register(block.getId().getPath(),
-				() -> new BlockItem(block.get(), new Properties().group(ItemGroup.REDSTONE))));
+		DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
+
+		IN_NODE = blocks.register("in_node", InNodeBlock::new);
+		OUT_NODE = blocks.register("out_node", OutNodeBlock::new);
+		blocks.getEntries().parallelStream().forEach(
+				block -> items.register(block.getId().getPath(), () -> new BlockItem(block.get(), properties)));
+		NODE = types.register("node",
+				() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
 
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		BLOCKS.register(bus);
-		TYPES.register(bus);
+		blocks.register(bus);
 		items.register(bus);
+		types.register(bus);
 
 		Config.register();
 		PacketHandler.register();

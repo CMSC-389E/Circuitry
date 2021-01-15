@@ -33,7 +33,7 @@ public class EventHandler {
 	 */
 	@SubscribeEvent
 	@SuppressWarnings("resource")
-	public static void onFMLServerStarting(FMLServerStartingEvent event) {
+	public static void onServerStarting(FMLServerStartingEvent event) {
 		try {
 			CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
 			SetCommand.register(dispatcher);
