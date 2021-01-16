@@ -15,8 +15,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 public class PacketHandler {
 	public static abstract class Message {
 		private boolean consume(Supplier<Context> supplier) {
-			Context context = supplier.get();
-			context.enqueueWork(() -> handle(context));
+			handle(supplier.get());
 			return true;
 		}
 
@@ -30,7 +29,6 @@ public class PacketHandler {
 	private static int id = 0;
 
 	public static void register() {
-		register(TagMessage.class, buffer -> new TagMessage(buffer.readBlockPos()));
 	}
 
 	public static <T extends Message> void register(Class<T> type, Function<PacketBuffer, T> decoder) {

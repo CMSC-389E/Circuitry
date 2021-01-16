@@ -8,14 +8,10 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.types.JsonOps;
 
 import cmsc389e.circuitry.Circuitry;
-import cmsc389e.circuitry.common.network.PacketHandler;
-import cmsc389e.circuitry.common.network.TagMessage;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.AlertScreen;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.Util.OS;
 import net.minecraft.util.text.StringTextComponent;
@@ -27,7 +23,6 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.gen.FlatGenerationSettings;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModContainer;
@@ -48,17 +43,6 @@ public class EventHandler {
 				new StringTextComponent(msg2 + "\n\n").appendSibling(
 						new StringTextComponent(msg3).setStyle(new Style().setColor(TextFormatting.AQUA))),
 				button);
-	}
-
-	@SubscribeEvent
-	@SuppressWarnings("resource")
-	public static void onDrawHighlightBlock(DrawHighlightEvent.HighlightBlock event) {
-		Minecraft minecraft = Minecraft.getInstance();
-		TileEntity entity = minecraft.world.getTileEntity(event.getTarget().getPos());
-		if (entity != null && entity.getType() == Circuitry.NODE.get())
-			PacketHandler.CHANNEL.sendToServer(new TagMessage(entity.getPos()));
-		else
-			minecraft.ingameGUI.setOverlayMessage("", false);
 	}
 
 	@SubscribeEvent

@@ -4,14 +4,21 @@ import java.io.IOException;
 
 import com.mojang.brigadier.CommandDispatcher;
 
+import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.command.SetCommand;
 import cmsc389e.circuitry.common.command.TestCommand;
 import net.minecraft.command.CommandSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,12 +32,6 @@ public class EventHandler {
 		event.setCanceled(true);
 	}
 
-	/**
-	 * Called while the server is starting. Registers all commands for this mod for
-	 * use in-game. TODO
-	 *
-	 * @param event the {@link FMLServerStartingEvent}
-	 */
 	@SubscribeEvent
 	@SuppressWarnings("resource")
 	public static void onServerStarting(FMLServerStartingEvent event) {
@@ -45,6 +46,19 @@ public class EventHandler {
 			Config.load();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@SubscribeEvent
+	public static void onTickPlayer(TickEvent.PlayerTickEvent event) {
+		if (event.phase == Phase.START && event.side.isServer()) {
+			TileEntity entity = event.player.world.getTileEntity(((BlockRayTraceResult) event.player
+					.pick(event.player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue(), 1, false)).getPos());
+			event.player.sendStatusMessage(
+					new StringTextComponent(entity != null && entity.getType() == Circuitry.nodeTileEntity.get()
+							? ((NodeTileEntity) entity).getTag()
+							: ""),
+					true);
 		}
 	}
 
