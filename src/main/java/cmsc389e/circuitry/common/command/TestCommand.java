@@ -55,11 +55,11 @@ public class TestCommand {
 	}
 
 	private static int load(CommandContext<CommandSource> context, int projectNumber) {
-		if (Tester.INSTANCE.running)
+		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
 		try {
-			Config.projectNumber.set(projectNumber); // TODO
+			Config.projectNumber.set(projectNumber);
 			Config.load();
 			context.getSource()
 					.sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"), true);
@@ -98,26 +98,26 @@ public class TestCommand {
 	}
 
 	private static int start(CommandContext<CommandSource> context, int delay) {
-		if (Tester.INSTANCE.running)
+		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("A test is already running!"));
 
-		Tester.INSTANCE.start(context.getSource(), delay);
+		Tester.tester.start(context.getSource(), delay);
 		return 0;
 	}
 
 	private static int stop(CommandContext<CommandSource> context) {
-		if (!Tester.INSTANCE.running)
+		if (!Tester.tester.running)
 			throw new CommandException(new StringTextComponent("No test is currently running!"));
 
-		Tester.INSTANCE.running = false;
+		Tester.tester.running = false;
 		context.getSource().sendFeedback(new StringTextComponent("Test stopped successfully!"), true);
 		return 0;
 	}
 
 	private static int submit(CommandContext<CommandSource> context, String loginName, String password) {
-		if (Tester.INSTANCE.running)
+		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("Cannot submit test results while a test is running!"));
-		if (Tester.INSTANCE.results.length() == 0)
+		if (Tester.tester.results.length() == 0)
 			throw new CommandException(new StringTextComponent("Cannot find any test results!"));
 
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -139,7 +139,7 @@ public class TestCommand {
 				zip.putNextEntry(new ZipEntry("Dummy.java"));
 				zip.write("public class Dummy{public static void main(String[]args){}}".getBytes());
 				zip.putNextEntry(new ZipEntry("Results.txt"));
-				zip.write(Tester.INSTANCE.results.toString().getBytes());
+				zip.write(Tester.tester.results.toString().getBytes());
 			}
 			execute(source, client, base + "SubmitProjectViaEclipse",
 					buildEntity(out.toByteArray(), "courseName", "CMSC389E", "cvsAccount", cvsAccount,

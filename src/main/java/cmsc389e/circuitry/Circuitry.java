@@ -32,8 +32,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(Circuitry.MODID)
 public class Circuitry {
 	public static final String MODID = "circuitry";
-	public static RegistryObject<Block> IN_NODE, OUT_NODE;
-	public static RegistryObject<TileEntityType<?>> NODE;
+	public static RegistryObject<Block> inNodeBlock, outNodeBlock;
+	public static RegistryObject<TileEntityType<?>> nodeTileEntity;
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
@@ -64,12 +64,12 @@ public class Circuitry {
 		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
 		DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
 
-		IN_NODE = blocks.register("in_node", InNodeBlock::new);
-		OUT_NODE = blocks.register("out_node", OutNodeBlock::new);
+		inNodeBlock = blocks.register("in_node", InNodeBlock::new);
+		outNodeBlock = blocks.register("out_node", OutNodeBlock::new);
+		nodeTileEntity = types.register("node",
+				() -> Builder.create(NodeTileEntity::new, inNodeBlock.get(), outNodeBlock.get()).build(null));
 		blocks.getEntries().parallelStream().forEach(
 				block -> items.register(block.getId().getPath(), () -> new BlockItem(block.get(), properties)));
-		NODE = types.register("node",
-				() -> Builder.create(NodeTileEntity::new, IN_NODE.get(), OUT_NODE.get()).build(null));
 
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		blocks.register(bus);

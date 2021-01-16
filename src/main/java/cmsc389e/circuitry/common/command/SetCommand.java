@@ -21,7 +21,7 @@ public class SetCommand {
 	@SuppressWarnings("resource")
 	private static int execute(CommandContext<CommandSource> context, boolean powered, @Nullable String tag) {
 		CommandSource source = context.getSource();
-		Block block = Circuitry.IN_NODE.get();
+		Block block = Circuitry.inNodeBlock.get();
 		World world = source.getWorld();
 		NodeTileEntity.stream(world).filter(entity -> tag == null || entity.getTag().equals(tag)).forEach(entity -> {
 			BlockState state = entity.getBlockState();

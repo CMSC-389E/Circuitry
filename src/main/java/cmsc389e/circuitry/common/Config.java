@@ -18,11 +18,11 @@ public class Config {
 	public static ConfigValue<String> cvsAccount, oneTimePassword;
 	public static ConfigValue<Integer> projectNumber;
 
-	public static boolean loaded;
 	public static String[] inTags, outTags;
 	public static String[][] inTests, outTests;
+	public static boolean loaded;
 
-	public static void load() throws IOException {
+	public static void load() throws IOException { // TODO force reset when loading new world
 		try (InputStream in = new URL("https://cs.umd.edu/~abrassel/proj" + projectNumber.get() + "tests.txt")
 				.openStream()) {
 			List<String> lines = IOUtils.readLines(in, (Charset) null);
