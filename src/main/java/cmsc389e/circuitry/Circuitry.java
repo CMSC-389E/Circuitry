@@ -6,6 +6,7 @@ import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import cmsc389e.circuitry.common.block.InNodeBlock;
 import cmsc389e.circuitry.common.block.OutNodeBlock;
+import cmsc389e.circuitry.common.network.KeyMessage.Key;
 import cmsc389e.circuitry.common.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.ChatLine;
@@ -55,6 +56,8 @@ public class Circuitry {
 						return size;
 					}
 				}, "field_146253_i"); // drawnChatLines
+
+		Key.register();
 	}
 
 	public Circuitry() {

@@ -8,12 +8,20 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.types.JsonOps;
 
 import cmsc389e.circuitry.Circuitry;
+import cmsc389e.circuitry.common.network.KeyMessage;
+import cmsc389e.circuitry.common.network.KeyMessage.Key;
+import cmsc389e.circuitry.common.network.PacketHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.AlertScreen;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.Util;
 import net.minecraft.util.Util.OS;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -24,6 +32,8 @@ import net.minecraft.world.gen.FlatGenerationSettings;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
@@ -75,6 +85,21 @@ public class EventHandler {
 							"You must update to version " + result.target
 									+ " before proceeding.\nOpen Link will bring you to the below page:",
 							result.url, "Open Link", os -> os.openURI(result.url)));
+			}
+		}
+	}
+
+	@SubscribeEvent
+	@SuppressWarnings("resource")
+	public static void onTickClient(TickEvent.ClientTickEvent event) {
+		if (event.phase == Phase.END) {
+			Minecraft minecraft = Minecraft.getInstance();
+			RayTraceResult result = minecraft.objectMouseOver;
+			if (result != null && result.getType() == Type.BLOCK) {
+				BlockPos pos = ((BlockRayTraceResult) result).getPos();
+				for (Key key : Key.values())
+					if (key.binding.isPressed())
+						PacketHandler.CHANNEL.sendToServer(new KeyMessage(key, pos));
 			}
 		}
 	}
