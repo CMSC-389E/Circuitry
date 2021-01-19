@@ -1,7 +1,7 @@
 buildscript {
 	dependencies {
 		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
-		classpath 'net.minecraftforge.gradle:ForgeGradle:+'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
 	}
 
 	repositories {
@@ -21,7 +21,6 @@ group = 'cmsc389e.' + archivesBaseName
 version = '1.15.2-1.1.0.0'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-compileJava.options.compilerArgs << '-proc:none'
 
 minecraft {
 	runs {
