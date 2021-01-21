@@ -1,6 +1,8 @@
 package cmsc389e.circuitry;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.NodeTileEntity;
@@ -13,10 +15,14 @@ import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.NewChatGui;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.Item.Properties;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.server.dedicated.PropertyManager;
+import net.minecraft.server.dedicated.ServerProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntityType.Builder;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameType;
+import net.minecraft.world.WorldType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.RegistryObject;
@@ -25,6 +31,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -60,8 +67,25 @@ public class Circuitry {
 		Key.register();
 	}
 
+	@SubscribeEvent
+	@SuppressWarnings("resource")
+	public static void onDedicatedServerSetup(FMLDedicatedServerSetupEvent event) {
+		ServerProperties properties = event.getServerSupplier().get().getServerProperties();
+		Properties serverProperties = ObfuscationReflectionHelper.getPrivateValue(PropertyManager.class, properties,
+				"field_73672_b"); // serverProperties
+		String falseValue = Boolean.FALSE.toString();
+		if (!falseValue.equals(serverProperties.put("reset-props", falseValue))) {
+			serverProperties.put("difficulty", Difficulty.PEACEFUL.getTranslationKey());
+			serverProperties.put("gamemode", GameType.CREATIVE.getName());
+			serverProperties.put("generate-structures", falseValue);
+			serverProperties.put("level-type", WorldType.FLAT.getName());
+			serverProperties.put("spawn-animals", falseValue);
+		}
+		properties.save(Paths.get("server.properties"));
+	}
+
 	public Circuitry() {
-		Properties properties = new Properties().group(ItemGroup.REDSTONE);
+		Item.Properties properties = new Item.Properties().group(ItemGroup.REDSTONE);
 
 		DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
 		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);

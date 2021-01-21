@@ -13,10 +13,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -56,5 +60,21 @@ public class EventHandler {
 							: ""),
 					true);
 		}
+	}
+
+	@SubscribeEvent
+	@SuppressWarnings("resource")
+	public static void onWorldCreateSpawnPosition(WorldEvent.CreateSpawnPosition event) {
+		IWorld world = event.getWorld();
+
+		WorldInfo info = world.getWorldInfo();
+		info.setDayTime(6000);
+
+		GameRules rules = info.getGameRulesInstance();
+		rules.get(GameRules.DO_DAYLIGHT_CYCLE).set(false, null);
+		rules.get(GameRules.DO_WEATHER_CYCLE).set(false, null);
+
+		if (world.getWorld().getServer().isSinglePlayer())
+			rules.get(GameRules.DO_MOB_SPAWNING).set(false, null);
 	}
 }

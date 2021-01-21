@@ -22,7 +22,7 @@ public class Config {
 	public static String[][] inTests, outTests;
 	public static boolean loaded;
 
-	public static void load() throws IOException { // TODO force reset when loading new world
+	public static void load() throws IOException {
 		try (InputStream in = new URL("https://cs.umd.edu/~abrassel/proj" + projectNumber.get() + "tests.txt")
 				.openStream()) {
 			List<String> lines = IOUtils.readLines(in, (Charset) null);
