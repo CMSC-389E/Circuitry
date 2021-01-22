@@ -30,7 +30,8 @@ public class PacketHandler {
 	private static int id = 0;
 
 	public static void register() {
-		register(KeyMessage.class, KeyMessage::new);
+		register(KeyPressedMessage.class, KeyPressedMessage::new);
+		register(TagUpdatedMessage.class, TagUpdatedMessage::new);
 	}
 
 	public static <T extends Message> void register(Class<T> type, Function<PacketBuffer, T> decoder) {

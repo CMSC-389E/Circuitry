@@ -25,7 +25,7 @@ public abstract class NodeBlock extends Block {
 	}
 
 	public NodeBlock() {
-		super(Properties.create(Material.IRON).lightValue(15));
+		super(Properties.create(Material.IRON));
 		setDefaultState(getDefaultState().with(POWERED, false));
 	}
 
@@ -42,8 +42,10 @@ public abstract class NodeBlock extends Block {
 	@Deprecated
 	@Override
 	public int getLightValue(BlockState state) {
-		return state.get(POWERED) ? super.getLightValue(state) : 0;
+		return state.get(POWERED) ? 15 : 0;
 	}
+
+	public abstract String[] getNodeTags();
 
 	@Override
 	public boolean hasTileEntity(BlockState state) {
@@ -54,11 +56,8 @@ public abstract class NodeBlock extends Block {
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {
-		if (!worldIn.isRemote) {
-			NodeTileEntity entity = (NodeTileEntity) worldIn.getTileEntity(pos);
-			entity.index++;
-			entity.markDirty();
-		}
+		if (!worldIn.isRemote)
+			((NodeTileEntity) worldIn.getTileEntity(pos)).changeIndex(1);
 		return ActionResultType.SUCCESS;
 	}
 }

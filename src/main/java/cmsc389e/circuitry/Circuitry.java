@@ -8,7 +8,7 @@ import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import cmsc389e.circuitry.common.block.InNodeBlock;
 import cmsc389e.circuitry.common.block.OutNodeBlock;
-import cmsc389e.circuitry.common.network.KeyMessage.Key;
+import cmsc389e.circuitry.common.network.KeyPressedMessage.Key;
 import cmsc389e.circuitry.common.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.ChatLine;
@@ -40,8 +40,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(Circuitry.MODID)
 public class Circuitry {
 	public static final String MODID = "circuitry";
-	public static RegistryObject<Block> inNodeBlock, outNodeBlock;
-	public static RegistryObject<TileEntityType<?>> nodeTileEntity;
+	public static RegistryObject<Block> inNode, outNode;
+	public static RegistryObject<TileEntityType<?>> tileEntity;
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
@@ -91,11 +91,11 @@ public class Circuitry {
 		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
 		DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
 
-		inNodeBlock = blocks.register("in_node", InNodeBlock::new);
-		outNodeBlock = blocks.register("out_node", OutNodeBlock::new);
-		nodeTileEntity = types.register("node",
-				() -> Builder.create(NodeTileEntity::new, inNodeBlock.get(), outNodeBlock.get()).build(null));
-		blocks.getEntries().parallelStream().forEach(
+		inNode = blocks.register("in_node", InNodeBlock::new);
+		outNode = blocks.register("out_node", OutNodeBlock::new);
+		tileEntity = types.register("node",
+				() -> Builder.create(NodeTileEntity::new, inNode.get(), outNode.get()).build(null));
+		blocks.getEntries().forEach(
 				block -> items.register(block.getId().getPath(), () -> new BlockItem(block.get(), properties)));
 
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();

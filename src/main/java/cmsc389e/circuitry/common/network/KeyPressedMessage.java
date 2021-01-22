@@ -10,13 +10,12 @@ import cmsc389e.circuitry.common.network.PacketHandler.Message;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
-public class KeyMessage extends Message {
+public class KeyPressedMessage extends Message {
 	public enum Key {
 		DECREASE_TAG("Decrease Tag", GLFW.GLFW_KEY_G), TOGGLE_NODE("Toggle Node", GLFW.GLFW_KEY_R);
 
@@ -40,19 +39,21 @@ public class KeyMessage extends Message {
 
 	private final Key key;
 	private final BlockPos pos;
+	private final int pressTime;
 
-	public KeyMessage(Key key, BlockPos pos) {
+	public KeyPressedMessage(Key key, BlockPos pos, int pressTime) {
 		this.key = key;
 		this.pos = pos;
+		this.pressTime = pressTime;
 	}
 
-	public KeyMessage(PacketBuffer buffer) {
-		this(buffer.readEnumValue(Key.class), buffer.readBlockPos());
+	public KeyPressedMessage(PacketBuffer buffer) {
+		this(buffer.readEnumValue(Key.class), buffer.readBlockPos(), buffer.readInt());
 	}
 
 	@Override
 	public void encode(PacketBuffer buffer) {
-		buffer.writeEnumValue(key).writeBlockPos(pos);
+		buffer.writeEnumValue(key).writeBlockPos(pos).writeInt(pressTime);
 	}
 
 	@Override
@@ -60,16 +61,14 @@ public class KeyMessage extends Message {
 		World world = context.getSender().world;
 		switch (key) {
 		case DECREASE_TAG:
-			BlockState state = world.getBlockState(pos);
-			if (state.getBlock() == Circuitry.inNodeBlock.get())
-				NodeBlock.setPowered(world, state, pos, !state.get(NodeBlock.POWERED));
+			NodeTileEntity entity = NodeTileEntity.get(world, pos);
+			if (entity != null)
+				entity.changeIndex(-pressTime);
 			break;
 		case TOGGLE_NODE:
-			TileEntity entity = world.getTileEntity(pos);
-			if (entity != null && entity.getType() == Circuitry.nodeTileEntity.get()) {
-				((NodeTileEntity) entity).index--;
-				entity.markDirty();
-			}
+			BlockState state = world.getBlockState(pos);
+			if (state.getBlock() == Circuitry.inNode.get())
+				NodeBlock.setPowered(world, state, pos, !state.get(NodeBlock.POWERED));
 		}
 	}
 }

@@ -54,15 +54,16 @@ public class TestCommand {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	private static int load(CommandContext<CommandSource> context, int projectNumber) {
 		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
 		try {
 			Config.projectNumber.set(projectNumber);
-			Config.load();
-			context.getSource()
-					.sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"), true);
+			CommandSource source = context.getSource();
+			Config.load(source.getWorld());
+			source.sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"), true);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			throw new CommandException(new StringTextComponent("Unable to connect to " + e.getLocalizedMessage()));
@@ -101,7 +102,11 @@ public class TestCommand {
 		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("A test is already running!"));
 
-		Tester.tester.start(context.getSource(), delay);
+		try {
+			Tester.tester.start(context.getSource(), delay);
+		} catch (IllegalStateException e) {
+			throw new CommandException(new StringTextComponent(e.getMessage()));
+		}
 		return 0;
 	}
 

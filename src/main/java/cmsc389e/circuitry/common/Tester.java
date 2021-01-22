@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import cmsc389e.circuitry.common.block.NodeBlock;
 import net.minecraft.block.Block;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.text.StringTextComponent;
@@ -94,13 +93,18 @@ public class Tester implements Runnable {
 
 	public void start(CommandSource source, int delay) {
 		if (!Config.loaded)
-			throw new CommandException(new StringTextComponent("No tests are loaded!"));
+			throw new IllegalStateException("No tests are loaded!");
 
-		map = NodeTileEntity.stream(world).collect(Collectors.toMap(NodeTileEntity::getTag, Function.identity()));
+		try {
+			map = NodeTileEntity.stream(world).collect(Collectors.toMap(entity -> entity.tag, Function.identity()));
+		} catch (IllegalStateException e) {
+			throw new IllegalStateException(
+					"The following tag is duplicated: " + e.getLocalizedMessage().split(" ")[2]);
+		}
 		String tags = Stream.concat(Arrays.stream(Config.inTags).parallel(), Arrays.stream(Config.outTags))
 				.filter(tag -> !map.containsKey(tag)).collect(Collectors.joining(", "));
 		if (!tags.isEmpty())
-			throw new CommandException(new StringTextComponent("The following tags are missing: " + tags));
+			throw new IllegalStateException("The following tag(s) are missing: " + tags);
 
 		IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
 		OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));

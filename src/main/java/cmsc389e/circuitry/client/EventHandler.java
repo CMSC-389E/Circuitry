@@ -8,8 +8,9 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableSet;
 
 import cmsc389e.circuitry.Circuitry;
-import cmsc389e.circuitry.common.network.KeyMessage;
-import cmsc389e.circuitry.common.network.KeyMessage.Key;
+import cmsc389e.circuitry.common.NodeTileEntity;
+import cmsc389e.circuitry.common.network.KeyPressedMessage;
+import cmsc389e.circuitry.common.network.KeyPressedMessage.Key;
 import cmsc389e.circuitry.common.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.AlertScreen;
@@ -34,6 +35,7 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.gen.FlatGenerationSettings;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -60,6 +62,14 @@ public class EventHandler {
 				new StringTextComponent(msg2 + "\n\n").appendSibling(
 						new StringTextComponent(msg3).setStyle(new Style().setColor(TextFormatting.AQUA))),
 				button);
+	}
+
+	@SubscribeEvent
+	@SuppressWarnings("resource")
+	public static void onDrawHighlightBlock(DrawHighlightEvent.HighlightBlock event) {
+		Minecraft minecraft = Minecraft.getInstance();
+		NodeTileEntity tileEntity = NodeTileEntity.get(minecraft.world, event.getTarget().getPos());
+		minecraft.ingameGUI.setOverlayMessage(tileEntity == null ? "" : tileEntity.tag, false);
 	}
 
 	@SubscribeEvent
@@ -104,17 +114,20 @@ public class EventHandler {
 	public static void onTickClient(TickEvent.ClientTickEvent event) {
 		if (event.phase == Phase.END) {
 			BlockPos pos = null;
-			for (Key key : Key.values())
-				while (key.binding.isPressed()) {
+			for (Key key : Key.values()) {
+				int pressTime = 0;
+				while (key.binding.isPressed())
+					pressTime++;
+				if (pressTime > 0) {
 					if (pos == null) {
-						Minecraft minecraft = Minecraft.getInstance();
-						RayTraceResult result = minecraft.objectMouseOver;
+						RayTraceResult result = Minecraft.getInstance().objectMouseOver;
 						if (result != null && result.getType() == Type.BLOCK)
 							pos = ((BlockRayTraceResult) result).getPos();
 					}
 					if (pos != null)
-						PacketHandler.CHANNEL.sendToServer(new KeyMessage(key, pos));
+						PacketHandler.CHANNEL.sendToServer(new KeyPressedMessage(key, pos, pressTime));
 				}
+			}
 		}
 	}
 }

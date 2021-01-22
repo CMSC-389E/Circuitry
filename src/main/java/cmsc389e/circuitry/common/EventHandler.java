@@ -4,32 +4,37 @@ import java.io.IOException;
 
 import com.mojang.brigadier.CommandDispatcher;
 
-import cmsc389e.circuitry.Circuitry;
 import cmsc389e.circuitry.common.command.SetCommand;
 import cmsc389e.circuitry.common.command.TestCommand;
 import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldInfo;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
 
 @EventBusSubscriber
 public class EventHandler {
 	@SubscribeEvent
 	public static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
 		event.setCanceled(true);
+	}
+
+	@SubscribeEvent
+	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+		ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+		PacketTarget target = PacketDistributor.PLAYER.with(() -> player);
+		NodeTileEntity.stream(player.world).forEach(entity -> entity.sync(target));
 	}
 
 	@SubscribeEvent
@@ -41,24 +46,12 @@ public class EventHandler {
 			TestCommand.register(dispatcher);
 
 			MinecraftServer server = event.getServer();
-			server.registerTickable(new Tester(server.getWorld(DimensionType.OVERWORLD)));
+			ServerWorld world = server.getWorld(DimensionType.OVERWORLD);
+			server.registerTickable(new Tester(world));
 
-			Config.load();
+			Config.load(world);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-
-	@SubscribeEvent
-	public static void onTickPlayer(TickEvent.PlayerTickEvent event) {
-		if (event.phase == Phase.END && event.side.isServer()) {
-			TileEntity entity = event.player.world.getTileEntity(((BlockRayTraceResult) event.player
-					.pick(event.player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue(), 1, false)).getPos());
-			event.player.sendStatusMessage(
-					new StringTextComponent(entity != null && entity.getType() == Circuitry.nodeTileEntity.get()
-							? ((NodeTileEntity) entity).getTag()
-							: ""),
-					true);
 		}
 	}
 
