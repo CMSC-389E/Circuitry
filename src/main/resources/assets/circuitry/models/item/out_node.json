@@ -1,6 +1,4 @@
 {
 	"parent": "block/cube_all",
-	"textures": {
-		"all": "circuitry:blocks/out_node"
-	}
+	"textures": {"all": "circuitry:blocks/out_node"}
 }
