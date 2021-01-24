@@ -97,6 +97,8 @@ public class Tester implements Runnable {
 			throw new IllegalStateException("No tests are loaded!");
 
 		map.clear();
+		results.setLength(0);
+
 		NodeTileEntity.forEach(world, entity -> {
 			if (map.put(entity.tag, entity) != null)
 				throw new IllegalStateException("The following tag is duplicated: " + entity.tag);
@@ -109,6 +111,10 @@ public class Tester implements Runnable {
 		IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
 		OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
 
+		String message = "Starting Testing...";
+		String separator = StringUtils.repeat('-', message.length());
+		sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
+
 		this.delay = delay;
 		this.source = source;
 
@@ -117,11 +123,6 @@ public class Tester implements Runnable {
 		wait = 0;
 		waiting = true;
 
-		String message = "Starting Testing...";
-		String separator = StringUtils.repeat('-', message.length());
-		sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
-
-		results.setLength(0);
 		running = true;
 	}
 }
