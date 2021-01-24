@@ -10,4 +10,7 @@ updateJSONURL="https://raw.githubusercontent.com/CMSC-389E/mod-and-testing-frame
 displayURL="https://cs.umd.edu/class/spring2021/cmsc389E"
 logoFile="circuitry.png"
 authors="Jamie Brassel"
-description=''''''
+description='''
+Adds In and Out Nodes to the game as well as a variety of commands relating to building and testing circuitry.
+For UMD class CMSC 389E.
+'''
