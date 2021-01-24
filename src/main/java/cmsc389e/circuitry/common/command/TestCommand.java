@@ -24,6 +24,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 import cmsc389e.circuitry.common.Config;
+import cmsc389e.circuitry.common.NodeTileEntity;
 import cmsc389e.circuitry.common.Tester;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandSource;
@@ -59,10 +60,10 @@ public class TestCommand {
 		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
+		CommandSource source = context.getSource();
 		try {
 			Config.projectNumber.set(projectNumber);
-			CommandSource source = context.getSource();
-			Config.load(source.getWorld());
+			Config.load();
 			source.sendFeedback(new StringTextComponent("Project " + projectNumber + " loaded successfully!"), true);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -72,6 +73,7 @@ public class TestCommand {
 			throw new CommandException(
 					new StringTextComponent(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()));
 		}
+		NodeTileEntity.notifyBlockUpdates(source.getWorld());
 		return 0;
 	}
 
@@ -105,7 +107,7 @@ public class TestCommand {
 		try {
 			Tester.tester.start(context.getSource(), delay);
 		} catch (IllegalStateException e) {
-			throw new CommandException(new StringTextComponent(e.getMessage()));
+			throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
 		}
 		return 0;
 	}

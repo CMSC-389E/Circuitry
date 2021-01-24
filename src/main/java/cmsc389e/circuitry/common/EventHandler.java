@@ -11,7 +11,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -41,10 +40,9 @@ public class EventHandler {
 			TestCommand.register(dispatcher);
 
 			MinecraftServer server = event.getServer();
-			ServerWorld world = server.getWorld(DimensionType.OVERWORLD);
-			server.registerTickable(new Tester(world));
+			server.registerTickable(new Tester(server.getWorld(DimensionType.OVERWORLD)));
 
-			Config.load(world);
+			Config.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

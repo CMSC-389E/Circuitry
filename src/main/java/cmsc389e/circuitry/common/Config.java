@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
-import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -23,13 +22,13 @@ public class Config {
 	public static String[][] inTests, outTests;
 	public static boolean loaded;
 
-	public static void load(World world) throws IOException {
+	public static void load() throws IOException {
+		loaded = false;
 		try (InputStream in = new URL("https://cs.umd.edu/~abrassel/proj" + projectNumber.get() + "tests.txt")
 				.openStream()) {
 			List<String> lines = IOUtils.readLines(in, (Charset) null);
 			String[] tags = lines.get(1).split("\t(?=o)", 2);
 
-			loaded = false;
 			inTags = tags[0].split("\t");
 			outTags = tags[1].split("\t");
 			inTests = new String[lines.size() - 2][];
@@ -40,8 +39,6 @@ public class Config {
 				outTests[i] = Arrays.copyOfRange(tags, inTags.length, tags.length);
 			}
 			loaded = true;
-		} finally {
-			NodeTileEntity.notifyBlockUpdates(world);
 		}
 	}
 
