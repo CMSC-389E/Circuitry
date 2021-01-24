@@ -19,6 +19,11 @@ public class OutNodeBlock extends NodeBlock {
 		return getDefaultState().with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
 	}
 
+	@Override
+	public String getTranslationKey() {
+		return "Out Node";
+	}
+
 	@Deprecated
 	@Override
 	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,

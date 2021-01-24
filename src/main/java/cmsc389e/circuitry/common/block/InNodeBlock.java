@@ -18,6 +18,11 @@ public class InNodeBlock extends NodeBlock {
 		return Config.inTags;
 	}
 
+	@Override
+	public String getTranslationKey() {
+		return "In Node";
+	}
+
 	@Deprecated
 	@Override
 	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
