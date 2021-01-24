@@ -7,7 +7,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import cmsc389e.circuitry.common.command.SetCommand;
 import cmsc389e.circuitry.common.command.TestCommand;
 import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorld;
@@ -20,8 +19,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
 
 @EventBusSubscriber
 public class EventHandler {
@@ -32,9 +29,7 @@ public class EventHandler {
 
 	@SubscribeEvent
 	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-		PacketTarget target = PacketDistributor.PLAYER.with(() -> player);
-		NodeTileEntity.stream(player.world).forEach(entity -> entity.sync(target));
+		NodeTileEntity.notifyBlockUpdates(event.getPlayer().world);
 	}
 
 	@SubscribeEvent

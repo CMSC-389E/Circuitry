@@ -31,7 +31,6 @@ public class PacketHandler {
 
 	public static void register() {
 		register(KeyPressedMessage.class, KeyPressedMessage::new);
-		register(TagUpdatedMessage.class, TagUpdatedMessage::new);
 	}
 
 	public static <T extends Message> void register(Class<T> type, Function<PacketBuffer, T> decoder) {

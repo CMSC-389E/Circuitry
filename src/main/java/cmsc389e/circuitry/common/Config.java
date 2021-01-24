@@ -41,7 +41,7 @@ public class Config {
 			}
 			loaded = true;
 		} finally {
-			NodeTileEntity.stream(world).forEach(NodeTileEntity::updateTag);
+			NodeTileEntity.notifyBlockUpdates(world);
 		}
 	}
 

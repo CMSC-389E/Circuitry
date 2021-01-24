@@ -1,8 +1,8 @@
 package cmsc389e.circuitry.common;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,17 +33,18 @@ public class Tester implements Runnable {
 	public final StringBuilder results;
 	public boolean running;
 
+	private final Map<String, TileEntity> map;
 	private final ServerTickList<Block> tickList;
 	private final ServerWorld world;
 
 	private int delay, index, passed, wait;
-	private Map<String, TileEntity> map;
 	private CommandSource source;
 	private boolean waiting;
 
 	public Tester(ServerWorld world) {
 		this.world = world;
 
+		map = new HashMap<>();
 		results = new StringBuilder();
 		tester = this;
 		tickList = world.getPendingBlockTicks();
@@ -95,12 +96,11 @@ public class Tester implements Runnable {
 		if (!Config.loaded)
 			throw new IllegalStateException("No tests are loaded!");
 
-		try {
-			map = NodeTileEntity.stream(world).collect(Collectors.toMap(entity -> entity.tag, Function.identity()));
-		} catch (IllegalStateException e) {
-			throw new IllegalStateException(
-					"The following tag is duplicated: " + e.getLocalizedMessage().split(" ")[2]);
-		}
+		map.clear();
+		NodeTileEntity.forEach(world, entity -> {
+			if (map.put(entity.tag, entity) != null)
+				throw new IllegalStateException("The following tag is duplicated: " + entity.tag);
+		});
 		String tags = Stream.concat(Arrays.stream(Config.inTags).parallel(), Arrays.stream(Config.outTags))
 				.filter(tag -> !map.containsKey(tag)).collect(Collectors.joining(", "));
 		if (!tags.isEmpty())

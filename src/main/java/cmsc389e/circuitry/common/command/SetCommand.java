@@ -23,10 +23,12 @@ public class SetCommand {
 		CommandSource source = context.getSource();
 		Block block = Circuitry.inNode.get();
 		World world = source.getWorld();
-		NodeTileEntity.stream(world).filter(entity -> tag == null || entity.tag.equals(tag)).forEach(entity -> {
-			BlockState state = entity.getBlockState();
-			if (state.getBlock() == block)
-				NodeBlock.setPowered(world, state, entity.getPos(), powered);
+		NodeTileEntity.forEach(world, entity -> {
+			if (tag == null || entity.tag.equals(tag)) {
+				BlockState state = entity.getBlockState();
+				if (state.getBlock() == block)
+					NodeBlock.setPowered(world, state, entity.getPos(), powered);
+			}
 		});
 		source.sendFeedback(new StringTextComponent((tag == null ? "All In Nodes" : "In Nodes with tag " + tag)
 				+ " are now " + (powered ? "powered" : "unpowered") + '.'), true);
