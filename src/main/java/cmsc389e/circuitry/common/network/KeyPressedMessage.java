@@ -68,7 +68,7 @@ public class KeyPressedMessage extends Message {
 		case TOGGLE_NODE:
 			BlockState state = world.getBlockState(pos);
 			if (state.getBlock() == Circuitry.inNode.get())
-				NodeBlock.setPowered(world, state, pos, !state.get(NodeBlock.POWERED));
+				NodeBlock.setPowered(world, state, pos, !NodeBlock.isPowered(state));
 		}
 	}
 }

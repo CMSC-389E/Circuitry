@@ -26,6 +26,10 @@ public class Tester implements Runnable {
 			PASSED = new Style().setColor(TextFormatting.GREEN);
 	public static Tester tester;
 
+	private static String join(int[] array) {
+		return StringUtils.join(array, ' ');
+	}
+
 	private static String join(Object[] array) {
 		return StringUtils.join(array, ' ');
 	}
@@ -62,14 +66,13 @@ public class Tester implements Runnable {
 					for (int i = 0; i < Config.inTags.length; i++) {
 						TileEntity te = map.get(Config.inTags[i]);
 						NodeBlock.setPowered(te.getWorld(), te.getBlockState(), te.getPos(),
-								Config.inTests[index][i].equals("1"));
+								Config.inTests[index][i] == 1);
 					}
 					waiting = false;
 				}
 			} else if (tickList.func_225420_a() == 0) {
-				String[] actual = Arrays.stream(Config.outTags)
-						.map(tag -> map.get(tag).getBlockState().get(NodeBlock.POWERED) ? "1" : "0")
-						.toArray(String[]::new);
+				int[] actual = Arrays.stream(Config.outTags)
+						.mapToInt(tag -> NodeBlock.isPowered(map.get(tag).getBlockState()) ? 1 : 0).toArray();
 				Style style = FAILED;
 				if (Arrays.equals(actual, Config.outTests[index])) {
 					passed++;
@@ -111,10 +114,6 @@ public class Tester implements Runnable {
 		IN.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.inTags))));
 		OUT.setHoverEvent(new HoverEvent(Action.SHOW_TEXT, new StringTextComponent(join(Config.outTags))));
 
-		String message = "Starting Testing...";
-		String separator = StringUtils.repeat('-', message.length());
-		sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
-
 		this.delay = delay;
 		this.source = source;
 
@@ -122,6 +121,10 @@ public class Tester implements Runnable {
 		passed = 0;
 		wait = 0;
 		waiting = true;
+
+		String message = "Starting Testing...";
+		String separator = StringUtils.repeat('-', message.length());
+		sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
 
 		running = true;
 	}

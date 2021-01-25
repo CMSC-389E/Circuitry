@@ -16,7 +16,8 @@ public class OutNodeBlock extends NodeBlock {
 	@Override
 	@SuppressWarnings("resource")
 	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return getDefaultState().with(POWERED, context.getWorld().isBlockPowered(context.getPos()));
+		return super.getStateForPlacement(context).with(POWERED,
+				Boolean.valueOf(context.getWorld().isBlockPowered(context.getPos())));
 	}
 
 	@Override
@@ -24,7 +25,6 @@ public class OutNodeBlock extends NodeBlock {
 		return "Out Node";
 	}
 
-	@Deprecated
 	@Override
 	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
 			boolean isMoving) {

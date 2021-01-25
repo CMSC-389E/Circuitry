@@ -19,7 +19,7 @@ public class Config {
 	public static ConfigValue<Integer> projectNumber;
 
 	public static String[] inTags, outTags;
-	public static String[][] inTests, outTests;
+	public static int[][] inTests, outTests;
 	public static boolean loaded;
 
 	public static void load() throws IOException {
@@ -31,12 +31,12 @@ public class Config {
 
 			inTags = tags[0].split("\t");
 			outTags = tags[1].split("\t");
-			inTests = new String[lines.size() - 2][];
-			outTests = new String[inTests.length][];
+			inTests = new int[lines.size() - 2][];
+			outTests = new int[inTests.length][];
 			for (int i = 0; i < inTests.length; i++) {
 				tags = lines.get(i + 2).split("\t");
-				inTests[i] = Arrays.copyOf(tags, inTags.length);
-				outTests[i] = Arrays.copyOfRange(tags, inTags.length, tags.length);
+				inTests[i] = Arrays.stream(tags, 0, inTags.length).mapToInt(Integer::valueOf).toArray();
+				outTests[i] = Arrays.stream(tags, inTags.length, tags.length).mapToInt(Integer::valueOf).toArray();
 			}
 			loaded = true;
 		}

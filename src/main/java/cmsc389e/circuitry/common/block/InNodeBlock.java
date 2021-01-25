@@ -7,7 +7,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 
 public class InNodeBlock extends NodeBlock {
-	@Deprecated
 	@Override
 	public boolean canProvidePower(BlockState state) {
 		return true;
@@ -23,9 +22,8 @@ public class InNodeBlock extends NodeBlock {
 		return "In Node";
 	}
 
-	@Deprecated
 	@Override
 	public int getWeakPower(BlockState blockState, IBlockReader blockAccess, BlockPos pos, Direction side) {
-		return blockState.get(POWERED) ? 15 : 0;
+		return isPowered(blockState) ? 15 : 0;
 	}
 }

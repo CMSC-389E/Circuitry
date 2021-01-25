@@ -19,14 +19,18 @@ import net.minecraft.world.World;
 public abstract class NodeBlock extends Block {
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
+	public static boolean isPowered(BlockState state) {
+		return state.get(POWERED).booleanValue();
+	}
+
 	public static void setPowered(World world, BlockState state, BlockPos pos, boolean powered) {
-		if (state.get(POWERED) != powered)
+		if (isPowered(state) != powered)
 			world.setBlockState(pos, state.cycle(POWERED));
 	}
 
 	public NodeBlock() {
 		super(Properties.create(Material.IRON));
-		setDefaultState(getDefaultState().with(POWERED, false));
+		setDefaultState(getDefaultState().with(POWERED, Boolean.FALSE));
 	}
 
 	@Override
@@ -39,10 +43,9 @@ public abstract class NodeBlock extends Block {
 		builder.add(POWERED);
 	}
 
-	@Deprecated
 	@Override
 	public int getLightValue(BlockState state) {
-		return state.get(POWERED) ? 15 : 0;
+		return isPowered(state) ? 15 : 0;
 	}
 
 	public abstract String[] getNodeTags();
@@ -52,7 +55,6 @@ public abstract class NodeBlock extends Block {
 		return true;
 	}
 
-	@Deprecated
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {

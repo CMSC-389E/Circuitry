@@ -56,7 +56,7 @@ public class TestCommand {
 	}
 
 	@SuppressWarnings("resource")
-	private static int load(CommandContext<CommandSource> context, int projectNumber) {
+	private static int load(CommandContext<CommandSource> context, Integer projectNumber) {
 		if (Tester.tester.running)
 			throw new CommandException(new StringTextComponent("Cannot load a new project while a test is running!"));
 
@@ -72,8 +72,9 @@ public class TestCommand {
 			e.printStackTrace();
 			throw new CommandException(
 					new StringTextComponent(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()));
+		} finally {
+			NodeTileEntity.notifyBlockUpdates(source.getWorld());
 		}
-		NodeTileEntity.notifyBlockUpdates(source.getWorld());
 		return 0;
 	}
 
@@ -85,7 +86,7 @@ public class TestCommand {
 
 		ArgumentBuilder<CommandSource, ?> load = Commands.literal("load")
 				.then(Commands.argument(projectNumber, IntegerArgumentType.integer(0))
-						.executes(context -> load(context, IntegerArgumentType.getInteger(context, projectNumber))));
+						.executes(context -> load(context, context.getArgument(projectNumber, Integer.class))));
 		ArgumentBuilder<CommandSource, ?> start = Commands.literal("start").executes(context -> start(context, 0))
 				.then(Commands.argument(delay, IntegerArgumentType.integer(0))
 						.executes(context -> start(context, IntegerArgumentType.getInteger(context, delay))));
@@ -128,7 +129,7 @@ public class TestCommand {
 			throw new CommandException(new StringTextComponent("Cannot find any test results!"));
 
 		try (CloseableHttpClient client = HttpClients.createDefault()) {
-			int projectNumber = Config.projectNumber.get();
+			Integer projectNumber = Config.projectNumber.get();
 			String base = "https://submit.cs.umd.edu/spring2021/eclipse/";
 			String cvsAccount = Config.cvsAccount.get();
 			String oneTimePassword = Config.oneTimePassword.get();
@@ -150,8 +151,9 @@ public class TestCommand {
 			}
 			execute(source, client, base + "SubmitProjectViaEclipse",
 					buildEntity(out.toByteArray(), "courseName", "CMSC389E", "cvsAccount", cvsAccount,
-							"oneTimePassword", oneTimePassword, "projectNumber", projectNumber, "semester", 202008,
-							"submitClientTool", "CommandLineTool", "submitClientVersion", Integer.MAX_VALUE));
+							"oneTimePassword", oneTimePassword, "projectNumber", projectNumber, "semester",
+							Integer.valueOf(202008), "submitClientTool", "CommandLineTool", "submitClientVersion",
+							Integer.valueOf(Integer.MAX_VALUE)));
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new CommandException(new StringTextComponent(e.getLocalizedMessage()));
