@@ -7,6 +7,7 @@ import java.util.Properties;
 import cmsc389e.circuitry.common.Config;
 import cmsc389e.circuitry.common.NodeTileEntity;
 import cmsc389e.circuitry.common.block.InNodeBlock;
+import cmsc389e.circuitry.common.block.NodeBlock;
 import cmsc389e.circuitry.common.block.OutNodeBlock;
 import cmsc389e.circuitry.common.network.KeyPressedMessage.Key;
 import cmsc389e.circuitry.common.network.PacketHandler;
@@ -40,8 +41,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(Circuitry.MODID)
 public class Circuitry {
 	public static final String MODID = "circuitry";
-	public static RegistryObject<Block> inNode, outNode;
-	public static RegistryObject<TileEntityType<?>> tileEntity;
+	public static RegistryObject<NodeBlock> inNode, outNode;
+	public static RegistryObject<TileEntityType<NodeTileEntity>> tileEntity;
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
