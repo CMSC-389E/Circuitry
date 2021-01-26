@@ -13,7 +13,6 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -24,11 +23,6 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
 		event.setCanceled(true);
-	}
-
-	@SubscribeEvent
-	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		NodeTileEntity.notifyBlockUpdates(event.getPlayer().world);
 	}
 
 	@SubscribeEvent

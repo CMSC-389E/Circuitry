@@ -47,25 +47,37 @@ public class NodeTileEntity extends TileEntity {
 
 	@Override
 	public SUpdateTileEntityPacket getUpdatePacket() {
-		if (Config.loaded) {
-			String[] nodeTags = ((NodeBlock) world.getBlockState(pos).getBlock()).getNodeTags();
-			tag = nodeTags[(index % nodeTags.length + nodeTags.length) % nodeTags.length];
-		} else
-			tag = String.valueOf(index);
+		return new SUpdateTileEntityPacket(pos, -1, getUpdateTag());
+	}
 
-		CompoundNBT compoundIn = new CompoundNBT();
-		compoundIn.putString("", tag);
-		return new SUpdateTileEntityPacket(pos, -1, compoundIn);
+	@Override
+	public CompoundNBT getUpdateTag() {
+		if (tag == null)
+			if (Config.loaded) {
+				String[] nodeTags = ((NodeBlock) world.getBlockState(pos).getBlock()).getNodeTags();
+				tag = nodeTags[(index % nodeTags.length + nodeTags.length) % nodeTags.length];
+			} else
+				tag = String.valueOf(index);
+
+		CompoundNBT nbt = write(new CompoundNBT());
+		nbt.putString("", tag);
+		return nbt;
+	}
+
+	@Override
+	public void handleUpdateTag(CompoundNBT nbt) {
+		tag = nbt.getString("");
 	}
 
 	public void notifyBlockUpdate() {
+		tag = null;
 		BlockState state = getBlockState();
 		world.notifyBlockUpdate(pos, state, state, BlockFlags.BLOCK_UPDATE);
 	}
 
 	@Override
 	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-		tag = pkt.getNbtCompound().getString("");
+		handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override

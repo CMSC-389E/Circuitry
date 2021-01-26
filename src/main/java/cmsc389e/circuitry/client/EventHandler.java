@@ -68,8 +68,8 @@ public class EventHandler {
 	@SuppressWarnings("resource")
 	public static void onDrawHighlightBlock(DrawHighlightEvent.HighlightBlock event) {
 		Minecraft minecraft = Minecraft.getInstance();
-		NodeTileEntity tileEntity = NodeTileEntity.get(minecraft.world, event.getTarget().getPos());
-		minecraft.ingameGUI.setOverlayMessage(tileEntity == null ? "" : tileEntity.tag, false);
+		NodeTileEntity entity = NodeTileEntity.get(minecraft.world, event.getTarget().getPos());
+		minecraft.ingameGUI.setOverlayMessage(entity == null ? "" : entity.tag, false);
 	}
 
 	@SubscribeEvent
