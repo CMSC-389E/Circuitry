@@ -24,7 +24,7 @@ public class Config {
 
 	public static void load() throws IOException {
 		loaded = false;
-		try (InputStream in = new URL("https://cs.umd.edu/~abrassel/proj" + projectNumber.get() + "tests.txt")
+		try (InputStream in = new URL("https://cmsc-389e.github.io/tests/proj" + projectNumber.get() + ".txt")
 				.openStream()) {
 			List<String> lines = IOUtils.readLines(in, (Charset) null);
 			String[] tags = lines.get(1).split("\t(?=o)", 2);
