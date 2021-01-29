@@ -53,6 +53,7 @@ import net.minecraftforge.versions.forge.ForgeVersion;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class EventHandler {
+	private static final Minecraft MINECRAFT = Minecraft.getInstance();
 	private static final Field WORLD_SEED = ObfuscationReflectionHelper.findField(CreateWorldScreen.class,
 			"field_146329_I"); // worldSeed
 
@@ -65,11 +66,9 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	@SuppressWarnings("resource")
 	public static void onDrawHighlightBlock(DrawHighlightEvent.HighlightBlock event) {
-		Minecraft minecraft = Minecraft.getInstance();
-		NodeTileEntity entity = NodeTileEntity.get(minecraft.world, event.getTarget().getPos());
-		minecraft.ingameGUI.setOverlayMessage(entity == null ? "" : entity.tag, false);
+		NodeTileEntity entity = NodeTileEntity.get(MINECRAFT.world, event.getTarget().getPos());
+		MINECRAFT.ingameGUI.setOverlayMessage(entity == null ? "" : entity.tag, false);
 	}
 
 	@SubscribeEvent
@@ -110,7 +109,6 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	@SuppressWarnings("resource")
 	public static void onTickClient(TickEvent.ClientTickEvent event) {
 		if (event.phase == Phase.END) {
 			BlockPos pos = null;
@@ -118,9 +116,9 @@ public class EventHandler {
 				int pressTime = 0;
 				while (key.binding.isPressed())
 					pressTime++;
-				if (pressTime > 0) {
+				if (pressTime > 0 && MINECRAFT.player.hasPermissionLevel(4)) {
 					if (pos == null) {
-						RayTraceResult result = Minecraft.getInstance().objectMouseOver;
+						RayTraceResult result = MINECRAFT.objectMouseOver;
 						if (result != null && result.getType() == Type.BLOCK)
 							pos = ((BlockRayTraceResult) result).getPos();
 					}

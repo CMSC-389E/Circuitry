@@ -98,7 +98,8 @@ public class TestCommand {
 								.executes(context -> submit(context, StringArgumentType.getString(context, loginName),
 										StringArgumentType.getString(context, password)))));
 
-		dispatcher.register(Commands.literal("test").then(load).then(start).then(stop).then(submit));
+		dispatcher.register(Commands.literal("test").requires(context -> context.hasPermissionLevel(4)).then(load)
+				.then(start).then(stop).then(submit));
 	}
 
 	private static int start(CommandContext<CommandSource> context, int delay) {

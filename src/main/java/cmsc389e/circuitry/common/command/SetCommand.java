@@ -39,7 +39,7 @@ public class SetCommand {
 		String powered = "Powered";
 		String tag = "Tag";
 
-		dispatcher.register(Commands.literal("set")
+		dispatcher.register(Commands.literal("set").requires(context -> context.hasPermissionLevel(4))
 				.then(Commands.argument(powered, BoolArgumentType.bool())
 						.executes(context -> execute(context, BoolArgumentType.getBool(context, powered), null))
 						.then(Commands.argument(tag, StringArgumentType.word())

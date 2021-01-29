@@ -81,6 +81,7 @@ public class Circuitry {
 			serverProperties.put("generate-structures", falseValue);
 			serverProperties.put("level-type", WorldType.FLAT.getName());
 			serverProperties.put("spawn-animals", falseValue);
+			serverProperties.put("spawn-protection", Integer.toString(Integer.MAX_VALUE));
 		}
 		properties.save(Paths.get("server.properties"));
 	}

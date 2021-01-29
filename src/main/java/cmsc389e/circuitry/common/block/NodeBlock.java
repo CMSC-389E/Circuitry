@@ -58,7 +58,7 @@ public abstract class NodeBlock extends Block {
 	@Override
 	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
 			Hand handIn, BlockRayTraceResult hit) {
-		if (!worldIn.isRemote)
+		if (!worldIn.isRemote && player.hasPermissionLevel(4))
 			((NodeTileEntity) worldIn.getTileEntity(pos)).changeIndex(1);
 		return ActionResultType.SUCCESS;
 	}
