@@ -1,6 +1,7 @@
 {
 	"homepage": "https://github.com/CMSC-389E/mod-and-testing-framework/releases",
 	"1.15.2": {
+		"1.15.2-2.0.0.0": "-Fixed /submit finally. It should now work properly as it is over a third party library instead of my own code.\n-Updated semester information and links to new Spring 2021 class page.\n-Disabled other dimensions apart from the Overworld.\n-Node tags are now correctly synced between the server and client. This fixes some strange behavior in multiplayer servers.\n-Added keys to cycle backwards through tags for a highlighted node (default 'G') and to toggle a highlighted node on and off (default 'R'). These can be changed in the vanilla keybindings menu.\n-Added default world generation settings to servers as well as clients. The flat world is unfortunately not Redstone-Ready on the server due to limitations in the Minecraft code. To reset the modified settings to default, just change the "reset-props" option in 'server.properties' to "true", or delete it.\n-Finally added a mod description to the in game mod menu.\nConfiguration files will now always unload and reload when switching worlds in the client. This fixes some edge cases where it did not, in fact, do this.\n-Performance improvements.",
 		"1.15.2-1.0.0.0": "-Add checks for problems loading test files.\n-Set default world settings.\n-Fix testing delay.\n-Fix stop command.\n-Add testing summary.\n-Fix version information.",
 		"1.15.2-0.0.1.1": "Fix Apache HttpClient Mime embedding",
 		"1.15.2-0.0.1.0": "Update to 1.15.2."
@@ -15,8 +16,8 @@
 		"1.12.2-0.0.1.0-beta3": "-Implement commands.\n-Fix minor bugs."
 	},
 	"promos": {
-		"1.15.2-latest": "1.15.2-1.0.0.0",
-		"1.15.2-recommended": "1.15.2-1.0.0.0",
+		"1.15.2-latest": "1.15.2-2.0.0.0",
+		"1.15.2-recommended": "1.15.2-2.0.0.0",
 		
 		"1.12.2-latest": "1.12.2-1.0.1.0",
 		"1.12.2-recommended": "1.12.2-1.0.1.0"

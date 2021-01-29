@@ -18,7 +18,7 @@ apply plugin: 'net.minecraftforge.gradle'
 
 archivesBaseName = 'circuitry'
 group = 'cmsc389e.' + archivesBaseName
-version = '1.15.2-1.1.0.0'
+version = '1.15.2-2.0.0.0'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
