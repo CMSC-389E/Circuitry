@@ -1,6 +1,6 @@
 package cmsc389e.circuitry.common.network;
 
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
 import cmsc389e.circuitry.Circuitry;
@@ -20,7 +20,7 @@ public class KeyPressedMessage extends Message {
 		DECREASE_TAG("Decrease Tag", GLFW.GLFW_KEY_G), TOGGLE_NODE("Toggle Node", GLFW.GLFW_KEY_R);
 
 		public static void register() {
-			String category = StringUtils.capitalise(Circuitry.MODID);
+			String category = StringUtils.capitalize(Circuitry.MODID);
 			for (Key key : values()) {
 				key.binding = new KeyBinding(key.description, key.keyCode, category);
 				ClientRegistry.registerKeyBinding(key.binding);
