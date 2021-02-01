@@ -106,7 +106,7 @@ public class Tester implements Runnable {
 			if (map.put(entity.tag, entity) != null)
 				throw new IllegalStateException("The following tag is duplicated: " + entity.tag);
 		});
-		String tags = Stream.concat(Arrays.stream(Config.inTags).parallel(), Arrays.stream(Config.outTags))
+		String tags = Stream.concat(Arrays.stream(Config.inTags), Arrays.stream(Config.outTags))
 				.filter(tag -> !map.containsKey(tag)).collect(Collectors.joining(", "));
 		if (!tags.isEmpty())
 			throw new IllegalStateException("The following tag(s) are missing: " + tags);
