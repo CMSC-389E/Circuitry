@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -24,8 +25,8 @@ public class Config {
 
 	public static void load() throws IOException {
 		loaded = false;
-		try (InputStream in = new URL("https://cmsc-389e.github.io/tests/proj" + projectNumber.get() + ".txt")
-				.openStream()) {
+		try (InputStream in = new FastBufferedInputStream(
+				new URL("https://cmsc-389e.github.io/tests/proj" + projectNumber.get() + ".txt").openStream())) {
 			List<String> lines = IOUtils.readLines(in, (Charset) null);
 			String[] tags = lines.get(1).split("\t(?=o)", 2);
 
@@ -34,9 +35,9 @@ public class Config {
 			inTests = new int[lines.size() - 2][];
 			outTests = new int[inTests.length][];
 			for (int i = 0; i < inTests.length; i++) {
-				tags = lines.get(i + 2).split("\t");
-				inTests[i] = Arrays.stream(tags, 0, inTags.length).mapToInt(Integer::valueOf).toArray();
-				outTests[i] = Arrays.stream(tags, inTags.length, tags.length).mapToInt(Integer::valueOf).toArray();
+				int[] tests = Arrays.stream(lines.get(i + 2).split("\t")).mapToInt(Integer::parseUnsignedInt).toArray();
+				inTests[i] = Arrays.copyOf(tests, inTags.length);
+				outTests[i] = Arrays.copyOfRange(tests, inTags.length, tests.length);
 			}
 			loaded = true;
 		}
