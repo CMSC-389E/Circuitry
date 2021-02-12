@@ -20,17 +20,17 @@ import net.minecraft.util.text.event.HoverEvent.Action;
 import net.minecraft.world.server.ServerTickList;
 import net.minecraft.world.server.ServerWorld;
 
-public class Tester implements Runnable {
+public final class Tester implements Runnable {
 	private static final Style DEFAULT = new Style(), FAILED = new Style().setColor(TextFormatting.RED),
 			IN = new Style().setColor(TextFormatting.LIGHT_PURPLE), OUT = new Style().setColor(TextFormatting.AQUA),
 			PASSED = new Style().setColor(TextFormatting.GREEN);
 	public static Tester tester;
 
-	private static String join(int[] array) {
+	private static String join(final int[] array) {
 		return StringUtils.join(array, ' ');
 	}
 
-	private static String join(Object[] array) {
+	private static String join(final Object[] array) {
 		return StringUtils.join(array, ' ');
 	}
 
@@ -45,7 +45,7 @@ public class Tester implements Runnable {
 	private CommandSource source;
 	private boolean waiting;
 
-	public Tester(ServerWorld world) {
+	public Tester(final ServerWorld world) {
 		this.world = world;
 
 		map = new HashMap<>();
@@ -64,14 +64,14 @@ public class Tester implements Runnable {
 					sendFeedback("In: " + join(Config.inTests[index]), IN);
 					sendFeedback("Out: " + join(Config.outTests[index]), OUT);
 					for (int i = 0; i < Config.inTags.length; i++) {
-						TileEntity te = map.get(Config.inTags[i]);
+						final TileEntity te = map.get(Config.inTags[i]);
 						NodeBlock.setPowered(te.getWorld(), te.getBlockState(), te.getPos(),
 								Config.inTests[index][i] == 1);
 					}
 					waiting = false;
 				}
 			} else if (tickList.func_225420_a() == 0) {
-				int[] actual = Arrays.stream(Config.outTags)
+				final int[] actual = Arrays.stream(Config.outTags)
 						.mapToInt(tag -> NodeBlock.isPowered(map.get(tag).getBlockState()) ? 1 : 0).toArray();
 				Style style = FAILED;
 				if (Arrays.equals(actual, Config.outTests[index])) {
@@ -90,12 +90,12 @@ public class Tester implements Runnable {
 			}
 	}
 
-	private void sendFeedback(String msg, Style style) {
+	private void sendFeedback(final String msg, final Style style) {
 		results.append(msg + '\n');
 		source.sendFeedback(new StringTextComponent(msg).setStyle(style), true);
 	}
 
-	public void start(CommandSource source, int delay) {
+	public void start(final CommandSource source, final int delay) {
 		if (!Config.loaded)
 			throw new IllegalStateException("No tests are loaded!");
 
@@ -106,7 +106,7 @@ public class Tester implements Runnable {
 			if (map.put(entity.tag, entity) != null)
 				throw new IllegalStateException("The following tag is duplicated: " + entity.tag);
 		});
-		String tags = Stream.concat(Arrays.stream(Config.inTags), Arrays.stream(Config.outTags))
+		final String tags = Stream.concat(Arrays.stream(Config.inTags), Arrays.stream(Config.outTags))
 				.filter(tag -> !map.containsKey(tag)).collect(Collectors.joining(", "));
 		if (!tags.isEmpty())
 			throw new IllegalStateException("The following tag(s) are missing: " + tags);
@@ -122,8 +122,8 @@ public class Tester implements Runnable {
 		wait = 0;
 		waiting = true;
 
-		String message = "Starting Testing...";
-		String separator = StringUtils.repeat('-', message.length());
+		final String message = "Starting Testing...";
+		final String separator = StringUtils.repeat('-', message.length());
 		sendFeedback(separator + '\n' + message + '\n' + separator, DEFAULT);
 
 		running = true;

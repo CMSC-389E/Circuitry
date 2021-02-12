@@ -15,7 +15,7 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig.Type;
 
-public class Config {
+public final class Config {
 	public static ConfigValue<String> cvsAccount, oneTimePassword;
 	public static ConfigValue<Integer> projectNumber;
 
@@ -27,15 +27,16 @@ public class Config {
 		loaded = false;
 		try (InputStream in = new FastBufferedInputStream(
 				new URL("https://cmsc-389e.github.io/tests/proj" + projectNumber.get() + ".txt").openStream())) {
-			List<String> lines = IOUtils.readLines(in, (Charset) null);
-			String[] tags = lines.get(1).split("\t(?=o)", 2);
+			final List<String> lines = IOUtils.readLines(in, (Charset) null);
+			final String[] tags = lines.get(1).split("\t(?=o)", 2);
 
 			inTags = tags[0].split("\t");
 			outTags = tags[1].split("\t");
 			inTests = new int[lines.size() - 2][];
 			outTests = new int[inTests.length][];
 			for (int i = 0; i < inTests.length; i++) {
-				int[] tests = Arrays.stream(lines.get(i + 2).split("\t")).mapToInt(Integer::parseUnsignedInt).toArray();
+				final int[] tests = Arrays.stream(lines.get(i + 2).split("\t")).mapToInt(Integer::parseUnsignedInt)
+						.toArray();
 				inTests[i] = Arrays.copyOf(tests, inTags.length);
 				outTests[i] = Arrays.copyOfRange(tests, inTags.length, tests.length);
 			}
@@ -44,7 +45,7 @@ public class Config {
 	}
 
 	public static void register() {
-		Builder builder = new Builder();
+		final Builder builder = new Builder();
 		cvsAccount = builder.define("CVS Account", "");
 		oneTimePassword = builder.define("One-Time Password", "");
 		projectNumber = builder.defineInRange("Project Number", 0, 0, Integer.MAX_VALUE);

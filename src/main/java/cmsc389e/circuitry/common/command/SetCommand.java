@@ -17,15 +17,16 @@ import net.minecraft.command.Commands;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-public class SetCommand {
+public final class SetCommand {
 	@SuppressWarnings("resource")
-	private static int execute(CommandContext<CommandSource> context, boolean powered, @Nullable String tag) {
-		CommandSource source = context.getSource();
-		Block block = Circuitry.inNode.get();
-		World world = source.getWorld();
+	private static int execute(final CommandContext<CommandSource> context, final boolean powered,
+			@Nullable final String tag) {
+		final CommandSource source = context.getSource();
+		final Block block = Circuitry.inNode.get();
+		final World world = source.getWorld();
 		NodeTileEntity.forEach(world, entity -> {
 			if (tag == null || entity.tag.equals(tag)) {
-				BlockState state = entity.getBlockState();
+				final BlockState state = entity.getBlockState();
 				if (state.getBlock() == block)
 					NodeBlock.setPowered(world, state, entity.getPos(), powered);
 			}
@@ -35,9 +36,9 @@ public class SetCommand {
 		return 0;
 	}
 
-	public static void register(CommandDispatcher<CommandSource> dispatcher) {
-		String powered = "Powered";
-		String tag = "Tag";
+	public static void register(final CommandDispatcher<CommandSource> dispatcher) {
+		final String powered = "Powered";
+		final String tag = "Tag";
 
 		dispatcher.register(Commands.literal("set").requires(context -> context.hasPermissionLevel(4))
 				.then(Commands.argument(powered, BoolArgumentType.bool())

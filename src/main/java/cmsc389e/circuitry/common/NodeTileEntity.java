@@ -14,21 +14,21 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 
-public class NodeTileEntity extends TileEntity {
-	public static void forEach(World world, Consumer<NodeTileEntity> consumer) {
-		TileEntityType<?> type = Circuitry.tileEntity.get();
+public final class NodeTileEntity extends TileEntity {
+	public static void forEach(final World world, final Consumer<NodeTileEntity> consumer) {
+		final TileEntityType<?> type = Circuitry.tileEntity.get();
 		world.loadedTileEntityList.forEach(entity -> {
 			if (entity.getType() == type)
 				consumer.accept((NodeTileEntity) entity);
 		});
 	}
 
-	public static NodeTileEntity get(World world, BlockPos pos) {
-		TileEntity entity = world.getTileEntity(pos);
+	public static NodeTileEntity get(final World world, final BlockPos pos) {
+		final TileEntity entity = world.getTileEntity(pos);
 		return entity != null && entity.getType() == Circuitry.tileEntity.get() ? (NodeTileEntity) entity : null;
 	}
 
-	public static void notifyBlockUpdates(World world) {
+	public static void notifyBlockUpdates(final World world) {
 		forEach(world, NodeTileEntity::notifyBlockUpdate);
 	}
 
@@ -39,7 +39,7 @@ public class NodeTileEntity extends TileEntity {
 		super(Circuitry.tileEntity.get());
 	}
 
-	public void changeIndex(int delta) {
+	public void changeIndex(final int delta) {
 		index += delta;
 		markDirty();
 		notifyBlockUpdate();
@@ -54,40 +54,40 @@ public class NodeTileEntity extends TileEntity {
 	public CompoundNBT getUpdateTag() {
 		if (tag == null)
 			if (Config.loaded) {
-				String[] nodeTags = ((NodeBlock) world.getBlockState(pos).getBlock()).getNodeTags();
+				final String[] nodeTags = ((NodeBlock) world.getBlockState(pos).getBlock()).getNodeTags();
 				tag = nodeTags[(index % nodeTags.length + nodeTags.length) % nodeTags.length];
 			} else
 				tag = String.valueOf(index);
 
-		CompoundNBT nbt = write(new CompoundNBT());
+		final CompoundNBT nbt = write(new CompoundNBT());
 		nbt.putString("", tag);
 		return nbt;
 	}
 
 	@Override
-	public void handleUpdateTag(CompoundNBT nbt) {
+	public void handleUpdateTag(final CompoundNBT nbt) {
 		tag = nbt.getString("");
 	}
 
 	public void notifyBlockUpdate() {
 		tag = null;
-		BlockState state = getBlockState();
+		final BlockState state = getBlockState();
 		world.notifyBlockUpdate(pos, state, state, BlockFlags.BLOCK_UPDATE);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+	public void onDataPacket(final NetworkManager net, final SUpdateTileEntityPacket pkt) {
 		handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override
-	public void read(CompoundNBT compound) {
+	public void read(final CompoundNBT compound) {
 		index = compound.getInt("");
 		super.read(compound);
 	}
 
 	@Override
-	public CompoundNBT write(CompoundNBT compound) {
+	public CompoundNBT write(final CompoundNBT compound) {
 		compound.putInt("", index);
 		return super.write(compound);
 	}

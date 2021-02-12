@@ -19,11 +19,12 @@ import net.minecraft.world.World;
 public abstract class NodeBlock extends Block {
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-	public static boolean isPowered(BlockState state) {
+	public static final boolean isPowered(final BlockState state) {
 		return state.get(POWERED).booleanValue();
 	}
 
-	public static void setPowered(World world, BlockState state, BlockPos pos, boolean powered) {
+	public static final void setPowered(final World world, final BlockState state, final BlockPos pos,
+			final boolean powered) {
 		if (isPowered(state) != powered)
 			world.setBlockState(pos, state.cycle(POWERED));
 	}
@@ -34,30 +35,30 @@ public abstract class NodeBlock extends Block {
 	}
 
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+	public final TileEntity createTileEntity(final BlockState state, final IBlockReader world) {
 		return new NodeTileEntity();
 	}
 
 	@Override
-	public void fillStateContainer(Builder<Block, BlockState> builder) {
+	public final void fillStateContainer(final Builder<Block, BlockState> builder) {
 		builder.add(POWERED);
 	}
 
 	@Override
-	public int getLightValue(BlockState state) {
+	public final int getLightValue(final BlockState state) {
 		return isPowered(state) ? 15 : 0;
 	}
 
 	public abstract String[] getNodeTags();
 
 	@Override
-	public boolean hasTileEntity(BlockState state) {
+	public final boolean hasTileEntity(final BlockState state) {
 		return true;
 	}
 
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player,
-			Hand handIn, BlockRayTraceResult hit) {
+	public final ActionResultType onBlockActivated(final BlockState state, final World worldIn, final BlockPos pos,
+			final PlayerEntity player, final Hand handIn, final BlockRayTraceResult hit) {
 		if (!worldIn.isRemote && player.hasPermissionLevel(4))
 			((NodeTileEntity) worldIn.getTileEntity(pos)).changeIndex(1);
 		return ActionResultType.SUCCESS;

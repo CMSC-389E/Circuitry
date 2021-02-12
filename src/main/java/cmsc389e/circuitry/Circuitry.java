@@ -39,27 +39,27 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 @EventBusSubscriber(bus = Bus.MOD)
 @Mod(Circuitry.MODID)
-public class Circuitry {
+public final class Circuitry {
 	public static final String MODID = "circuitry";
 	public static RegistryObject<NodeBlock> inNode, outNode;
 	public static RegistryObject<TileEntityType<NodeTileEntity>> tileEntity;
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
-	public static void onClientSetup(FMLClientSetupEvent event) {
+	public static void onClientSetup(final FMLClientSetupEvent event) {
 		ObfuscationReflectionHelper.setPrivateValue(NewChatGui.class,
 				event.getMinecraftSupplier().get().ingameGUI.getChatGUI(), new ArrayList<ChatLine>() {
 					private boolean frozen;
 
 					@Override
-					public ChatLine remove(int index) {
+					public ChatLine remove(final int index) {
 						frozen = true;
 						return get(index);
 					}
 
 					@Override
 					public int size() {
-						int size = frozen ? 0 : super.size();
+						final int size = frozen ? 0 : super.size();
 						frozen = false;
 						return size;
 					}
@@ -70,11 +70,11 @@ public class Circuitry {
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
-	public static void onDedicatedServerSetup(FMLDedicatedServerSetupEvent event) {
-		ServerProperties properties = event.getServerSupplier().get().getServerProperties();
-		Properties serverProperties = ObfuscationReflectionHelper.getPrivateValue(PropertyManager.class, properties,
-				"field_73672_b"); // serverProperties
-		String falseValue = Boolean.FALSE.toString();
+	public static void onDedicatedServerSetup(final FMLDedicatedServerSetupEvent event) {
+		final ServerProperties properties = event.getServerSupplier().get().getServerProperties();
+		final Properties serverProperties = ObfuscationReflectionHelper.getPrivateValue(PropertyManager.class,
+				properties, "field_73672_b"); // serverProperties
+		final String falseValue = Boolean.FALSE.toString();
 		if (!falseValue.equals(serverProperties.put("reset-props", falseValue))) {
 			serverProperties.put("difficulty", Difficulty.PEACEFUL.getTranslationKey());
 			serverProperties.put("gamemode", GameType.CREATIVE.getName());
@@ -87,11 +87,11 @@ public class Circuitry {
 	}
 
 	public Circuitry() {
-		Item.Properties properties = new Item.Properties().group(ItemGroup.REDSTONE);
+		final Item.Properties properties = new Item.Properties().group(ItemGroup.REDSTONE);
 
-		DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-		DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-		DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
+		final DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
+		final DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
+		final DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
 
 		inNode = blocks.register("in_node", InNodeBlock::new);
 		outNode = blocks.register("out_node", OutNodeBlock::new);
@@ -100,7 +100,7 @@ public class Circuitry {
 		blocks.getEntries().forEach(
 				block -> items.register(block.getId().getPath(), () -> new BlockItem(block.get(), properties)));
 
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		final IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 		blocks.register(bus);
 		items.register(bus);
 		types.register(bus);

@@ -19,38 +19,38 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 @EventBusSubscriber
-public class EventHandler {
+public final class EventHandler {
 	@SubscribeEvent
-	public static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
+	public static void onEntityTravelToDimension(final EntityTravelToDimensionEvent event) {
 		event.setCanceled(true);
 	}
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
-	public static void onServerStarting(FMLServerStartingEvent event) {
+	public static void onServerStarting(final FMLServerStartingEvent event) {
 		try {
-			CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
+			final CommandDispatcher<CommandSource> dispatcher = event.getCommandDispatcher();
 			SetCommand.register(dispatcher);
 			TestCommand.register(dispatcher);
 
-			MinecraftServer server = event.getServer();
+			final MinecraftServer server = event.getServer();
 			server.registerTickable(new Tester(server.getWorld(DimensionType.OVERWORLD)));
 
 			Config.load();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@SubscribeEvent
 	@SuppressWarnings("resource")
-	public static void onWorldCreateSpawnPosition(WorldEvent.CreateSpawnPosition event) {
-		IWorld world = event.getWorld();
+	public static void onWorldCreateSpawnPosition(final WorldEvent.CreateSpawnPosition event) {
+		final IWorld world = event.getWorld();
 
-		WorldInfo info = world.getWorldInfo();
+		final WorldInfo info = world.getWorldInfo();
 		info.setDayTime(6000);
 
-		GameRules rules = info.getGameRulesInstance();
+		final GameRules rules = info.getGameRulesInstance();
 		rules.get(GameRules.DO_DAYLIGHT_CYCLE).set(false, null);
 		rules.get(GameRules.DO_WEATHER_CYCLE).set(false, null);
 

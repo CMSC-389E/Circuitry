@@ -15,13 +15,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 
-public class KeyPressedMessage extends Message {
+public final class KeyPressedMessage extends Message {
 	public enum Key {
 		DECREASE_TAG("Decrease Tag", GLFW.GLFW_KEY_G), TOGGLE_NODE("Toggle Node", GLFW.GLFW_KEY_R);
 
-		public static void register() {
-			String category = StringUtils.capitalize(Circuitry.MODID);
-			for (Key key : values()) {
+		public static final void register() {
+			final String category = StringUtils.capitalize(Circuitry.MODID);
+			for (final Key key : values()) {
 				key.binding = new KeyBinding(key.description, key.keyCode, category);
 				ClientRegistry.registerKeyBinding(key.binding);
 			}
@@ -31,7 +31,7 @@ public class KeyPressedMessage extends Message {
 		private final int keyCode;
 		public KeyBinding binding;
 
-		Key(String description, int keyCode) {
+		Key(final String description, final int keyCode) {
 			this.description = description;
 			this.keyCode = keyCode;
 		}
@@ -41,32 +41,32 @@ public class KeyPressedMessage extends Message {
 	private final BlockPos pos;
 	private final int pressTime;
 
-	public KeyPressedMessage(Key key, BlockPos pos, int pressTime) {
+	public KeyPressedMessage(final Key key, final BlockPos pos, final int pressTime) {
 		this.key = key;
 		this.pos = pos;
 		this.pressTime = pressTime;
 	}
 
-	public KeyPressedMessage(PacketBuffer buffer) {
+	public KeyPressedMessage(final PacketBuffer buffer) {
 		this(buffer.readEnumValue(Key.class), buffer.readBlockPos(), buffer.readInt());
 	}
 
 	@Override
-	public void encode(PacketBuffer buffer) {
+	public void encode(final PacketBuffer buffer) {
 		buffer.writeEnumValue(key).writeBlockPos(pos).writeInt(pressTime);
 	}
 
 	@Override
-	public void handle(Context context) {
-		World world = context.getSender().world;
+	public void handle(final Context context) {
+		final World world = context.getSender().world;
 		switch (key) {
 		case DECREASE_TAG:
-			NodeTileEntity entity = NodeTileEntity.get(world, pos);
+			final NodeTileEntity entity = NodeTileEntity.get(world, pos);
 			if (entity != null)
 				entity.changeIndex(-pressTime);
 			break;
 		case TOGGLE_NODE:
-			BlockState state = world.getBlockState(pos);
+			final BlockState state = world.getBlockState(pos);
 			if (state.getBlock() == Circuitry.inNode.get())
 				NodeBlock.setPowered(world, state, pos, !NodeBlock.isPowered(state));
 		}

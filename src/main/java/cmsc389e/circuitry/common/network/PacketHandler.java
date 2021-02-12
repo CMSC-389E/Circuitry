@@ -12,10 +12,10 @@ import net.minecraftforge.fml.network.NetworkEvent.Context;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
-public class PacketHandler {
+public final class PacketHandler {
 	public static abstract class Message {
-		private boolean consume(Supplier<Context> supplier) {
-			Context context = supplier.get();
+		private final boolean consume(final Supplier<Context> supplier) {
+			final Context context = supplier.get();
 			context.enqueueWork(() -> handle(context));
 			return true;
 		}
@@ -33,7 +33,7 @@ public class PacketHandler {
 		register(KeyPressedMessage.class, KeyPressedMessage::new);
 	}
 
-	public static <T extends Message> void register(Class<T> type, Function<PacketBuffer, T> decoder) {
+	public static <T extends Message> void register(final Class<T> type, final Function<PacketBuffer, T> decoder) {
 		CHANNEL.messageBuilder(type, id++).consumer(Message::consume).decoder(decoder).encoder(Message::encode).add();
 	}
 }

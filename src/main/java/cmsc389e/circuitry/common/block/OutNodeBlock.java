@@ -7,7 +7,7 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class OutNodeBlock extends NodeBlock {
+public final class OutNodeBlock extends NodeBlock {
 	@Override
 	public String[] getNodeTags() {
 		return Config.outTags;
@@ -15,7 +15,7 @@ public class OutNodeBlock extends NodeBlock {
 
 	@Override
 	@SuppressWarnings("resource")
-	public BlockState getStateForPlacement(BlockItemUseContext context) {
+	public BlockState getStateForPlacement(final BlockItemUseContext context) {
 		return super.getStateForPlacement(context).with(POWERED,
 				Boolean.valueOf(context.getWorld().isBlockPowered(context.getPos())));
 	}
@@ -26,8 +26,8 @@ public class OutNodeBlock extends NodeBlock {
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos,
-			boolean isMoving) {
+	public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn,
+			final BlockPos fromPos, final boolean isMoving) {
 		if (!worldIn.isRemote())
 			setPowered(worldIn, state, pos, worldIn.isBlockPowered(pos));
 	}

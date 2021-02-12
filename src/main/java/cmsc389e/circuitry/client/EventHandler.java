@@ -52,12 +52,13 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.versions.forge.ForgeVersion;
 
 @EventBusSubscriber(Dist.CLIENT)
-public class EventHandler {
+public final class EventHandler {
 	private static final Minecraft MINECRAFT = Minecraft.getInstance();
 	private static final Field WORLD_SEED = ObfuscationReflectionHelper.findField(CreateWorldScreen.class,
 			"field_146329_I"); // worldSeed
 
-	private static AlertScreen alert(String msg1, String msg2, String msg3, String button, Consumer<OS> consumer) {
+	private static AlertScreen alert(final String msg1, final String msg2, final String msg3, final String button,
+			final Consumer<OS> consumer) {
 		return new AlertScreen(() -> consumer.accept(Util.getOSType()),
 				new StringTextComponent(msg1).setStyle(new Style().setColor(TextFormatting.RED)),
 				new StringTextComponent(msg2 + "\n\n").appendSibling(
@@ -66,19 +67,19 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	public static void onDrawHighlightBlock(DrawHighlightEvent.HighlightBlock event) {
-		NodeTileEntity entity = NodeTileEntity.get(MINECRAFT.world, event.getTarget().getPos());
+	public static void onDrawHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
+		final NodeTileEntity entity = NodeTileEntity.get(MINECRAFT.world, event.getTarget().getPos());
 		MINECRAFT.ingameGUI.setOverlayMessage(entity == null ? "" : entity.tag, false);
 	}
 
 	@SubscribeEvent
-	public static void onGuiOpenEvent(GuiOpenEvent event) throws IllegalAccessException {
-		Screen gui = event.getGui();
+	public static void onGuiOpenEvent(final GuiOpenEvent event) throws IllegalAccessException {
+		final Screen gui = event.getGui();
 		if (gui instanceof MainMenuScreen) {
-			ModList list = ModList.get();
+			final ModList list = ModList.get();
 
-			Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft");
-			String mods = list.applyForEachModContainer(ModContainer::getModInfo).parallel()
+			final Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft");
+			final String mods = list.applyForEachModContainer(ModContainer::getModInfo).parallel()
 					.filter(info -> !allowed.contains(info.getModId())).map(IModInfo::getDisplayName)
 					.collect(Collectors.joining(", "));
 			if (!mods.isEmpty())
@@ -86,9 +87,9 @@ public class EventHandler {
 						"You must delete the following mods before proceeding:", mods, "fml.button.open.mods.folder",
 						os -> os.openFile(FMLPaths.MODSDIR.get().toFile())));
 
-			IModInfo mod = list.getModContainerById(Circuitry.MODID).get().getModInfo();
+			final IModInfo mod = list.getModContainerById(Circuitry.MODID).get().getModInfo();
 			if (!mod.getVersion().getQualifier().equals("NONE")) {
-				CheckResult result = VersionChecker.getResult(mod);
+				final CheckResult result = VersionChecker.getResult(mod);
 				if (result.status == Status.OUTDATED)
 					event.setGui(alert(mod.getDisplayName() + " is out of date.",
 							"You must update to version " + result.target
@@ -96,7 +97,8 @@ public class EventHandler {
 							result.url, "Open Link", os -> os.openURI(result.url)));
 			}
 		} else if (gui instanceof CreateWorldScreen && gui.width == 0 && ((String) WORLD_SEED.get(gui)).isEmpty()) {
-			WorldInfo original = new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT),
+			final WorldInfo original = new WorldInfo(
+					new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT),
 					I18n.format("selectWorld.newWorld"));
 			original.setGeneratorOptions((CompoundNBT) FlatGenerationSettings
 					.createFlatGeneratorFromString(
@@ -109,16 +111,16 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	public static void onTickClient(TickEvent.ClientTickEvent event) {
+	public static void onTickClient(final TickEvent.ClientTickEvent event) {
 		if (event.phase == Phase.END) {
 			BlockPos pos = null;
-			for (Key key : Key.values()) {
+			for (final Key key : Key.values()) {
 				int pressTime = 0;
 				while (key.binding.isPressed())
 					pressTime++;
 				if (pressTime > 0 && MINECRAFT.player.hasPermissionLevel(4)) {
 					if (pos == null) {
-						RayTraceResult result = MINECRAFT.objectMouseOver;
+						final RayTraceResult result = MINECRAFT.objectMouseOver;
 						if (result != null && result.getType() == Type.BLOCK)
 							pos = ((BlockRayTraceResult) result).getPos();
 					}
