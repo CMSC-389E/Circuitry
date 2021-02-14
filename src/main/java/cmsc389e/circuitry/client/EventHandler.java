@@ -78,7 +78,7 @@ public final class EventHandler {
 		if (gui instanceof MainMenuScreen) {
 			final ModList list = ModList.get();
 
-			final Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft");
+			final Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft", "worldedit");
 			final String mods = list.applyForEachModContainer(ModContainer::getModInfo).parallel()
 					.filter(info -> !allowed.contains(info.getModId())).map(IModInfo::getDisplayName)
 					.collect(Collectors.joining(", "));
