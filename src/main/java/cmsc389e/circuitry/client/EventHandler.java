@@ -79,7 +79,7 @@ public final class EventHandler {
 			final ModList list = ModList.get();
 
 			final Set<String> allowed = ImmutableSet.of(Circuitry.MODID, ForgeVersion.MOD_ID, "minecraft", "worldedit");
-			final String mods = list.applyForEachModContainer(ModContainer::getModInfo).parallel()
+			final String mods = list.applyForEachModContainer(ModContainer::getModInfo)
 					.filter(info -> !allowed.contains(info.getModId())).map(IModInfo::getDisplayName)
 					.collect(Collectors.joining(", "));
 			if (!mods.isEmpty())
