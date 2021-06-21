@@ -88,7 +88,7 @@ public final class EventHandler {
 						os -> os.openFile(FMLPaths.MODSDIR.get().toFile())));
 
 			final IModInfo mod = list.getModContainerById(Circuitry.MODID).get().getModInfo();
-			if (!mod.getVersion().getQualifier().equals("NONE")) {
+			if (!"NONE".equals(mod.getVersion().getQualifier())) {
 				final CheckResult result = VersionChecker.getResult(mod);
 				if (result.status == Status.OUTDATED)
 					event.setGui(alert(mod.getDisplayName() + " is out of date.",

@@ -69,8 +69,8 @@ public final class Circuitry {
 	}
 
 	@SubscribeEvent
-	@SuppressWarnings("resource")
 	public static void onDedicatedServerSetup(final FMLDedicatedServerSetupEvent event) {
+		@SuppressWarnings("resource")
 		final ServerProperties properties = event.getServerSupplier().get().getServerProperties();
 		final Properties serverProperties = ObfuscationReflectionHelper.getPrivateValue(PropertyManager.class,
 				properties, "field_73672_b"); // serverProperties
@@ -89,9 +89,9 @@ public final class Circuitry {
 	public Circuitry() {
 		final Item.Properties properties = new Item.Properties().group(ItemGroup.REDSTONE);
 
-		final DeferredRegister<Block> blocks = new DeferredRegister<>(ForgeRegistries.BLOCKS, MODID);
-		final DeferredRegister<Item> items = new DeferredRegister<>(ForgeRegistries.ITEMS, MODID);
-		final DeferredRegister<TileEntityType<?>> types = new DeferredRegister<>(ForgeRegistries.TILE_ENTITIES, MODID);
+		final DeferredRegister<Block> blocks = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+		final DeferredRegister<Item> items = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+		final DeferredRegister<TileEntityType<?>> types = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, MODID);
 
 		inNode = blocks.register("in_node", InNodeBlock::new);
 		outNode = blocks.register("out_node", OutNodeBlock::new);

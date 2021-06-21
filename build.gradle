@@ -1,18 +1,17 @@
 buildscript {
-	dependencies {
+    dependencies {
 		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
-		classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
-	}
-
-	repositories {
-		maven {
-			url 'https://files.minecraftforge.net/maven'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+    }
+	
+    repositories {
+        maven {
+			url = 'https://files.minecraftforge.net/maven'
 		}
-
-		jcenter()
-	}
+		
+        jcenter()
+    }
 }
-
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecraftforge.gradle'
 
@@ -21,36 +20,38 @@ group = 'cmsc389e.' + archivesBaseName
 version = '1.15.2-2.1.0.0'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+
+
+dependencies {
+	compile 'org.apache.httpcomponents:httpmime:4.3.3'
+    minecraft 'net.minecraftforge:forge:1.15.2-31.2.50'
+}
 
 minecraft {
-	runs {
-		client {
-			mods {
+    runs {
+        client {
+            mods {
 				circuitry.source sourceSets.main
 			}
 
 			workingDirectory project.file('run')
-		}
+        }
 
-		server {
-			mods {
+        server {
+            mods {
 				circuitry.source sourceSets.main
 			}
 
 			workingDirectory project.file('run')
-		}
-	}
-
-	mappings channel: 'snapshot', version: '20200514-1.15.1'
+        }
+    }
+	
+    mappings channel: 'snapshot', version: '20200514-1.15.1'
 }
 
 reobf {
 	shadowJar {}
-}
-
-dependencies {
-	compile 'org.apache.httpcomponents:httpmime:4.3.3'
-	minecraft 'net.minecraftforge:forge:1.15.2-31.2.0'
 }
 
 shadowJar {

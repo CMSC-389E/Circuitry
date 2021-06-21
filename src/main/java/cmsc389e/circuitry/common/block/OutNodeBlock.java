@@ -25,6 +25,7 @@ public final class OutNodeBlock extends NodeBlock {
 		return "Out Node";
 	}
 
+	@Deprecated
 	@Override
 	public void neighborChanged(final BlockState state, final World worldIn, final BlockPos pos, final Block blockIn,
 			final BlockPos fromPos, final boolean isMoving) {

@@ -44,6 +44,7 @@ public abstract class NodeBlock extends Block {
 		builder.add(POWERED);
 	}
 
+	@Deprecated
 	@Override
 	public final int getLightValue(final BlockState state) {
 		return isPowered(state) ? 15 : 0;
@@ -56,6 +57,7 @@ public abstract class NodeBlock extends Block {
 		return true;
 	}
 
+	@Deprecated
 	@Override
 	public final ActionResultType onBlockActivated(final BlockState state, final World worldIn, final BlockPos pos,
 			final PlayerEntity player, final Hand handIn, final BlockRayTraceResult hit) {
